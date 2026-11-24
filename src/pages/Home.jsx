@@ -8,6 +8,7 @@ import Nudge from '../components/Nudge';
 import SpotlightCard from '../rb/SpotlightCard';
 import { Brand } from '../components/Logo';
 import { Reveal } from '../components/ui';
+import { APK_URL } from '../components/UpdatePrompt';
 import { SUBJECTS, SEASON } from '../subjects';
 import { store } from '../store';
 import { ThemeToggle, useTheme } from '../theme';
@@ -88,7 +89,7 @@ export default function Home() {
         <div className="top-in">
           <Brand title="Study Hub" sub="end-semester prep" />
           <div className="top-actions">
-            {!window.Capacitor && <a className="season-chip app-dl" href="app/StudyHub.apk" download="StudyHub.apk">📱 <span className="lbl-long">Android app</span><span className="lbl-short">App</span></a>}
+            {!window.Capacitor && <a className="season-chip app-dl" href={APK_URL}>📱 <span className="lbl-long">Android app</span><span className="lbl-short">App</span></a>}
             <span className="season-chip hide-sm"><HugeiconsIcon icon={Calendar03Icon} size={15} /> {fmt(start)} – {fmt(SEASON.end)}</span>
             <LangToggle />
             <ThemeToggle />

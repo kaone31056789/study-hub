@@ -4,6 +4,7 @@ import ClickSpark from './rb/ClickSpark';
 import Home from './pages/Home';
 import SubjectApp from './pages/SubjectApp';
 import { SUBJECTS } from './subjects';
+import UpdatePrompt from './components/UpdatePrompt';
 
 // Hash routing (#/pblj/learn/u1-jvm) so the built site works on any static server with no rewrite rules.
 function useHash() {
@@ -27,6 +28,7 @@ export default function App() {
     <ClickSpark sparkColor={['#ff7a3d', '#ffb38a']} sparkSize={9} sparkRadius={20} sparkCount={7} duration={420}>
       {meta ? <SubjectApp key={meta.id} meta={meta} view={view} arg={arg} /> : <Home />}
     </ClickSpark>
+    <UpdatePrompt />
     </MotionConfig>
   );
 }

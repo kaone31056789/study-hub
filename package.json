@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "node server.js",
-    "build:android": "vite build && node -e \"require('fs').rmSync('dist/app',{recursive:true,force:true})\" && npx cap sync android"
+    "build:android": "vite build && node -e \"require('fs').rmSync('dist/app',{recursive:true,force:true})\" && npx cap sync android",
+    "release:android": "node scripts/release-android.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",
