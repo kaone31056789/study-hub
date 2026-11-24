@@ -3,7 +3,8 @@
 //   POST /api/sync          -> create a sync code
 //   GET/PUT /api/sync/:code -> read / write progress for that code
 //   GET  /api/health
-// Env: PORT, OLLAMA_URL (default https://ollama.com), OLLAMA_API_KEY, OLLAMA_MODEL, DATA_DIR, ALLOW_ORIGIN
+// Env: PORT, OLLAMA_URL (default https://ollama.com), OLLAMA_API_KEY, OLLAMA_MODEL, OLLAMA_VISION_MODEL, DATA_DIR,
+//      ALLOWED_ORIGINS (comma list), DAILY_AI_PER_IP, DAILY_AI_TOTAL
 import http from 'node:http';
 import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
@@ -18,14 +19,44 @@ const OLLAMA_URL = (process.env.OLLAMA_URL || 'https://ollama.com').replace(/\/$
 // The Coolify placeholder ("replace-me-...") counts as "not configured".
 const OLLAMA_KEY = /^(replace-me|demo|changeme)/i.test(process.env.OLLAMA_API_KEY || '') ? '' : (process.env.OLLAMA_API_KEY || '');
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'gpt-oss:20b';
-const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || '*'; // the Android app calls the API from its own origin
+// Browsers may call the API only from these origins (site + the Android app's built-in origin).
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://study.kaone.in,https://localhost,capacitor://localhost,http://localhost:3100,http://localhost:5173')
+  .split(',').map(s => s.trim()).filter(Boolean);
+const DAILY_AI_PER_IP = Number(process.env.DAILY_AI_PER_IP || 150);
+const DAILY_AI_TOTAL = Number(process.env.DAILY_AI_TOTAL || 3000);
 const MAX_SYNC = 300 * 1024;
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.txt': 'text/plain', '.ico': 'image/x-icon', '.woff2': 'font/woff2' };
 
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data: blob:",
+  "connect-src 'self'",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'"
+].join('; ');
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'X-Frame-Options': 'DENY',
+  'Permissions-Policy': 'camera=(self), microphone=(), geolocation=(), payment=()',
+  'Strict-Transport-Security': 'max-age=31536000',
+  'Content-Security-Policy': CSP
+};
+const corsFor = req => {
+  const o = req.headers.origin;
+  return o && ALLOWED_ORIGINS.includes(o) ? { 'Access-Control-Allow-Origin': o, Vary: 'Origin' } : { Vary: 'Origin' };
+};
 const send = (res, code, body, headers = {}) => {
   const isObj = typeof body === 'object' && !Buffer.isBuffer(body);
-  res.writeHead(code, { 'Content-Type': isObj ? 'application/json' : 'text/plain', 'Access-Control-Allow-Origin': ALLOW_ORIGIN, ...headers });
+  res.writeHead(code, { 'Content-Type': isObj ? 'application/json' : 'text/plain', 'Cache-Control': 'no-store', ...SECURITY_HEADERS, ...(res.cors || {}), ...headers });
   res.end(isObj ? JSON.stringify(body) : body);
 };
 
@@ -36,14 +67,26 @@ const readBody = (req, limit) => new Promise((resolve, reject) => {
   req.on('error', reject);
 });
 
-// --- very small per-IP rate limit for the AI endpoint ---
+// --- rate limits (per IP, per bucket) + daily caps for AI ---
 const hits = new Map();
-const limited = ip => {
-  const now = Date.now(), win = 60_000, max = 20;
-  const arr = (hits.get(ip) || []).filter(t => now - t < win);
-  arr.push(now); hits.set(ip, arr);
+const rate = (bucket, ip, max, win = 60_000) => {
+  const key = bucket + '|' + ip, now = Date.now();
+  const arr = (hits.get(key) || []).filter(t => now - t < win);
+  arr.push(now); hits.set(key, arr);
   return arr.length > max;
 };
+const limited = ip => rate('ai', ip, 12);
+let day = new Date().toDateString(), aiTotal = 0;
+const aiDaily = new Map();
+const overDailyAI = ip => {
+  const today = new Date().toDateString();
+  if (today !== day) { day = today; aiTotal = 0; aiDaily.clear(); }
+  const n = (aiDaily.get(ip) || 0) + 1;
+  aiDaily.set(ip, n); aiTotal++;
+  return n > DAILY_AI_PER_IP || aiTotal > DAILY_AI_TOTAL;
+};
+setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (!v.some(t => now - t < 3_600_000)) hits.delete(k); }, 300_000).unref();
+const clientIp = req => String(req.headers['cf-connecting-ip'] || req.socket.remoteAddress || '?');
 
 const LANG_RULE = {
   en: 'Reply in simple English for a beginner.',
@@ -53,8 +96,9 @@ const LANG_RULE = {
 
 async function ask(req, res) {
   if (!OLLAMA_KEY && OLLAMA_URL.includes('ollama.com')) return send(res, 503, { error: 'AI not configured: set OLLAMA_API_KEY on the server.' });
-  const ip = req.headers['cf-connecting-ip'] || req.socket.remoteAddress;
+  const ip = clientIp(req);
   if (limited(ip)) return send(res, 429, { error: 'Too many questions, thoda ruk ke poochho.' });
+  if (overDailyAI(ip)) return send(res, 429, { error: 'Aaj ka AI limit khatam. Kal try karo.' });
   let b;
   try { b = await readBody(req, 20_000); } catch (e) { return send(res, 400, { error: e.message }); }
   const question = String(b.question || '').slice(0, 1500).trim();
@@ -89,8 +133,9 @@ const GRADE_LANG = { en: 'simple English', bhai: 'casual Hinglish (Roman script)
 
 async function grade(req, res) {
   if (!OLLAMA_KEY && OLLAMA_URL.includes('ollama.com')) return send(res, 503, { error: 'AI not configured: set OLLAMA_API_KEY on the server.' });
-  const ip = req.headers['cf-connecting-ip'] || req.socket.remoteAddress;
+  const ip = clientIp(req);
   if (limited(ip)) return send(res, 429, { error: 'Too many requests, thoda ruk ke try karo.' });
+  if (overDailyAI(ip)) return send(res, 429, { error: 'Aaj ka AI limit khatam. Kal try karo.' });
   let b;
   try { b = await readBody(req, 2_500_000); } catch (e) { return send(res, 413, { error: e.message }); }
   const marks = [2, 5, 10].includes(Number(b.marks)) ? Number(b.marks) : 5;
@@ -132,9 +177,13 @@ const CODE_RE = /^[a-z0-9]{10}$/;
 const syncFile = code => path.join(DATA, 'sync', code + '.json');
 
 async function sync(req, res, code) {
+  const ip = clientIp(req);
+  if (req.method === 'POST' && rate('sync-new', ip, 5, 3_600_000)) return send(res, 429, { error: 'Too many new codes. Try later.' });
+  if (rate('sync', ip, 60)) return send(res, 429, { error: 'Too many sync requests. Try later.' });
   await mkdir(path.join(DATA, 'sync'), { recursive: true });
   if (req.method === 'POST' && !code) {
-    const c = randomBytes(10).toString('base64').replace(/[^a-z0-9]/gi, '').toLowerCase().padEnd(10, '7').slice(0, 10);
+    const ABC = 'abcdefghijkmnpqrstuvwxyz23456789'; // 32 symbols -> 50 bits, unbiased
+    const c = [...randomBytes(10)].map(b => ABC[b & 31]).join('');
     await writeFile(syncFile(c), JSON.stringify({ data: {}, updated: 0 }));
     return send(res, 201, { code: c });
   }
@@ -159,22 +208,27 @@ async function serveStatic(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (p.endsWith('/')) p += 'index.html';
   const file = path.normalize(path.join(DIST, p));
-  if (!file.startsWith(DIST)) return send(res, 403, 'Forbidden');
+  if (!(file === DIST || file.startsWith(DIST + path.sep)) || /(^|[\\/])\./.test(path.relative(DIST, file))) return send(res, 403, 'Forbidden');
   try {
     const buf = await readFile(file);
     const ext = path.extname(file).toLowerCase();
     const cache = p.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache';
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': cache });
+    const extra = ext === '.apk' ? { 'Content-Type': 'application/vnd.android.package-archive', 'Content-Disposition': 'attachment; filename="StudyHub.apk"' } : {};
+    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': cache, ...SECURITY_HEADERS, ...extra });
     res.end(buf);
   } catch {
+    // A missing asset must be a real, uncacheable 404. Serving index.html here would let browsers/CDN
+    // cache HTML under an immutable .js URL (blank page after a deploy switch-over).
+    if (p.startsWith('/assets/') || path.extname(p)) return send(res, 404, 'Not found', { 'Cache-Control': 'no-store' });
     const html = await readFile(path.join(DIST, 'index.html'));
-    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache' });
+    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-cache', ...SECURITY_HEADERS });
     res.end(html);
   }
 }
 
 http.createServer(async (req, res) => {
   try {
+    res.cors = corsFor(req);
     const { pathname } = new URL(req.url, 'http://x');
     if (req.method === 'OPTIONS') return send(res, 204, '', { 'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' });
     if (pathname === '/api/health') return send(res, 200, { ok: true, ai: Boolean(OLLAMA_KEY) || !OLLAMA_URL.includes('ollama.com'), model: OLLAMA_MODEL });
