@@ -6,6 +6,7 @@ import { store, shuffle } from '../store';
 import { bumpWeak } from '../progress';
 import { api } from '../api';
 import { useLang } from '../lang';
+import AiIcon from '../components/AiIcon';
 
 const plain = h => (h || '').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ').trim();
 const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -166,7 +167,7 @@ export default function Mock({ ctx }) {
       <div className="mock-timer"><span>Score: <b>{total}</b> / 60</span><button className="btn sm primary" onClick={finish}>Finish & save</button></div>
       <h1 className="page-h">Checking</h1>
       <p className="lead">AI marks each answer against the key points. If the AI is unavailable, tick the points you wrote yourself.</p>
-      <div className="cta"><button className="btn primary" disabled={!!busy} onClick={gradeAll}>{busy || '🤖 Check all answers with AI'}</button></div>
+      <div className="cta"><button className="btn primary" disabled={!!busy} onClick={gradeAll}>{busy || <><AiIcon size={18} /> Check all answers with AI</>}</button></div>
       {all.map(q => {
         const t = byId[q.id], r = res[q.k], p = points(q);
         return (

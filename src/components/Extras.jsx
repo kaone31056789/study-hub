@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import AiIcon from './AiIcon';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../api';
 import { useLang } from '../lang';
@@ -45,7 +46,7 @@ export function AskAI({ topic, context }) {
   return (
     <>
       <motion.button className="ask-fab" onClick={() => setOpen(true)} whileTap={{ scale: 0.92 }} initial={{ scale: 0 }} animate={{ scale: 1 }} aria-label="Ask AI a doubt">
-        🤖<span>{lang === 'en' ? 'Ask AI' : 'Doubt?'}</span>
+        <span className="ai-badge"><AiIcon size={20} /></span><span>{lang === 'en' ? 'Ask AI' : 'Doubt?'}</span>
       </motion.button>
       <AnimatePresence>
         {open && (
@@ -53,7 +54,7 @@ export function AskAI({ topic, context }) {
             <motion.div className="sheet" role="dialog" aria-label="Ask AI" onClick={e => e.stopPropagation()}
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', stiffness: 320, damping: 32 }}>
               <div className="sheet-head">
-                <div><b>🤖 {lang === 'gaali' ? 'Doubt pooch, saale' : lang === 'bhai' ? 'Doubt poochho' : 'Ask AI'}</b><small>{topic}</small></div>
+                <div className="sheet-title"><span className="ai-badge lg"><AiIcon size={22} /></span><div><b>{lang === 'gaali' ? 'Doubt pooch, saale' : lang === 'bhai' ? 'Doubt poochho' : 'Ask AI'}</b><small>{topic}</small></div></div>
                 <button className="nudge-x" onClick={() => setOpen(false)} aria-label="Close">✕</button>
               </div>
               <div className="sheet-body">

@@ -105,3 +105,17 @@
   .ask-fab,.audio-bar,.cram-bar,.mock-timer{display:none!important}
   .cram-card{break-inside:avoid;box-shadow:none!important}
 }
+
+/* AI mark */
+.ask-fab{background:linear-gradient(135deg,#2f5bff 0%,#7a3cf0 60%,#c2449f 100%);padding:11px 18px 11px 11px;gap:10px}
+.ask-fab:hover{filter:brightness(1.08)}
+.ai-badge{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+.ai-badge.lg{width:40px;height:40px;background:linear-gradient(135deg,#2f5bff,#7a3cf0 60%,#c2449f);border:2px solid var(--ink-border)}
+.sheet-title{display:flex;align-items:center;gap:12px}
+.ai-icon .ai-star-big{transform-box:fill-box;transform-origin:center;animation:ai-tw 2.6s ease-in-out infinite}
+.ai-icon .ai-star-small{transform-box:fill-box;transform-origin:center;animation:ai-tw 2.6s ease-in-out infinite .9s}
+.ai-icon .ai-dot{animation:ai-blink 2.6s ease-in-out infinite 1.4s}
+@keyframes ai-tw{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(.78) rotate(45deg)}}
+@keyframes ai-blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn .ai-icon{color:currentColor}
+@media (prefers-reduced-motion: reduce){.ai-icon *{animation:none!important}}
