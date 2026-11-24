@@ -125,3 +125,6 @@
 .tabs a{padding:7px 10px}
 @media (max-width:1320px){.prog span{display:none}.prog .bar{width:56px}}
 @media (max-width:1120px){.brand-txt small{display:none}}
+
+.app-dl{text-decoration:none;font-weight:700;color:var(--strong)}
+.app-dl:hover{border-color:var(--accent)}

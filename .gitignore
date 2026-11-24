@@ -1,7 +1,13 @@
-node_modules
-dist
-data
 *.log
 .env
-android/app/build
 android/.gradle
+android/.gradle/
+android/app/build
+android/app/build/
+android/app/src/main/assets/public/
+android/build/
+android/local.properties
+data
+dist
+node_modules
+release/
