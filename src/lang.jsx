@@ -46,7 +46,7 @@ const L = {
   }
 };
 // Desi explainer for a topic in the current language (gaali falls back to bhai).
-export const desiOf = (t, lang) => (lang === 'gaali' ? t.gaali || t.bhai : lang === 'bhai' ? t.bhai : null);
+export const desiOf = (t, lang) => t.easy?.[lang] || (lang === 'gaali' ? t.gaali || t.bhai : lang === 'bhai' ? t.bhai : null);
 
 export const useT = () => { const l = useLang(); return k => L[l]?.[k] ?? L.en[k]; };
 

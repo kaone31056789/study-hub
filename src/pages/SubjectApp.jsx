@@ -8,7 +8,7 @@ import { LangToggle, useLang, useT, desiOf } from '../lang';
 import Diagram from '../components/Diagram';
 import GradientText from '../rb/GradientText';
 import ShinyText from '../rb/ShinyText';
-import { Html, CodeBlock, MCQ, Walkthrough, Explorer, Reveal, MemeCard, BhaiExplain } from '../components/ui';
+import { Html, CodeBlock, MCQ, Walkthrough, Explorer, Reveal, MemeCard, EasyExplain } from '../components/ui';
 import { WIDGETS } from '../widgets';
 import { store, shuffle } from '../store';
 
@@ -371,7 +371,7 @@ function Learn({ ctx, id }) {
         </div>
         <div className="qbox"><small>Exam question</small><span dangerouslySetInnerHTML={{ __html: t.q }} /></div>
 
-        {sec(T('idea'), desiOf(t, lang) ? (lang === 'gaali' ? 'Pehle concept samajh, phir exam wala answer neeche English mein hai. Gaaliyan exam mein mat likh dena.' : 'Pehle concept samjho. Exam wala answer neeche English mein hai.') : null, <>{desiOf(t, lang) ? <BhaiExplain b={desiOf(t, lang)} gaali={lang === 'gaali'} /> : <Html className="prose simple" html={t.simple} />}{t.meme && <MemeCard m={t.meme} unit={t.unit} id={t.id} />}</>)}
+        {sec(T('idea'), lang === 'gaali' ? 'Pehle concept samajh, phir exam wala answer neeche English mein hai. Gaaliyan exam mein mat likh dena.' : lang === 'bhai' ? 'Pehle concept samjho. Exam wala answer neeche English mein hai.' : 'No Java knowledge needed. Read this first, the exam answer is further down.', <>{desiOf(t, lang) ? <EasyExplain e={desiOf(t, lang)} lang={lang} /> : <Html className="prose simple" html={t.simple} />}{t.meme && <MemeCard m={t.meme} unit={t.unit} id={t.id} />}</>)}
         {(lang !== 'en' ? t.bhaiLearn || t.learn : t.learn) && sec(T('steps'), T('stepsSub'), <Walkthrough key={lang} steps={lang !== 'en' ? t.bhaiLearn || t.learn : t.learn} />)}
         {(W || t.explore) && (
           sec(T('try'), T('trySub'), <>

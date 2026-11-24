@@ -8,6 +8,9 @@ import BHAI_LEARN from './bhaiLearn';
 import MEMES from './memes';
 import MEME_IMG from './memeImages';
 import GAALI from './gaali';
+import EASY_EN from './easy_en';
+import EASY_BHAI from './easy_bhai';
+import EASY_GAALI from './easy_gaali';
 import { basicsTopic, basicsCards, glossary } from './basics';
 
 export default {
@@ -129,7 +132,7 @@ export default {
     ].map(([q, id]) => ({ q, id }))
   },
 
-  topics: [basicsTopic, ...unit1.topics, ...unit2.topics, ...unit3.topics].map(t => ({ ...t, dg: DG[t.id], rev: REV[t.id], bhai: BHAI[t.id], bhaiLearn: BHAI_LEARN[t.id], gaali: GAALI[t.id], meme: MEMES[t.id] && { ...MEMES[t.id], img: MEME_IMG[t.id] } })),
+  topics: [basicsTopic, ...unit1.topics, ...unit2.topics, ...unit3.topics].map(t => ({ ...t, dg: DG[t.id], rev: REV[t.id], bhai: BHAI[t.id], bhaiLearn: BHAI_LEARN[t.id], gaali: GAALI[t.id], easy: { en: EASY_EN[t.id], bhai: EASY_BHAI[t.id], gaali: EASY_GAALI[t.id] }, meme: MEMES[t.id] && { ...MEMES[t.id], img: MEME_IMG[t.id] } })),
   cards: [...basicsCards, ...unit1.cards, ...unit2.cards, ...unit3.cards],
   glossary
 };

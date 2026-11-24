@@ -134,3 +134,14 @@
 /* gaali toggle */
 .lang-toggle button.on.gaali{background:#e03131;color:#fff}
 @media (max-width:760px){.lang-toggle .hide-xs{display:none}}
+
+/* Words decoded + how-it-works */
+.bx-dl{margin:0;display:grid;gap:8px}
+.bx-dl div{display:grid;grid-template-columns:minmax(110px,180px) 1fr;gap:10px;align-items:baseline;padding:8px 10px;border-radius:10px;background:var(--surface-2)}
+.bx-dl dt{font-weight:800;color:var(--strong);font-family:var(--font-head)}
+.bx-dl dd{margin:0;color:var(--text-2);font-size:15px;line-height:1.5}
+.bx-how{margin:0;padding-left:0;list-style:none;counter-reset:step;display:grid;gap:8px}
+.bx-how li{counter-increment:step;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:15.5px;line-height:1.55}
+.bx-how li::before{content:counter(step);width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;background:var(--accent);color:#fff}
+.bx-part.bx-words{border-left-width:6px;border-left-color:#0ea5e9}
+@media (max-width:760px){.bx-dl div{grid-template-columns:1fr;gap:2px}}

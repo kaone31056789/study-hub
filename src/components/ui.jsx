@@ -100,6 +100,32 @@ export function BhaiExplain({ b, gaali }) {
   );
 }
 
+// Beginner explainer, same layout in every language.
+const EX_LABELS = {
+  en: ['🎯 The idea in one line', '🏠 Real-life story', '📖 Words decoded', '⚙️ How it works', '📝 What to write in the exam', '🧠 Remember it'],
+  bhai: ['🎯 Ek line mein', '🏠 Desi example se samjho', '📖 Mushkil words ka matlab', '⚙️ Kaise kaam karta hai', '📝 Exam mein kya likhna hai', '🧠 Yaad rakh'],
+  gaali: ['🎯 Seedhi baat, saale', '🏠 Desi example se samajh', '📖 Bhaari words ka matlab', '⚙️ Kaise chalta hai, dekh', '📝 Exam mein ye chhaap', '🧠 Ratt le ye line']
+};
+export function EasyExplain({ e, lang = 'en' }) {
+  if (!e?.story) return <BhaiExplain b={e} gaali={lang === 'gaali'} />; // old shape fallback
+  const L = EX_LABELS[lang] || EX_LABELS.en;
+  const part = (i, cls, body) => (
+    <motion.div className={'bx-part ' + cls} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-20px' }} transition={{ duration: 0.35, delay: i * 0.05 }}>
+      <div className="bx-h">{L[i]}</div>{body}
+    </motion.div>
+  );
+  return (
+    <div className="bx">
+      {part(0, 'bx-s', <p className="bx-s">{e.s}</p>)}
+      {part(1, 'bx-ex', <p className="bx-body">{e.story}</p>)}
+      {e.words?.length > 0 && part(2, 'bx-words', <dl className="bx-dl">{e.words.map(([w, m]) => <div key={w}><dt>{w}</dt><dd>{m}</dd></div>)}</dl>)}
+      {e.how?.length > 0 && part(3, 'bx-java', <ol className="bx-how">{e.how.map((h, i) => <li key={i} dangerouslySetInnerHTML={{ __html: h }} />)}</ol>)}
+      {part(4, 'bx-exam', <p className="bx-body">{e.exam}</p>)}
+      <div className="bx-yaad"><span>{L[5]}</span><b>{e.yaad}</b></div>
+    </div>
+  );
+}
+
 // Sticky-note "meme moment" that ties a famous meme line to the concept.
 export function MemeCard({ m, compact, unit, id }) {
   if (compact) return <p className="rev-meme"><span aria-hidden="true">😂</span> <b>"{m.line}"</b> <span dangerouslySetInnerHTML={{ __html: '· ' + m.punch.replace(/<[^>]+>/g, '').split('. ')[0] }} /></p>;
