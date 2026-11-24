@@ -8,7 +8,7 @@ import Nudge from '../components/Nudge';
 import SpotlightCard from '../rb/SpotlightCard';
 import { Brand } from '../components/Logo';
 import { Reveal } from '../components/ui';
-import { APK_URL } from '../components/UpdatePrompt';
+import { RELEASES_URL, useLatestApk } from '../components/UpdatePrompt';
 import { SUBJECTS, SEASON } from '../subjects';
 import { store } from '../store';
 import { ThemeToggle, useTheme } from '../theme';
@@ -51,6 +51,7 @@ const STEPS = [
 ];
 
 export default function Home() {
+  const apk = useLatestApk();
   const theme = useTheme();
   const lang = useLang();
   const T = useT();
@@ -89,7 +90,7 @@ export default function Home() {
         <div className="top-in">
           <Brand title="Study Hub" sub="end-semester prep" />
           <div className="top-actions">
-            {!window.Capacitor && <a className="season-chip app-dl" href={APK_URL}>📱 <span className="lbl-long">Android app</span><span className="lbl-short">App</span></a>}
+            {!window.Capacitor && <a className="season-chip app-dl" href={apk?.url || RELEASES_URL} title={apk ? 'Latest Android app: v' + apk.n + ', ' + apk.mb + ' MB' : 'Android app'}>📱 <span className="lbl-long">Android app{apk && <> v{apk.n} · {apk.mb} MB</>}</span><span className="lbl-short">App{apk && <> v{apk.n}</>}</span></a>}
             <span className="season-chip hide-sm"><HugeiconsIcon icon={Calendar03Icon} size={15} /> {fmt(start)} – {fmt(SEASON.end)}</span>
             <LangToggle />
             <ThemeToggle />

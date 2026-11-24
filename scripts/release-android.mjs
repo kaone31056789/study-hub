@@ -13,9 +13,10 @@ fs.writeFileSync(file, JSON.stringify(v, null, 1).replace(/\n\s*/g, ' ') + '\n')
 run('npm run build:android', { env: { ...process.env, VITE_API_BASE: 'https://study.kaone.in' } });
 run(process.platform === 'win32' ? '"' + path.resolve('android/gradlew.bat') + '" assembleDebug' : './gradlew assembleDebug', { cwd: 'android' });
 fs.mkdirSync('release', { recursive: true });
-fs.copyFileSync('android/app/build/outputs/apk/debug/app-debug.apk', 'release/StudyHub.apk');
+const apk = `release/StudyHub-v${v.build}.apk`; // version in the file name
+fs.copyFileSync('android/app/build/outputs/apk/debug/app-debug.apk', apk);
 
 const notes = process.argv.slice(2).join(' ') || 'New content and fixes.';
 fs.writeFileSync('release/notes.txt', notes);
-run(`gh release create v${v.build} release/StudyHub.apk --title "Study Hub v${v.build}" --notes-file release/notes.txt`);
+run(`gh release create v${v.build} ${apk} --title "Study Hub v${v.build}" --notes-file release/notes.txt`);
 console.log(`\nReleased v${v.build}. Commit ${file} so the next release counts up from here.`);

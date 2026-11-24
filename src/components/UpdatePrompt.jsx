@@ -2,23 +2,29 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { build } from '../appVersion.json';
 
-// Android app only: on launch, ask GitHub for the latest release (tag "v<build>").
-// If it is newer than the build baked into this APK, offer to download it.
+// Latest APK = newest GitHub release (tag "v<build>", asset "StudyHub-v<build>.apk").
 export const REPO = 'kaone31056789/study-hub';
-export const APK_URL = `https://github.com/${REPO}/releases/latest/download/StudyHub.apk`;
+export const RELEASES_URL = `https://github.com/${REPO}/releases/latest`;
 
+let pending;
+export const latestApk = () => (pending ||= fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+  .then(r => (r.ok ? r.json() : null))
+  .then(j => {
+    const a = j?.assets?.find(x => x.name.endsWith('.apk'));
+    return a ? { n: Number(String(j.tag_name).replace(/^v/, '')), url: a.browser_download_url, mb: (a.size / 1048576).toFixed(1), notes: (j.body || '').slice(0, 400) } : null;
+  })
+  .catch(() => null));
+
+export function useLatestApk() {
+  const [apk, setApk] = useState(null);
+  useEffect(() => { latestApk().then(setApk); }, []);
+  return apk;
+}
+
+// Android app only: if GitHub has a newer build than this APK, offer to download it.
 export default function UpdatePrompt() {
   const [rel, setRel] = useState(null);
-  useEffect(() => {
-    if (!window.Capacitor) return;
-    fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
-      .then(r => (r.ok ? r.json() : null))
-      .then(j => {
-        const n = Number(String(j?.tag_name || '').replace(/^v/, ''));
-        if (n > build) setRel({ n, notes: (j.body || '').slice(0, 400) });
-      })
-      .catch(() => {}); // offline: just skip
-  }, []);
+  useEffect(() => { if (window.Capacitor) latestApk().then(a => a && a.n > build && setRel(a)); }, []);
   return (
     <AnimatePresence>
       {rel && (
@@ -28,7 +34,7 @@ export default function UpdatePrompt() {
             <p className="muted">Version {rel.n} aa gaya (you have {build}). Download karo, phir install pe tap karo. Progress safe rahega.</p>
             {rel.notes && <p className="small" style={{ whiteSpace: 'pre-line' }}>{rel.notes}</p>}
             <div className="cta">
-              <a className="btn primary" href={APK_URL}>Download update</a>
+              <a className="btn primary" href={rel.url}>Download v{rel.n} · {rel.mb} MB</a>
               <button className="btn" onClick={() => setRel(null)}>Later</button>
             </div>
           </motion.div>

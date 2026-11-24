@@ -34,7 +34,7 @@ const CSP = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob:",
-  "connect-src 'self'",
+  "connect-src 'self' https://api.github.com",
   "worker-src 'self'",
   "manifest-src 'self'",
   "object-src 'none'",
@@ -264,8 +264,8 @@ const server = http.createServer(async (req, res) => {
     const m = pathname.match(/^\/api\/sync(?:\/([^/]+))?$/);
     if (m) return sync(req, res, m[1]);
     if (pathname.startsWith('/api/')) return send(res, 404, { error: 'Not found' });
-    // Old APK links (app/StudyHub.apk) now go to the newest GitHub release.
-    if (pathname.startsWith('/app/')) return send(res, 302, '', { Location: 'https://github.com/kaone31056789/study-hub/releases/latest/download/StudyHub.apk' });
+    // Old APK links (app/StudyHub.apk) now go to the newest GitHub release page.
+    if (pathname.startsWith('/app/')) return send(res, 302, '', { Location: 'https://github.com/kaone31056789/study-hub/releases/latest' });
     return serveStatic(req, res);
   } catch (e) {
     console.error(e);
