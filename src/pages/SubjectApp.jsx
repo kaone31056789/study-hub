@@ -45,7 +45,8 @@ export default function SubjectApp({ meta, view, arg }) {
   return (
     <>
       <Header meta={meta} view={view} done={n} total={S.topics.length} />
-      <motion.main key={view + (arg || '')} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.2, 0.7, 0.2, 1] }}>
+      {/* Topic changes inside Learn keep the page mounted so the sidebar keeps its scroll position. */}
+      <motion.main key={view === 'learn' ? (arg ? 'learn:topic' : 'learn') : view + (arg || '')}initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.2, 0.7, 0.2, 1] }}>
         {view === 'learn' ? (arg ? <Learn ctx={ctx} id={arg} /> : <TopicsIndex ctx={ctx} />)
           : view === 'cards' ? <Cards ctx={ctx} />
           : view === 'quiz' ? <Quiz ctx={ctx} />
@@ -387,6 +388,17 @@ function Learn({ ctx, id }) {
   const wide = typeof window !== 'undefined' && window.innerWidth > 960;
   const idx = order.indexOf(t.id), next = order[idx + 1], prev = order[idx - 1];
   const W = t.widget && WIDGETS[t.widget];
+  const sideRef = useRef();
+  // Keep the current topic visible in the sidebar (e.g. after Next/Prev) without moving the page.
+  useEffect(() => {
+    const side = sideRef.current, el = side?.querySelector('.side-item.on');
+    if (!el) return;
+    for (const box of [side, side.querySelector('.side-body')]) {
+      if (!box || box.scrollHeight <= box.clientHeight) continue;
+      const r = el.getBoundingClientRect(), b = box.getBoundingClientRect();
+      if (r.top < b.top || r.bottom > b.bottom) box.scrollTop += r.top - b.top - b.height / 3;
+    }
+  }, [t.id]);
   let n = 0;
   const sec = (title, sub, children) => (
     <Reveal as="section" className="sec" key={title}><h2><span className="n">{++n}</span>{title}</h2>{sub && <p className="sub">{sub}</p>}{children}</Reveal>
@@ -394,8 +406,8 @@ function Learn({ ctx, id }) {
 
   return (
     <div className="learn">
-      <aside className="side">
-        <details className="side-wrap" open={wide}>
+      <aside className="side" ref={sideRef}>
+        <details className="side-wrap" open={wide} onClick={e => { if (!wide && e.target.closest('.side-item')) e.currentTarget.open = false; }}>
           <summary>All topics ({S.topics.length})</summary>
           <div className="side-body">
             <input type="search" placeholder="Search topics…" aria-label="Search topics" value={q} onChange={e => setQ(e.target.value)} />
