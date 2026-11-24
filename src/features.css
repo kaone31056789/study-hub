@@ -119,3 +119,9 @@
 @keyframes ai-blink{0%,100%{opacity:1}50%{opacity:.3}}
 .btn .ai-icon{color:currentColor}
 @media (prefers-reduced-motion: reduce){.ai-icon *{animation:none!important}}
+
+/* header fits all 8 tabs */
+.top-in{gap:12px}
+.tabs a{padding:7px 10px}
+@media (max-width:1320px){.prog span{display:none}.prog .bar{width:56px}}
+@media (max-width:1120px){.brand-txt small{display:none}}

@@ -83,7 +83,7 @@ function Header({ meta, view, done, total }) {
   );
 }
 
-const TABS = [['plan', 'Plan', Calendar03Icon], ['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock test', Target01Icon], ['cram', 'Cram', Note01Icon], ['cards', 'Flashcards', CardsIcon], ['quiz', 'Quiz', Quiz01Icon], ['paper', 'PYQ', File01Icon]];
+const TABS = [['plan', 'Plan', Calendar03Icon], ['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Target01Icon], ['cram', 'Cram', Note01Icon], ['cards', 'Cards', CardsIcon], ['quiz', 'Quiz', Quiz01Icon], ['paper', 'PYQ', File01Icon]];
 const SHORT = { plan: 'Plan', learn: 'Learn', revise: 'Revise', mock: 'Mock', cram: 'Cram', cards: 'Cards', quiz: 'Quiz', paper: 'PYQ' };
 const PRIMARY = ['plan', 'learn', 'revise', 'mock'];
 
