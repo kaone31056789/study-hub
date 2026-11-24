@@ -264,6 +264,8 @@ const server = http.createServer(async (req, res) => {
     const m = pathname.match(/^\/api\/sync(?:\/([^/]+))?$/);
     if (m) return sync(req, res, m[1]);
     if (pathname.startsWith('/api/')) return send(res, 404, { error: 'Not found' });
+    // Old APK links (app/StudyHub.apk) now go to the newest GitHub release.
+    if (pathname.startsWith('/app/')) return send(res, 302, '', { Location: 'https://github.com/kaone31056789/study-hub/releases/latest/download/StudyHub.apk' });
     return serveStatic(req, res);
   } catch (e) {
     console.error(e);
