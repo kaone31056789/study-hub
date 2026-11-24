@@ -6,7 +6,7 @@
 // Env: PORT, OLLAMA_URL (default https://ollama.com), OLLAMA_API_KEY, OLLAMA_MODEL, OLLAMA_VISION_MODEL, DATA_DIR,
 //      ALLOWED_ORIGINS (comma list), DAILY_AI_PER_IP, DAILY_AI_TOTAL
 import http from 'node:http';
-import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, stat, readdir, copyFile, unlink } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -204,6 +204,23 @@ async function sync(req, res, code) {
   send(res, 405, { error: 'Method not allowed' });
 }
 
+// Publish this build's hashed assets to the shared volume (keep 7 days of older versions).
+const SHARED_ASSETS = path.join(DATA, 'assets');
+async function publishAssets() {
+  try {
+    await mkdir(SHARED_ASSETS, { recursive: true });
+    for (const f of await readdir(path.join(DIST, 'assets'))) {
+      const dst = path.join(SHARED_ASSETS, f);
+      try { await stat(dst); } catch { await copyFile(path.join(DIST, 'assets', f), dst); }
+    }
+    const week = Date.now() - 7 * 864e5;
+    for (const f of await readdir(SHARED_ASSETS)) {
+      const s = await stat(path.join(SHARED_ASSETS, f));
+      if (s.mtimeMs < week) await unlink(path.join(SHARED_ASSETS, f)).catch(() => {});
+    }
+  } catch (e) { console.error('publishAssets:', e.message); }
+}
+
 async function serveStatic(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (p.endsWith('/')) p += 'index.html';
@@ -217,6 +234,16 @@ async function serveStatic(req, res) {
     res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': cache, ...SECURITY_HEADERS, ...extra });
     res.end(buf);
   } catch {
+    // During a deploy, old and new containers briefly serve side by side. Both share DATA, so
+    // assets from every recent version live in DATA/assets and either container can serve them.
+    if (p.startsWith('/assets/')) {
+      const shared = path.join(SHARED_ASSETS, path.basename(p));
+      try {
+        const buf = await readFile(shared);
+        res.writeHead(200, { 'Content-Type': MIME[path.extname(shared).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'public, max-age=31536000, immutable', ...SECURITY_HEADERS });
+        return res.end(buf);
+      } catch { /* fall through to 404 */ }
+    }
     // A missing asset must be a real, uncacheable 404. Serving index.html here would let browsers/CDN
     // cache HTML under an immutable .js URL (blank page after a deploy switch-over).
     if (p.startsWith('/assets/') || path.extname(p)) return send(res, 404, 'Not found', { 'Cache-Control': 'no-store' });
@@ -226,7 +253,7 @@ async function serveStatic(req, res) {
   }
 }
 
-http.createServer(async (req, res) => {
+const server = http.createServer(async (req, res) => {
   try {
     res.cors = corsFor(req);
     const { pathname } = new URL(req.url, 'http://x');
@@ -242,4 +269,7 @@ http.createServer(async (req, res) => {
     console.error(e);
     send(res, 500, { error: 'Server error' });
   }
-}).listen(PORT, () => console.log('Study Hub on :' + PORT, '| AI model:', OLLAMA_MODEL, '| key set:', Boolean(OLLAMA_KEY)));
+});
+// Assets are published BEFORE listening, so the old container can already serve them once the new one is up.
+await publishAssets();
+server.listen(PORT, () => console.log('Study Hub on :' + PORT, '| AI model:', OLLAMA_MODEL, '| key set:', Boolean(OLLAMA_KEY)));
