@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Calendar03Icon, BookOpen01Icon, CardsIcon, Quiz01Icon, File01Icon, Task01Icon, ArrowRight01Icon, Search01Icon } from '@hugeicons/core-free-icons';
+import { Calendar03Icon, BookOpen01Icon, CardsIcon, Quiz01Icon, File01Icon, Task01Icon, ArrowRight01Icon, Search01Icon, Target01Icon, Note01Icon, Menu01Icon } from '@hugeicons/core-free-icons';
+import Mock from './Mock';
+import Cram from './Cram';
+import { AskAI, AudioBar, SyncButton } from '../components/Extras';
+import { bumpWeak, weakList, clearWeak, getSrs, gradeCard } from '../progress';
 import { Brand } from '../components/Logo';
 import { ThemeToggle, useTheme } from '../theme';
 import { LangToggle, useLang, useT, desiOf } from '../lang';
@@ -47,6 +51,8 @@ export default function SubjectApp({ meta, view, arg }) {
           : view === 'quiz' ? <Quiz ctx={ctx} />
           : view === 'paper' ? <Paper ctx={ctx} />
           : view === 'revise' ? <Revise ctx={ctx} />
+          : view === 'mock' ? <Mock ctx={ctx} />
+          : view === 'cram' ? <Cram ctx={ctx} />
           : <Plan ctx={ctx} />}
       </motion.main>
       <BottomNav meta={meta} view={view} />
@@ -70,27 +76,51 @@ function Header({ meta, view, done, total }) {
         </nav>
         <div className="prog"><span>{done}/{total} done</span><div className="bar"><i style={{ width: total ? (done / total) * 100 + '%' : 0 }} /></div></div>
         <LangToggle />
+        <SyncButton />
         <ThemeToggle />
       </div>
     </header>
   );
 }
 
-const TABS = [['plan', 'Plan', Calendar03Icon], ['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['cards', 'Flashcards', CardsIcon], ['quiz', 'Quiz', Quiz01Icon], ['paper', "Last year's paper", File01Icon]];
-const SHORT = { plan: 'Plan', learn: 'Learn', revise: 'Revise', cards: 'Cards', quiz: 'Quiz', paper: 'Paper' };
+const TABS = [['plan', 'Plan', Calendar03Icon], ['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock test', Target01Icon], ['cram', 'Cram', Note01Icon], ['cards', 'Flashcards', CardsIcon], ['quiz', 'Quiz', Quiz01Icon], ['paper', 'PYQ', File01Icon]];
+const SHORT = { plan: 'Plan', learn: 'Learn', revise: 'Revise', mock: 'Mock', cram: 'Cram', cards: 'Cards', quiz: 'Quiz', paper: 'PYQ' };
+const PRIMARY = ['plan', 'learn', 'revise', 'mock'];
 
 // Phone tab bar (shown under 760px via CSS)
 function BottomNav({ meta, view }) {
+  const [more, setMore] = useState(false);
+  useEffect(() => setMore(false), [view]);
+  const inMore = !PRIMARY.includes(view);
   return (
-    <nav className="bottom-nav" aria-label="Sections">
-      {TABS.map(([k, , icon]) => (
-        <a key={k} href={'#/' + meta.id + '/' + k} className={view === k ? 'on' : ''} aria-current={view === k ? 'page' : undefined}>
-          {view === k && <motion.span layoutId="bnpill" className="bn-pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
-          <HugeiconsIcon icon={icon} size={22} strokeWidth={1.8} />
-          <span>{SHORT[k]}</span>
-        </a>
-      ))}
-    </nav>
+    <>
+      <nav className="bottom-nav" aria-label="Sections">
+        {TABS.filter(([k]) => PRIMARY.includes(k)).map(([k, , icon]) => (
+          <a key={k} href={'#/' + meta.id + '/' + k} className={view === k ? 'on' : ''} aria-current={view === k ? 'page' : undefined}>
+            {view === k && <motion.span layoutId="bnpill" className="bn-pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+            <HugeiconsIcon icon={icon} size={22} strokeWidth={1.8} />
+            <span>{SHORT[k]}</span>
+          </a>
+        ))}
+        <button className={inMore ? 'on' : ''} onClick={() => setMore(m => !m)} aria-expanded={more} aria-label="More sections">
+          {inMore && <motion.span layoutId="bnpill" className="bn-pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+          <HugeiconsIcon icon={Menu01Icon} size={22} strokeWidth={1.8} />
+          <span>{inMore ? SHORT[view] || 'More' : 'More'}</span>
+        </button>
+      </nav>
+      <AnimatePresence>
+        {more && (
+          <motion.div className="sheet-bg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMore(false)}>
+            <motion.div className="more-sheet" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', stiffness: 340, damping: 32 }} onClick={e => e.stopPropagation()}>
+              {TABS.filter(([k]) => !PRIMARY.includes(k)).map(([k, l, icon]) => (
+                <a key={k} href={'#/' + meta.id + '/' + k} className={view === k ? 'on' : ''}><HugeiconsIcon icon={icon} size={22} strokeWidth={1.8} /><span>{l}</span></a>
+              ))}
+              <a href="#/"><HugeiconsIcon icon={Calendar03Icon} size={22} strokeWidth={1.8} /><span>All subjects</span></a>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -216,7 +246,11 @@ function Plan({ ctx }) {
         )}
       </section>
 
+      <WeakCard ctx={ctx} />
+
       <div className="quick">
+        <a href={'#/' + meta.id + '/mock'}><HugeiconsIcon icon={Target01Icon} size={18} /><b>Mock test</b><small>AI checks your answers</small></a>
+        <a href={'#/' + meta.id + '/cram'}><HugeiconsIcon icon={Note01Icon} size={18} /><b>Cram sheet</b><small>last 1 hour</small></a>
         <a href={'#/' + meta.id + '/learn'}><HugeiconsIcon icon={BookOpen01Icon} size={18} /><b>All topics</b><small>browse & tick off</small></a>
         <a href={'#/' + meta.id + '/revise'}><HugeiconsIcon icon={Task01Icon} size={18} /><b>Revise</b><small>key points per topic</small></a>
         <a href={'#/' + meta.id + '/cards'}><HugeiconsIcon icon={CardsIcon} size={18} /><b>Flashcards</b><small>{S.cards.length} cards</small></a>
@@ -256,6 +290,25 @@ function Plan({ ctx }) {
         <ol>{S.tips.map((t, i) => <li key={i} dangerouslySetInnerHTML={{ __html: t }} />)}</ol>
       </section>
     </div>
+  );
+}
+
+function WeakCard({ ctx }) {
+  const { meta, byId } = ctx;
+  const [w, setW] = useState(() => weakList(meta.id).filter(([id]) => byId[id]).slice(0, 6));
+  if (!w.length) return null;
+  const max = w[0][1];
+  return (
+    <Reveal className="card weak-card">
+      <div className="weak-head"><b>🎯 Revise these first</b><button className="linkbtn" onClick={() => { clearWeak(meta.id); setW([]); }}>clear</button></div>
+      <p className="muted" style={{ margin: '2px 0 10px', fontSize: 14 }}>From your wrong quiz answers and mock scores.</p>
+      {w.map(([id, v]) => (
+        <a key={id} className="weak-row" href={'#/' + meta.id + '/learn/' + id}>
+          <span>{byId[id].title}</span>
+          <div className="bar"><i style={{ width: (v / max) * 100 + '%', background: 'var(--bad)' }} /></div>
+        </a>
+      ))}
+    </Reveal>
   );
 }
 
@@ -370,6 +423,11 @@ function Learn({ ctx, id }) {
           {t.imp && <span className="tag imp">On your important list</span>}
         </div>
         <div className="qbox"><small>Exam question</small><span dangerouslySetInnerHTML={{ __html: t.q }} /></div>
+        <AudioBar key={t.id + lang} label={lang === 'en' ? '🔊 Listen to this topic' : '🔊 Topic suno'} parts={() => {
+          const d = desiOf(t, lang);
+          return [t.title + '.', ...(d ? [d.s, d.ex, d.java, d.yaad] : [t.simple]), ...(t.rev || []), t.short || '', t.meme ? t.meme.line + '. ' + t.meme.punch : ''];
+        }} />
+        <AskAI topic={t.title} context={(t.rev || []).join(' ').replace(/<[^>]+>/g, '') + ' ' + (t.simple || '').replace(/<[^>]+>/g, '')} />
 
         {sec(T('idea'), lang === 'gaali' ? 'Pehle concept samajh, phir exam wala answer neeche English mein hai. Gaaliyan exam mein mat likh dena.' : lang === 'bhai' ? 'Pehle concept samjho. Exam wala answer neeche English mein hai.' : 'No Java knowledge needed. Read this first, the exam answer is further down.', <>{desiOf(t, lang) ? <EasyExplain e={desiOf(t, lang)} lang={lang} /> : <Html className="prose simple" html={t.simple} />}{t.meme && <MemeCard m={t.meme} unit={t.unit} id={t.id} />}</>)}
         {(lang !== 'en' ? t.bhaiLearn || t.learn : t.learn) && sec(T('steps'), T('stepsSub'), <Walkthrough key={lang} steps={lang !== 'en' ? t.bhaiLearn || t.learn : t.learn} />)}
@@ -384,7 +442,7 @@ function Learn({ ctx, id }) {
         {(t.dg || t.diagram) && sec(T('diagram'), T('diagramSub'), t.dg ? <Diagram spec={t.dg} /> : <pre className="diagram">{t.diagram}</pre>)}
         {t.code?.length > 0 && sec(T('code'), T('codeSub'), t.code.map((c, i) => <CodeBlock key={i} {...c} />))}
         {t.trick && sec(T('trick'), null, <Html className="trick" html={t.trick} />)}
-        {t.quiz?.length > 0 && sec(T('check'), null, t.quiz.map((x, i) => <MCQ key={t.id + i} q={x} />))}
+        {t.quiz?.length > 0 && sec(T('check'), null, t.quiz.map((x, i) => <MCQ key={t.id + i} q={x} onAnswer={ok => bumpWeak(meta.id, t.id, ok ? -0.5 : 1)} />))}
 
         <div className="actions">
           <button className={'btn ' + (done.has(t.id) ? 'ok' : 'primary')} onClick={e => toggleDone(t.id, e)}>{done.has(t.id) ? T('learned') : T('markDone')}</button>
@@ -404,15 +462,24 @@ function Cards({ ctx }) {
   const [deck, setDeck] = useState(all);
   const [i, setI] = useState(0);
   const [flip, setFlip] = useState(false);
-  const [known, setKnown] = useState(() => new Set(store.get(meta.id + ':known', [])));
-  const c = deck[i];
-
-  const pickUnit = u => { setUnit(u); setDeck(all.filter(x => u === 'all' || x.u === u)); setI(0); setFlip(false); };
-  const move = d => { setFlip(false); setI(x => (x + d + deck.length) % deck.length); };
-  const mark = k => {
-    setKnown(prev => { const s = new Set(prev); k ? s.add(c.q) : s.delete(c.q); store.set(meta.id + ':known', [...s]); return s; });
-    move(1);
+  const [srs, setSrs] = useState(() => getSrs(meta.id));
+  const [smart, setSmart] = useState(true);
+  const known = { has: q => (srs[q]?.box || 0) >= 1 };
+  // Smart order: cards due now first (oldest first), then new cards, then ones not due yet.
+  const order = (list, s = srs) => {
+    const now = Date.now();
+    const rank = x => (s[x.q] ? (s[x.q].due <= now ? 0 : 2) : 1);
+    return [...list].sort((a, b) => rank(a) - rank(b) || (s[a.q]?.due || 0) - (s[b.q]?.due || 0));
   };
+  useEffect(() => { setDeck(d => order(d)); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const c = deck[i];
+  const now = Date.now();
+  const dueN = deck.filter(x => srs[x.q] && srs[x.q].due <= now).length;
+  const newN = deck.filter(x => !srs[x.q]).length;
+
+  const pickUnit = u => { setUnit(u); const d = all.filter(x => u === 'all' || x.u === u); setDeck(smart ? order(d) : d); setI(0); setFlip(false); };
+  const move = d => { setFlip(false); setI(x => (x + d + deck.length) % deck.length); };
+  const mark = k => { setSrs(gradeCard(meta.id, c.q, k)); move(1); };
   useEffect(() => {
     const on = e => {
       if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
@@ -428,7 +495,9 @@ function Cards({ ctx }) {
     <div className="wrap narrow">
       <p className="eyebrow">Quick revision</p>
       <h1 className="page-h">Flashcards</h1>
-      <p className="lead">Answer in your head, then flip the card to check. Keys: <kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> move.</p>
+      <p className="lead">Answer in your head, then flip to check. Cards you know come back later (10 min → 1 → 3 → 7 → 15 days); the ones you miss come back soon. Keys: <kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> move.</p>
+      <div className="srs-stats"><span><b>{dueN}</b> due now</span><span><b>{newN}</b> new</span><span><b>{deck.length - dueN - newN}</b> scheduled</span>
+        <label className="toggle"><input type="checkbox" checked={smart} onChange={e => { setSmart(e.target.checked); setDeck(e.target.checked ? order(deck) : all.filter(x => unit === 'all' || x.u === unit)); setI(0); }} />Smart order</label></div>
       <div className="seg" style={{ marginTop: 16 }}>
         {['all', ...Object.keys(S.units).map(Number)].map(u => <button key={u} className={unit === u ? 'on' : ''} onClick={() => pickUnit(u)}>{u === 'all' ? 'All' : 'Unit ' + u}</button>)}
       </div>
@@ -511,7 +580,7 @@ function Quiz({ ctx }) {
     <div className="wrap narrow">
       <div className="qz-top"><span>Question {qz.i + 1} of {qz.qs.length}</span><span>Score {qz.score}</span></div>
       <div className="bar wide"><i style={{ width: (qz.i / qz.qs.length) * 100 + '%' }} /></div>
-      <MCQ key={qz.i} q={q} big onAnswer={ok => { setAnswered(true); setQz(z => ({ ...z, score: z.score + (ok ? 1 : 0), wrong: ok ? z.wrong : [...z.wrong, q] })); }} />
+      <MCQ key={qz.i} q={q} big onAnswer={ok => { bumpWeak(meta.id, q.tid, ok ? -0.5 : 1); setAnswered(true); setQz(z => ({ ...z, score: z.score + (ok ? 1 : 0), wrong: ok ? z.wrong : [...z.wrong, q] })); }} />
       {answered && (
         <div className="cta">
           <button className="btn primary" autoFocus onClick={() => { setAnswered(false); setQz(z => ({ ...z, i: z.i + 1 })); }}>{qz.i + 1 < qz.qs.length ? 'Next question →' : 'See result'}</button>
@@ -548,6 +617,7 @@ function Revise({ ctx }) {
         <span className="muted rev-count">{nRev}/{list.length} revised</span>
       </div>
       <div className="bar wide"><i style={{ width: list.length ? (nRev / list.length) * 100 + '%' : 0 }} /></div>
+      <AudioBar label="🔊 Listen to all key points" parts={() => list.flatMap(t => [t.title + '.', ...t.rev])} />
       <div className="rev-list">
         {list.map((t, i) => {
           const hidden = test && !shown.has(t.id);
