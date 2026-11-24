@@ -15,7 +15,8 @@ const DIST = path.join(ROOT, 'dist');
 const DATA = process.env.DATA_DIR || path.join(ROOT, 'data');
 const PORT = Number(process.env.PORT || 3000);
 const OLLAMA_URL = (process.env.OLLAMA_URL || 'https://ollama.com').replace(/\/$/, '');
-const OLLAMA_KEY = process.env.OLLAMA_API_KEY || '';
+// The Coolify placeholder ("replace-me-...") counts as "not configured".
+const OLLAMA_KEY = /^(replace-me|demo|changeme)/i.test(process.env.OLLAMA_API_KEY || '') ? '' : (process.env.OLLAMA_API_KEY || '');
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'gpt-oss:20b';
 const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || '*'; // the Android app calls the API from its own origin
 const MAX_SYNC = 300 * 1024;
