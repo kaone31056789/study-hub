@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { BrainIcon, Layers01Icon, Target01Icon, Note01Icon, CheckmarkCircle02Icon, ArrowRight01Icon, Calendar03Icon, Task01Icon, CardsIcon, Quiz01Icon } from '@hugeicons/core-free-icons';
+import { BrainIcon, Layers01Icon, Target01Icon, Note01Icon, CheckmarkCircle02Icon, ArrowRight01Icon, Calendar03Icon, Task01Icon, CardsIcon, BookOpen01Icon, File01Icon } from '@hugeicons/core-free-icons';
 import CountUp from '../rb/CountUp';
 import Aurora from '../rb/Aurora';
 import Nudge from '../components/Nudge';
@@ -12,6 +12,14 @@ import { SUBJECTS, SEASON } from '../subjects';
 import { store } from '../store';
 import { ThemeToggle, useTheme } from '../theme';
 import { LangToggle, useLang, useT } from '../lang';
+
+// Shortcuts into a subject's main sections (shown on the next-exam card and every subject card).
+const QUICK = [['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Note01Icon], ['cram', 'Cram', Target01Icon], ['cards', 'Cards', CardsIcon], ['paper', 'PYQ', File01Icon]];
+const QuickLinks = ({ id, className }) => (
+  <div className={className}>
+    {QUICK.map(([k, label, icon]) => <a key={k} href={`#/${id}/${k}`}><HugeiconsIcon icon={icon} size={18} />{label}</a>)}
+  </div>
+);
 
 const DAY = 86400000;
 const day0 = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
@@ -108,7 +116,7 @@ export default function Home() {
               <span className="muted next-date">{next.code} · {fmtLong(next.exam)}</span>
               <div className="next-prog"><div className="bar"><i style={{ width: nx.total ? (nx.done / nx.total) * 100 + '%' : 0 }} /></div><span>{nx.done}/{nx.total || '…'}</span></div>
               <a className="btn primary" href={nx.href}>{nx.done ? 'Continue' : 'Start'}{nx.nextTopic ? ': ' + nx.nextTopic.title.split(/[(&]/)[0].trim() : ''} <HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
-              <a className="btn ghost sm" href={`#/${next.id}/revise`}>Quick revise instead</a>
+              <QuickLinks id={next.id} className="subj-links quick-grid" />
             </motion.div>
           )}
         </section>
@@ -133,12 +141,7 @@ export default function Home() {
                     <div className="ring-wrap"><Ring value={total ? done / total : 0} /><span>{total ? Math.round((done / total) * 100) : 0}%</span></div>
                   </div>
                   {d && <div className="unit-chips">{Object.entries(d.units).filter(([u]) => +u > 0).map(([u, n]) => <span key={u}>Unit {u} · {n}</span>)}</div>}
-                  <div className="subj-links">
-                    <a href={`#/${s.id}`}><HugeiconsIcon icon={Calendar03Icon} size={16} />Plan</a>
-                    <a href={`#/${s.id}/revise`}><HugeiconsIcon icon={Task01Icon} size={16} />Revise</a>
-                    <a href={`#/${s.id}/cards`}><HugeiconsIcon icon={CardsIcon} size={16} />Cards</a>
-                    <a href={`#/${s.id}/quiz`}><HugeiconsIcon icon={Quiz01Icon} size={16} />Quiz</a>
-                  </div>
+                  <QuickLinks id={s.id} className="subj-links" />
                   <a className="btn primary subj-cta" href={href}>{done ? 'Continue studying' : 'Start studying'} <HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
                 </SpotlightCard>
               </motion.div>

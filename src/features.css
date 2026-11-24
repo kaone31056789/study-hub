@@ -179,3 +179,18 @@
 .ask-code{margin:8px 0;padding:10px 12px;border-radius:10px;background:var(--code);color:#e6e6e6;overflow-x:auto;font-size:12.8px;line-height:1.55;white-space:pre}
 .ask-code code{background:none!important;padding:0!important;color:inherit;font-size:inherit}
 .ask-h{display:block;margin:6px 0 2px;font-family:var(--font-head);font-size:15.5px}
+
+/* home quick links: 6 shortcuts, 3 per row */
+.subj-links{grid-template-columns:repeat(3,1fr)!important}
+.quick-grid{margin-top:4px}
+.quick-grid a{color:var(--strong)}
+@media (max-width:760px){
+  .dash-head .lead{display:none}
+  .dash-hand{margin-top:4px}
+}
+
+/* Android app: keep header / bottom nav clear of the status bar and gesture bar
+   (Capacitor 8 injects --safe-area-inset-*; browsers use env()) */
+.top{padding-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))}
+.bottom-nav{padding-bottom:calc(6px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))!important}
+body{padding-bottom:var(--safe-area-inset-bottom,0px)}
