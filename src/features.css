@@ -128,3 +128,51 @@
 
 .app-dl{text-decoration:none;font-weight:700;color:var(--strong)}
 .app-dl:hover{border-color:var(--accent)}
+
+/* ===== Phone pass 2 ===== */
+@media (max-width:760px){
+  .top .prog{display:none}
+  .top-in{gap:6px;padding:8px 10px}
+  .brand{gap:7px;min-width:0}
+  .brand-txt b{font-size:15px}
+  .theme-btn{width:34px;height:34px;font-size:15px}
+  .lang-toggle button{padding:4px 6px;font-size:12px}
+  .season-chip.app-dl{display:inline-flex!important;padding:5px 8px;font-size:12px}
+  .ask-fab{padding:0;width:52px;height:52px;justify-content:center;border-radius:50%}
+  .ask-fab > span:not(.ai-badge){display:none}
+  .ask-fab .ai-badge{background:none;box-shadow:none}
+  .mock-timer{font-size:15px;padding:8px 10px}
+  .mock-timer .btn{padding:7px 10px;font-size:13px}
+  .mock-q-head{flex-wrap:wrap}
+  .mock-q-head b{flex-basis:100%;order:3;font-size:15px}
+  .mock-score{margin-left:auto}
+  .modal{padding:18px 16px}
+  .sync-code b{font-size:17px}
+  .sheet{max-height:94vh}
+  .sheet-body{padding:12px}
+  .ask-msg{max-width:94%;font-size:14.5px}
+  .ask-chips .xp-chip{font-size:13px}
+  .more-sheet{grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 12px calc(86px + env(safe-area-inset-bottom))}
+  .more-sheet a{padding:12px 4px;font-size:12px}
+  .cram-card{padding:14px}
+  .cram-card header a{font-size:16px}
+  .audio-bar .btn{flex:1}
+  .rev-list{grid-template-columns:1fr}
+  .quick{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:370px){
+  .brand-txt{display:none}
+  .lang-toggle button{padding:4px 5px}
+}
+
+.app-dl{white-space:nowrap}
+.lbl-short{display:none}
+@media (max-width:760px){.lbl-long{display:none}.lbl-short{display:inline}}
+
+/* AI button follows the site palette (accent + ink border + yellow badge) */
+.ask-fab{background:var(--accent);color:#fff;border:2px solid var(--ink-border);box-shadow:3px 3px 0 var(--ink-shadow);transition:transform .12s var(--ease),box-shadow .12s var(--ease)}
+.ask-fab:hover{filter:none;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink-shadow)}
+.ask-fab:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink-shadow)}
+.ai-badge{background:var(--hi);color:#15142b;box-shadow:none;border:1.5px solid #15142b}
+.ai-badge.lg{background:var(--hi);color:#15142b;border:2px solid var(--ink-border)}
+@media (max-width:760px){.ask-fab .ai-badge{background:var(--hi);border:1.5px solid #15142b}}

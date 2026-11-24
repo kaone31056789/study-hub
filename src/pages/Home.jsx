@@ -80,7 +80,7 @@ export default function Home() {
         <div className="top-in">
           <Brand title="Study Hub" sub="end-semester prep" />
           <div className="top-actions">
-            {!window.Capacitor && <a className="season-chip app-dl" href="app/StudyHub.apk" download="StudyHub.apk">📱 Android app</a>}
+            {!window.Capacitor && <a className="season-chip app-dl" href="app/StudyHub.apk" download="StudyHub.apk">📱 <span className="lbl-long">Android app</span><span className="lbl-short">App</span></a>}
             <span className="season-chip hide-sm"><HugeiconsIcon icon={Calendar03Icon} size={15} /> {fmt(start)} – {fmt(SEASON.end)}</span>
             <LangToggle />
             <ThemeToggle />
