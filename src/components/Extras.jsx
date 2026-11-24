@@ -9,12 +9,24 @@ import { getCode, createCode, connectCode, disconnect, pullAndMerge } from '../s
 
 // Tiny safe markdown: escape first, then **bold**, `code`, bullets, line breaks.
 const esc = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-export const miniMd = s => esc(s)
-  .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-  .replace(/`([^`]+)`/g, '<code>$1</code>')
-  .replace(/^\s*[-*•]\s+(.*)$/gm, '<li>$1</li>')
-  .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
-  .replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
+// Code fences are pulled out first so their contents are not touched by the inline rules.
+export const miniMd = s => {
+  const blocks = [];
+  let t = esc(String(s || '')).replace(/```[\w-]*\n?([\s\S]*?)```/g, (_, code) => {
+    blocks.push('<pre class="ask-code"><code>' + code.replace(/\n$/, '') + '</code></pre>');
+    return '\u0000' + (blocks.length - 1) + '\u0000';
+  });
+  t = t
+    .replace(/^#{1,6}\s+(.*)$/gm, '<b class="ask-h">$1</b>')
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/(^|[^*\w])\*([^*\n]+)\*(?!\w)/g, '$1<i>$2</i>')
+    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+    .replace(/^\s*[-*•]\s+(.*)$/gm, '<li>$1</li>')
+    .replace(/^\s*\d+[.)]\s+(.*)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m.replace(/\n/g, '') + '</ul>')
+    .replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
+  return t.replace(/\u0000(\d+)\u0000/g, (_, i) => blocks[+i]);
+};
 
 /* ---------------- Ask AI (bottom sheet) ---------------- */
 const CHIPS = {

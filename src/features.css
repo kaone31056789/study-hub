@@ -176,3 +176,6 @@
 .ai-badge{background:var(--hi);color:#15142b;box-shadow:none;border:1.5px solid #15142b}
 .ai-badge.lg{background:var(--hi);color:#15142b;border:2px solid var(--ink-border)}
 @media (max-width:760px){.ask-fab .ai-badge{background:var(--hi);border:1.5px solid #15142b}}
+.ask-code{margin:8px 0;padding:10px 12px;border-radius:10px;background:var(--code);color:#e6e6e6;overflow-x:auto;font-size:12.8px;line-height:1.55;white-space:pre}
+.ask-code code{background:none!important;padding:0!important;color:inherit;font-size:inherit}
+.ask-h{display:block;margin:6px 0 2px;font-family:var(--font-head);font-size:15.5px}
