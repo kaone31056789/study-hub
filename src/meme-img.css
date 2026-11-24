@@ -1,0 +1,118 @@
+/* ===== Meme images (CSS-drawn, classic formats) ===== */
+.meme{max-width:560px}
+.mi{position:relative;margin:12px 0 4px;border:3px solid #15142b;border-radius:10px;overflow:hidden;background:#fff;color:#15142b;box-shadow:3px 3px 0 #15142b;user-select:none}
+.mi-wm{position:absolute;right:8px;bottom:5px;font-size:10px;font-weight:700;letter-spacing:.05em;color:rgba(255,255,255,.75);text-shadow:0 1px 2px rgba(0,0,0,.6);pointer-events:none}
+.mi-imp{font-family:Anton,Impact,"Arial Black",sans-serif;text-transform:uppercase;color:#fff;text-align:center;line-height:1.05;letter-spacing:.01em;font-size:clamp(19px,3.6vw,27px);padding:10px 12px;
+  -webkit-text-stroke:1.6px #000;paint-order:stroke fill;text-shadow:2px 2px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000}
+
+/* classic: emoji scene with top/bottom text */
+.mi-classic{min-height:250px;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(120% 90% at 50% 40%,#4b5cff 0%,#20185a 70%)}
+.mi-classic.mi-u0{background:radial-gradient(120% 90% at 50% 40%,#f59f00,#5a2c00 75%)}
+.mi-classic.mi-u2{background:radial-gradient(120% 90% at 50% 40%,#13b87a,#06392a 75%)}
+.mi-classic.mi-u3{background:radial-gradient(120% 90% at 50% 40%,#9b5cff,#2a0f5a 75%)}
+.mi-scene{font-size:clamp(54px,11vw,78px);text-align:center;line-height:1;letter-spacing:8px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.mi-classic .mi-top{padding-top:14px}
+.mi-classic .mi-bottom{padding-bottom:18px}
+
+/* drake: Nahi / Haan two panel */
+.mi-drake{display:grid;grid-template-rows:1fr 1fr}
+.mi-dr-row{display:grid;grid-template-columns:42% 58%;min-height:112px}
+.mi-dr-row + .mi-dr-row{border-top:3px solid #15142b}
+.mi-dr-face{display:grid;place-items:center;font-size:clamp(46px,9vw,64px);border-right:3px solid #15142b;position:relative}
+.mi-dr-face.no{background:linear-gradient(180deg,#ff9f43,#ee5a24)}
+.mi-dr-face.yes{background:linear-gradient(180deg,#ffd43b,#f59f00)}
+.mi-dr-face::after{position:absolute;top:6px;left:8px;font:700 11px/1 Inter,sans-serif;letter-spacing:.06em;padding:3px 7px;border-radius:5px;background:#15142b;color:#fff}
+.mi-dr-face.no::after{content:"NAHI"}
+.mi-dr-face.yes::after{content:"HAAN"}
+.mi-dr-txt{display:flex;align-items:center;padding:12px 14px;font-family:var(--font-head);font-weight:800;font-size:clamp(15px,2.6vw,19px);line-height:1.25;background:#fff;color:#15142b;word-break:break-word}
+.mi-dr-row:first-child .mi-dr-txt{color:#6b6880;text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#ee5a24}
+
+/* expanding brain */
+.mi-brain{display:grid}
+.mi-br-row{display:grid;grid-template-columns:1fr 34%;min-height:64px;border-top:3px solid #15142b}
+.mi-br-row:first-child{border-top:0}
+.mi-br-txt{display:flex;align-items:center;padding:8px 12px;font-family:var(--font-head);font-weight:800;font-size:clamp(14px,2.4vw,17px);line-height:1.2;background:#fff;color:#15142b;border-right:3px solid #15142b}
+.mi-br-pic{display:grid;place-items:center;font-size:34px;background:#1b1446}
+.mi-br-row.lvl0 .mi-br-pic{background:#2b2b2b;filter:grayscale(.8)}
+.mi-br-row.lvl1 .mi-br-pic{background:radial-gradient(circle,#3a7bd5,#132a55);font-size:38px}
+.mi-br-row.lvl2 .mi-br-pic{background:radial-gradient(circle,#7f5cff,#24135e);font-size:42px;filter:drop-shadow(0 0 8px #b18cff)}
+.mi-br-row.lvl3 .mi-br-pic{background:radial-gradient(circle,#fff6b0,#ffb000 45%,#ff3d77);font-size:46px;filter:drop-shadow(0 0 12px #fff)}
+.mi-br-row.lvl3 .mi-br-txt{background:#fff6b8}
+
+/* two buttons */
+.mi-buttons{background:linear-gradient(180deg,#e8e4da,#cfc9bb);padding-top:16px;display:flex;flex-direction:column;align-items:center}
+.mi-bt-top{display:flex;gap:12px;justify-content:center;padding:0 12px;width:100%}
+.mi-bt{flex:1;max-width:210px;min-height:72px;display:grid;place-items:center;text-align:center;padding:10px;border-radius:50% / 40%;background:radial-gradient(circle at 40% 30%,#ff6b6b,#c92a2a 70%);border:3px solid #15142b;box-shadow:0 6px 0 #7a1010}
+.mi-bt span{font-family:var(--font-head);font-weight:800;font-size:clamp(12.5px,2.2vw,15px);line-height:1.2;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);word-break:break-word}
+.mi-bt-guy{font-size:clamp(58px,11vw,80px);line-height:1;margin:12px 0 0}
+.mi-buttons .mi-bottom{width:100%;background:#15142b;padding:10px 12px 14px}
+
+:root:not([data-theme="light"]) .mi{border-color:#ffd43b;box-shadow:3px 3px 0 #000}
+@media (max-width:760px){
+  .mi-classic{min-height:210px}
+  .mi-dr-row{min-height:96px}
+}
+@media (prefers-reduced-motion: reduce){.mi *{animation:none!important;transition:none!important}}
+
+/* real meme photo + actions */
+.mi-photo{display:block;width:100%;max-height:420px;object-fit:contain;margin:12px 0 4px;border:3px solid #15142b;border-radius:10px;background:#000;box-shadow:3px 3px 0 #15142b}
+:root:not([data-theme="light"]) .mi-photo{border-color:#ffd43b}
+.mi-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.mi-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:10px;border:2px solid #15142b;background:#fff;color:#15142b;font-size:13px;font-weight:700;text-decoration:none;box-shadow:2px 2px 0 #15142b;cursor:pointer;transition:transform .12s}
+.mi-btn:hover{transform:translate(-1px,-1px)}
+.mi-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #15142b}
+.mi-btn.ghost{background:transparent;box-shadow:none}
+.mi-err{margin:6px 0 0;font-size:13px;color:#c92a2a}
+
+/* ===== Meme animations ===== */
+.mi-classic{background-size:140% 140%;animation:mi-bg 9s ease-in-out infinite alternate}
+@keyframes mi-bg{from{background-position:30% 40%}to{background-position:70% 60%}}
+.mi-scene{display:flex;justify-content:center;gap:clamp(10px,3vw,22px)}
+.mi-em{display:inline-block;animation:mi-bob 2.2s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes mi-bob{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-10px) rotate(-6deg)}60%{transform:translateY(2px) rotate(4deg)}}
+.mi-slam{animation:mi-shake .5s 1.15s 1}
+@keyframes mi-shake{0%,100%{translate:0 0}20%{translate:-6px 2px}40%{translate:5px -3px}60%{translate:-4px 1px}80%{translate:3px 0}}
+
+.mi-dr-face span{display:inline-block}
+.mi-anim-shake{animation:mi-no 1.6s ease-in-out infinite}
+@keyframes mi-no{0%,55%,100%{transform:rotate(0)}10%{transform:rotate(-14deg)}20%{transform:rotate(12deg)}30%{transform:rotate(-10deg)}40%{transform:rotate(8deg)}}
+.mi-anim-nod{animation:mi-yes 1.8s ease-in-out infinite}
+@keyframes mi-yes{0%,60%,100%{transform:translateY(0) scale(1)}15%{transform:translateY(6px) scale(1.04)}30%{transform:translateY(-4px) scale(1.08)}45%{transform:translateY(3px)}}
+.mi-dr-row:first-child .mi-dr-txt{text-decoration:none}
+.mi-strike{position:relative;display:inline}
+.mi-strike{background:linear-gradient(#ee5a24,#ee5a24) no-repeat 0 55% / 0% 3px;animation:mi-strike 1s .6s forwards}
+@keyframes mi-strike{to{background-size:100% 3px}}
+.mi-hl{background:linear-gradient(transparent 55%,#ffd43b 55%,#ffd43b 90%,transparent 90%) no-repeat 0 0 / 0% 100%;animation:mi-hl .9s 1.3s forwards;padding:0 2px}
+@keyframes mi-hl{to{background-size:100% 100%}}
+
+.mi-br-pic{position:relative;overflow:hidden}
+.mi-br-pic span{position:relative;z-index:1;display:inline-block;animation:mi-pulse 2s ease-in-out infinite}
+.lvl1 .mi-br-pic span{animation-duration:1.8s}
+.lvl2 .mi-br-pic span{animation-duration:1.4s}
+.lvl3 .mi-br-pic span{animation-duration:1s}
+@keyframes mi-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.lvl3 .mi-br-pic::before{content:"";position:absolute;inset:-60%;background:repeating-conic-gradient(rgba(255,255,255,.55) 0 8deg,transparent 8deg 22deg);animation:mi-spin 6s linear infinite}
+@keyframes mi-spin{to{transform:rotate(360deg)}}
+
+.mi-bt{animation:mi-press 2.4s ease-in-out infinite}
+.mi-bt.b{animation-delay:1.2s}
+@keyframes mi-press{0%,40%,100%{transform:translateY(0);box-shadow:0 6px 0 #7a1010}20%{transform:translateY(5px);box-shadow:0 1px 0 #7a1010;filter:brightness(1.15)}}
+.mi-bt-guy{position:relative}
+.mi-anim-sweat{display:inline-block;animation:mi-sweat 1.2s ease-in-out infinite}
+@keyframes mi-sweat{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg) translateX(3px)}}
+.mi-bt-guy .drop{position:absolute;top:10%;font-style:normal;font-size:20px;opacity:0;animation:mi-drop 1.6s ease-in infinite}
+.mi-bt-guy .d1{left:-14px}
+.mi-bt-guy .d2{right:-14px;animation-delay:.8s}
+@keyframes mi-drop{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(40px)}}
+
+.mi-photo-wrap{margin:12px 0 4px;border:3px solid #15142b;border-radius:10px;overflow:hidden;background:#000;box-shadow:3px 3px 0 #15142b}
+:root:not([data-theme="light"]) .mi-photo-wrap{border-color:#ffd43b}
+.mi-photo-wrap .mi-photo{margin:0;border:0;border-radius:0;box-shadow:none}
+.mi-photo.kb{animation:mi-kb 14s ease-in-out infinite alternate;transform-origin:center}
+@keyframes mi-kb{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,-2%)}}
+
+@media (prefers-reduced-motion: reduce){
+  .mi-classic,.mi-em,.mi-slam,.mi-anim-shake,.mi-anim-nod,.mi-br-pic span,.lvl3 .mi-br-pic::before,.mi-bt,.mi-anim-sweat,.mi-bt-guy .drop,.mi-photo.kb{animation:none!important}
+  .mi-strike{background-size:100% 3px}
+  .mi-hl{background-size:100% 100%}
+}

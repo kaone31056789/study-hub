@@ -1,0 +1,136 @@
+/* ===== Meme moment (sticky note) ===== */
+.meme{position:relative;margin:18px 0 0;max-width:620px;padding:18px 20px 16px;background:#fff6b8;color:#15142b;border:2px solid #15142b;border-radius:6px 16px 14px 18px;box-shadow:5px 5px 0 #15142b;transform-origin:top left}
+.meme::before{content:"";position:absolute;top:-11px;left:50%;width:84px;height:22px;transform:translateX(-50%) rotate(-2deg);background:rgba(47,91,255,.25);border:1px solid rgba(21,20,43,.15)}
+.meme-tag{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:#15142b;color:#ffd43b;padding:3px 8px;border-radius:6px}
+.meme blockquote{margin:10px 0 0;font-family:var(--font-head);font-size:clamp(20px,3.2vw,26px);font-weight:800;line-height:1.2;letter-spacing:-.02em}
+.meme figcaption{font-family:var(--font-hand);font-size:20px;color:#2f5bff;margin-top:2px}
+.meme-punch{margin:10px 0 0;font-size:15px;line-height:1.55;color:#2a2840}
+.meme-punch b{color:#15142b}
+.meme-punch code{background:rgba(21,20,43,.08);padding:1px 5px;border-radius:5px;font-size:.88em}
+:root:not([data-theme="light"]) .meme{background:#2a2614;color:#fff;border-color:#ffd43b;box-shadow:5px 5px 0 #000}
+:root:not([data-theme="light"]) .meme blockquote{color:#ffe27a}
+:root:not([data-theme="light"]) .meme-punch{color:#e6e2cf}
+:root:not([data-theme="light"]) .meme-punch b{color:#fff}
+:root:not([data-theme="light"]) .meme-punch code{background:rgba(255,255,255,.1)}
+:root:not([data-theme="light"]) .meme figcaption{color:#9db4ff}
+:root:not([data-theme="light"]) .meme-tag{background:#ffd43b;color:#15142b}
+.rev-meme{margin:0;font-size:13.5px;line-height:1.45;padding:8px 10px;border-radius:10px;background:var(--accent-soft);color:var(--text-2)}
+.rev-meme b{color:var(--strong)}
+
+/* ===== Phone polish ===== */
+@media (max-width:760px){
+  html{font-size:15px}
+  .top-in{gap:8px}
+  .brand-txt b{font-size:15.5px}
+  .theme-btn{width:34px;height:34px}
+  .lang-toggle{padding:2px}
+  .lang-toggle button{padding:4px 7px}
+  .prog .bar{width:46px}
+
+  /* dashboard */
+  .dash-title{font-size:27px}
+  .dash-head .lead{font-size:15px}
+  .next-card .btn.primary{font-size:14.5px}
+  .subj-mid{flex-direction:row}
+  .subj .ring-wrap svg{width:52px;height:52px}
+  .top-in{flex-wrap:nowrap}
+  .season-chip{display:none!important}
+  .subj-links a{font-size:11.5px;padding:9px 2px}
+  .soon{padding:18px}
+  .season h2{font-size:22px}
+  .season-count b{font-size:34px}
+  .track-pin small,.track-pin b{font-size:11.5px}
+
+  /* plan & topics */
+  .page-h{font-size:28px}
+  .lead{font-size:15px}
+  .plan-progress{gap:14px}
+  .unit-bar{grid-template-columns:40px 1fr 34px}
+  .next-up b{font-size:16.5px}
+  .quick a{padding:12px}
+  .round-title h2{font-size:18px}
+  .ti-bar{flex-direction:column;align-items:stretch}
+  .ti-bar .seg{overflow-x:auto;flex-wrap:nowrap}
+  .ti-bar .seg button{white-space:nowrap}
+  .tcard{padding:14px}
+
+  /* topic page */
+  .topic h1{font-size:24px;line-height:1.2}
+  .qbox{padding:12px 14px;font-size:15px}
+  .sec > h2 .n{width:26px;height:26px;font-size:12px}
+  .simple{font-size:15.5px}
+  .meme{padding:16px 16px 14px;margin-top:16px}
+  .meme blockquote{font-size:20px}
+  .meme-punch{font-size:14.5px}
+  .stepper-wrap{margin:0 -4px}
+  .step-body{font-size:15px}
+  .step-body pre,.prose pre{font-size:12px}
+  .xp-chips{gap:6px}
+  .xp-chip{padding:7px 10px;font-size:13px}
+  .wg .seg{display:flex;overflow-x:auto;flex-wrap:nowrap;max-width:100%}
+  .wg .seg button{white-space:nowrap}
+  .wg-row{gap:8px}
+  .wg-row input{max-width:100%}
+  .console,.codeview{font-size:12px}
+  .codeview div{padding:0 10px}
+  .code pre{font-size:12.3px;padding:12px}
+  .tbl th,.tbl td{padding:7px 8px}
+  .dg{padding:14px;gap:14px}
+  .dg-node{padding:9px 12px}
+  .dg-node > b{font-size:14px}
+  .dg-grid{grid-template-columns:1fr}
+  .mcq{padding:14px}
+  .mcq-q{font-size:15.5px}
+  .actions{gap:8px}
+
+  /* revise, flashcards, quiz, paper */
+  .rev-bar{gap:10px}
+  .rev-head a{font-size:15px}
+  .gl-grid{grid-template-columns:1fr}
+  .flash-bar .btn{flex:1}
+  .score-big{font-size:56px}
+  .pq-body p{font-size:15px}
+
+  /* nudge sits above the bottom nav and never covers the full screen */
+  .nudge-card{padding:18px 16px 0}
+  .nudge-card h4{font-size:21px}
+  .nudge-card p{font-size:14px}
+  .nudge-cup{width:56px;height:58px;top:-52px;right:40px}
+  .nudge-btns .btn{padding:10px;font-size:14.5px}
+}
+@media (max-width:380px){
+  .brand-txt{display:none}
+  .subj-links{grid-template-columns:repeat(2,1fr)}
+  .quick{grid-template-columns:1fr}
+}
+
+/* ===== Bhai explainer ===== */
+.bx{display:flex;flex-direction:column;gap:12px;max-width:820px}
+.bx-part{border:2px solid var(--ink-border);border-radius:16px;padding:14px 18px;background:var(--surface);box-shadow:3px 3px 0 var(--ink-shadow)}
+.bx-h{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.bx-h span{font-size:17px;letter-spacing:0}
+.bx-s{margin:0;font-family:var(--font-head);font-size:clamp(18px,2.6vw,22px);font-weight:700;line-height:1.35;letter-spacing:-.01em;color:var(--strong)}
+.bx-body{font-size:16px;line-height:1.7}
+.bx-body ul,.bx-body ol{padding-left:20px}
+.bx-body li{margin:7px 0}
+.bx-s,.bx-body{max-width:72ch}
+.bx-part.bx-s{background:linear-gradient(135deg,var(--accent-soft),transparent 70%),var(--surface);border-left-width:6px;border-left-color:var(--accent)}
+.bx-part.bx-ex{border-left-width:6px;border-left-color:#f59f00}
+.bx-part.bx-java{border-left-width:6px;border-left-color:var(--u2)}
+.bx-part.bx-exam{border-left-width:6px;border-left-color:var(--u3)}
+:root[data-theme="light"] .bx-part.bx-ex{background:#fffaf0}
+:root[data-theme="light"] .bx-part.bx-java{background:#f2fbf7}
+:root[data-theme="light"] .bx-part.bx-exam{background:#f7f3ff}
+.bx-yaad{display:flex;flex-direction:column;gap:4px;padding:14px 18px;border-radius:16px;background:var(--hi);color:#15142b;border:2px solid var(--ink-border);box-shadow:3px 3px 0 var(--ink-shadow)}
+.bx-yaad span{font-size:12.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.bx-yaad b{font-family:var(--font-head);font-size:19px;line-height:1.35}
+@media (max-width:760px){
+  .bx-part{padding:12px 14px}
+  .bx-s{font-size:18px}
+  .bx-body{font-size:15px;line-height:1.65}
+  .bx-yaad b{font-size:17px}
+}
+
+/* gaali toggle */
+.lang-toggle button.on.gaali{background:#e03131;color:#fff}
+@media (max-width:760px){.lang-toggle .hide-xs{display:none}}

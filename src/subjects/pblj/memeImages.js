@@ -1,0 +1,31 @@
+// Original meme images per topic, drawn in CSS (no copyrighted stills / real people).
+// Formats: drake (Nahi / Haan two-panel), brain (expanding brain), buttons (two-buttons dilemma), classic (emoji scene + top/bottom text).
+export default {
+  'u0-basics': { f: 'drake', no: 'Java syntax ka ratta maarna', yes: 'Class = naksha, Object = ghar samajh lena' },
+  'u1-jvm': { f: 'classic', e: '🗑️ 👴 🧹', top: 'Object ka kaam khatam?', bottom: 'Garbage Collector: utha le re baba' },
+  'u1-oop': { f: 'brain', rows: ['Saara code ek hi file mein', 'Classes bana li', '4 pillars samajh liye', 'Employee example se 10/10'] },
+  'u1-inherit': { f: 'buttons', a: 'class C extends A, B', b: 'class C implements A, B', cap: 'Multiple inheritance chahiye' },
+  'u1-overload': { f: 'drake', no: 'Overloading = runtime pe decide', yes: 'Overloading compile time, Overriding runtime' },
+  'u1-access': { f: 'classic', e: '🕴️ 🔒', top: 'Bahar se private variable access?', bottom: 'Mushkil hi nahi, namumkin hai' },
+  'u1-exception': { f: 'classic', e: '🍳 🔍 😠', top: 'Program crash ho gaya', bottom: 'Stack trace: rasode mein kaun tha?' },
+  'u1-custom': { f: 'drake', no: 'throw new Exception("error")', yes: 'throw new AgeException("Age sirf 15")' },
+  'u2-collections': { f: 'classic', e: '🚪 🙅 👯', top: 'Duplicate: mujhe andar aane do', bottom: 'HashSet: kaun hai ye log?' },
+  'u2-al-ll': { f: 'buttons', a: 'get(i) fast chahiye', b: 'add / remove fast chahiye', cap: 'ArrayList ya LinkedList?' },
+  'u2-hm-tm': { f: 'drake', no: 'HashMap se sorted output expect karna', yes: 'TreeMap: parampara, anushasan, sorted keys' },
+  'u2-thread-life': { f: 'brain', rows: ['NEW: hire hua', 'RUNNABLE: line mein', 'RUNNING: kaam chalu', 'TERMINATED: picture khatam'] },
+  'u2-sync': { f: 'classic', e: '🧵 🔒 🧵', top: 'A, B ka wait kare aur B, A ka', bottom: 'Deadlock: itna sannata kyun hai bhai?' },
+  'u2-lambda': { f: 'drake', no: '6 line ki anonymous class', yes: '(a, b) -> a - b' },
+  'u2-stream': { f: 'classic', e: '🤠 🧮', top: 'Kitne aadmi the?', bottom: '.filter(enemy).count() → 2' },
+  'u2-jdbc': { f: 'drake', no: '"WHERE name=\'" + input + "\'"', yes: 'WHERE name = ?  (PreparedStatement)' },
+  'u2-io': { f: 'classic', e: '🪄 ✨', top: 'int likha', bottom: 'List mein Integer ban gaya: jaadu!' },
+  'u2-serial': { f: 'classic', e: '💻 ➡️ 📦', top: 'Program band = data gayab', bottom: 'Serialize karo, amar ho jao' },
+  'u3-ioc': { f: 'drake', no: 'new PetrolEngine() khud likhna', yes: '@Autowired: Spring la ke dega' },
+  'u3-annot': { f: 'classic', e: '🦸 📦', top: 'Class ko object chahiye?', bottom: '@Autowired: main hoon na!' },
+  'u3-jpa': { f: 'classic', e: '🧑‍🎓 🤝 📚', top: 'Student ↔ Course', bottom: 'Yeh dosti (join table) hum nahi todenge' },
+  'u3-rest': { f: 'drake', no: '404 Not Found', yes: '200 OK: Mogambo khush hua' },
+  'u3-patterns': { f: 'classic', e: '🪞 😌', top: 'getInstance() 100 baar call kiya', bottom: 'Har baar wahi ek object' },
+  'u3-servlet': { f: 'brain', rows: ['init(): ek baar', 'service(): har request pe', 'destroy(): ek baar', 'Sab container bulata hai'] },
+  'u3-layered': { f: 'buttons', a: 'Controller mein SQL likh do', b: 'Service → Repository ko bolo', cap: 'DB se data chahiye' },
+  'u3-jsp': { f: 'drake', no: 'Servlet mein out.println("<html>…")', yes: 'JSP mein HTML, Servlet mein logic' },
+  'u3-bank': { f: 'classic', e: '💸 ↩️ 😮‍💨', top: 'Debit hua, credit se pehle crash', bottom: '@Transactional: rollback, paisa wapas' }
+};

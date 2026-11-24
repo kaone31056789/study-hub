@@ -1,0 +1,43 @@
+/* ===== Brand ===== */
+.logo-svg{border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible;transition:transform .25s var(--ease)}
+.brand:hover .logo-svg{transform:rotate(-8deg) translateY(-1px)}
+.logo-ribbon{transform-box:fill-box;transform-origin:top;animation:ribbon 3.2s ease-in-out infinite}
+@keyframes ribbon{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.18)}}
+.brand-txt{display:flex;flex-direction:column}
+.brand-txt b{font-family:var(--font-head);font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--strong);line-height:1.1}
+.brand-txt mark{background:linear-gradient(transparent 52%,var(--hi) 52%,var(--hi) 92%,transparent 92%);color:inherit;padding:0 2px}
+:root:not([data-theme="light"]) .brand-txt mark{background:linear-gradient(transparent 52%,rgba(255,212,59,.45) 52%,rgba(255,212,59,.45) 92%,transparent 92%)}
+.brand-txt small{font-size:11.5px;color:var(--muted);margin-top:1px}
+
+/* ===== Language toggle ===== */
+.lang-toggle{display:inline-flex;padding:3px;border-radius:11px;border:2px solid var(--ink-border);background:var(--surface);box-shadow:2px 2px 0 var(--ink-shadow);flex:none}
+.lang-toggle button{border:0;background:none;padding:5px 10px;border-radius:8px;font-size:13px;font-weight:700;color:var(--muted);transition:background .15s,color .15s}
+.lang-toggle button.on{background:var(--accent);color:#fff}
+.lang-toggle button:not(.on):hover{color:var(--text)}
+.top-in .lang-toggle{margin-left:4px}
+.dash-hand{margin:10px 0 0}
+
+/* ===== Subject cards: wider, roomier ===== */
+.subjects{grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:20px}
+.subj{padding:26px!important;gap:16px!important}
+.subj h2{font-size:24px;margin:2px 0 6px}
+.subj p{font-size:15px;line-height:1.55}
+.subj-mid{gap:20px}
+.unit-chips{gap:8px}
+.unit-chips span{font-size:12.5px;padding:5px 11px;white-space:nowrap}
+.subj-links{gap:8px}
+.subj-links a{padding:11px 4px}
+.soon{min-height:0;padding:26px;justify-content:center}
+.soon b{font-size:17px}
+
+/* ===== Aurora: stronger in light mode ===== */
+[data-theme="light"] .dash-aurora{opacity:.95}
+
+@media (max-width:760px){
+  .brand-txt small{display:none}
+  .lang-toggle button{padding:5px 8px;font-size:12.5px}
+  .subj{padding:20px!important}
+  .subj h2{font-size:21px}
+  .top-actions{gap:6px}
+  .prog span{display:none}
+}
