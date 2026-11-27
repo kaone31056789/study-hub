@@ -393,16 +393,28 @@ function Learn({ ctx, id }) {
           <summary>All topics ({S.topics.length})</summary>
           <div className="side-body">
             <input type="search" placeholder="Search topics…" aria-label="Search topics" value={q} onChange={e => setQ(e.target.value)} />
-            {Object.entries(S.units).map(([u, name]) => (
-              <div key={u}>
-                <div className="unit-h" style={{ color: UCOL[u] }}><span className="dot" style={{ background: UCOL[u] }} />Unit {u} · {name}</div>
-                {S.topics.filter(x => x.unit === +u && (!q || (x.title + ' ' + x.q).toLowerCase().includes(q.toLowerCase()))).map(x => (
-                  <a key={x.id} className={'side-item' + (x.id === t.id ? ' on' : '')} href={`#/${meta.id}/learn/${x.id}`}>
-                    <span className="mk">{done.has(x.id) ? '✓' : ''}</span><span style={{ flex: 1 }}>{x.title}</span>{x.pyq && <span className="pd" title={ctx.lbl.asked} />}
-                  </a>
-                ))}
-              </div>
-            ))}
+            {Object.entries(S.units).map(([u, name]) => {
+              const all = S.topics.filter(x => x.unit === +u), list = all.filter(x => !q || (x.title + ' ' + x.q).toLowerCase().includes(q.toLowerCase()));
+              if (!list.length) return null;
+              const ud = all.filter(x => done.has(x.id)).length;
+              return (
+                <div key={u} className="side-unit" style={{ '--uc': UCOL[u] }}>
+                  <div className="unit-h">
+                    <span className="unit-no">{+u ? u : '★'}</span>
+                    <span className="unit-name">{+u ? 'Unit ' + u : name}<small>{+u ? name : 'foundation'}</small></span>
+                    <span className="unit-count">{ud}/{all.length}</span>
+                    <i className="unit-bar" style={{ '--p': ud / all.length }} />
+                  </div>
+                  {list.map(x => (
+                    <a key={x.id} className={'side-item' + (x.id === t.id ? ' on' : '') + (done.has(x.id) ? ' done' : '')} href={`#/${meta.id}/learn/${x.id}`}>
+                      <span className="mk" aria-label={done.has(x.id) ? 'learned' : undefined}>{done.has(x.id) ? '✓' : S.topics.indexOf(x) + 1}</span>
+                      <span className="si-t">{x.title}</span>
+                      {x.pyq && <span className="si-pyq" title={ctx.lbl.asked + ' · ' + x.pyq}>{ctx.lbl.pyq}</span>}
+                    </a>
+                  ))}
+                </div>
+              );
+            })}
           </div>
         </details>
       </aside>
@@ -676,33 +688,47 @@ function Revise({ ctx }) {
 /* ---------------- PAPER ---------------- */
 function Paper({ ctx }) {
   const { S, meta, byId, done } = ctx;
+  const ids = S.pyq.flatMap(s => s.items.map(i => i[3])).filter(id => byId[id]);
+  const got = ids.filter(id => done.has(id)).length;
+  const slug = t => 'ps-' + t.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
   return (
-    <div className="wrap">
+    <div className="wrap paper">
       <p className="eyebrow">Previous year · End semester</p>
       <h1 className="page-h">{ctx.lbl.paper}</h1>
       <p className="lead">{ctx.lbl.paperLead}</p>
-      {S.pyq.map(s => (
-        <section className="paper-sec" key={s.title}>
-          <h2>{s.title}</h2>
-          {s.items.map(([no, q, m, id]) => {
-            const t = byId[id];
-            return (
-              <div className="pq" key={no}>
-                <div className="pq-no">Q{no}</div>
-                <div className="pq-body">
-                  <p>{q}</p>
-                  {m === 2 && t?.short && <details><summary>Show 2-mark answer</summary><Html className="prose short" html={t.short} /></details>}
-                  <div className="pq-meta">
-                    <span className="tag">{m} marks</span>
-                    {t && <a className="btn sm" href={`#/${meta.id}/learn/${id}`}>Open full answer →</a>}
-                    {t && done.has(id) && <span className="tag" style={{ color: 'var(--ok)' }}>✓ learned</span>}
+      <div className="paper-top">
+        <div className="paper-ring"><Ring value={ids.length ? got / ids.length : 0} size={64} stroke={6} /><span>{got}/{ids.length}</span></div>
+        <nav className="paper-jump" aria-label="Sections">
+          {S.pyq.map(s => <a key={s.title} href={'#/' + meta.id + '/paper'} onClick={e => { e.preventDefault(); document.getElementById(slug(s.title))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{s.title.split(/[·(]/)[0].trim()}<small>{s.items.length}</small></a>)}
+        </nav>
+      </div>
+      {S.pyq.map(s => {
+        const sd = s.items.filter(i => done.has(i[3])).length;
+        return (
+          <section className="paper-sec" key={s.title} id={slug(s.title)}>
+            <div className="paper-sec-h"><h2>{s.title}</h2><span className="muted">{sd}/{s.items.length} learned</span><i className="unit-bar" style={{ '--p': sd / s.items.length }} /></div>
+            {s.items.map(([no, q, m, id], k) => {
+              const t = byId[id], d = t && done.has(id);
+              return (
+                <motion.div className={'pq' + (d ? ' done' : '')} key={no} style={{ '--m': m }}
+                  initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-30px' }} transition={{ duration: 0.4, delay: Math.min(k, 6) * 0.04 }}>
+                  <div className="pq-no"><small>Q</small>{String(no).padStart(2, '0')}</div>
+                  <div className="pq-body">
+                    <p className="pq-q">{q}</p>
+                    {m === 2 && t?.short && <details className="pq-ans"><summary><span>Show 2-mark answer</span></summary><Html className="prose short" html={t.short} /></details>}
+                    <div className="pq-meta">
+                      {t && <a className="btn sm pq-open" href={`#/${meta.id}/learn/${id}`}>Open full answer <span aria-hidden="true">→</span></a>}
+                      {t && <span className="muted pq-topic">{t.title}</span>}
+                    </div>
                   </div>
-                </div>
-              </div>
-            );
-          })}
-        </section>
-      ))}
+                  <div className="pq-stamp" aria-label={m + ' marks'}><b>{m}</b><small>marks</small></div>
+                  {d && <span className="pq-seal" title="Learned">済</span>}
+                </motion.div>
+              );
+            })}
+          </section>
+        );
+      })}
     </div>
   );
 }

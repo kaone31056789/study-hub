@@ -28,7 +28,7 @@ export function portal(href, x = innerWidth / 2, y = innerHeight / 2) {
   el.style.setProperty('--px', x + 'px');
   el.style.setProperty('--py', y + 'px');
   el.innerHTML = `<svg class="portal-spiral" viewBox="-100 -100 200 200"><path d="${SPIRAL}"/></svg>
-    <ascii-art class="portal-hole" piece="black-hole" size="19"></ascii-art>
+    <ascii-art class="portal-hole" piece="black-hole" size="19" mono></ascii-art>
     <svg class="portal-spiral two" viewBox="-100 -100 200 200"><path d="${SPIRAL}"/></svg>`;
   document.body.append(el);
   const root = document.documentElement;

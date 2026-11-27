@@ -126,7 +126,7 @@ sakuga-input::part(input){font:400 15px Inter,system-ui,sans-serif}
 /* ---------- "Start reading" portal: black hole + ink spiral (portal.js) ---------- */
 @property --hole{syntax:'<length>';inherits:false;initial-value:0px}
 .portal{position:fixed;inset:0;z-index:2147482500;overflow:hidden;pointer-events:none;
-  background:radial-gradient(circle at 50% 50%,#1a1430 0,#07060d 45%,#020208 100%);
+  background:radial-gradient(circle at 50% 50%,#2a1410 0,#0e0d0c 42%,#060505 100%);
   clip-path:circle(0 at var(--px) var(--py));animation:portal-in .5s cubic-bezier(.77,0,.175,1) forwards}
 @keyframes portal-in{to{clip-path:circle(150vmax at var(--px) var(--py))}}
 .portal > *{position:absolute;left:50%;top:50%;translate:-50% -50%}   /* translate is separate from the animated transform */
@@ -135,7 +135,7 @@ sakuga-input::part(input){font:400 15px Inter,system-ui,sans-serif}
 .portal-spiral.two{stroke:rgba(217,69,43,.4);stroke-width:.35;animation-duration:1.15s;animation-name:spiral-suck-2}
 @keyframes spiral-suck{from{transform:rotate(0) scale(1.25);opacity:.95}to{transform:rotate(620deg) scale(.03);opacity:.15}}
 @keyframes spiral-suck-2{from{transform:rotate(40deg) scale(1.6);opacity:.8}to{transform:rotate(760deg) scale(.02);opacity:0}}
-.portal-hole{border-radius:50%;-webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent);
+.portal-hole{border-radius:50%;--ascii-ink:#e9e2d4;color:#e9e2d4;filter:drop-shadow(0 0 22px rgba(217,69,43,.7)) drop-shadow(0 0 60px rgba(217,69,43,.35));-webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent);
   animation:hole-swell 1s cubic-bezier(.4,0,.6,1) forwards}
 @keyframes hole-swell{from{transform:scale(.25) rotate(-30deg);opacity:0}30%{opacity:1}to{transform:scale(1.2) rotate(0)}}
 /* way out: a hole opens from the centre and the new page comes through it */

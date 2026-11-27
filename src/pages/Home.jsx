@@ -9,6 +9,7 @@ import SpotlightCard from '../rb/SpotlightCard';
 import { Brand } from '../components/Logo';
 import { Reveal } from '../components/ui';
 import { InkPond, Ascii, MorphText } from '../components/canvasfx';
+import TypeGarden from '../components/TypeGarden';
 import { RELEASES_URL, useLatestApk } from '../components/UpdatePrompt';
 import { SUBJECTS, SEASON } from '../subjects';
 import { store } from '../store';
@@ -125,6 +126,11 @@ export default function Home() {
             </motion.div>
           )}
         </section>
+
+        <Reveal className="garden-band">
+          <TypeGarden editable height={300} label="Type a word and watch it bloom"
+            words={lang === 'gaali' ? ['padh le bc', 'phone rakh', 'kal paper hai'] : lang === 'bhai' ? ['chal padhte hain', 'ek topic ek baar', 'tension mat le'] : ['study hub', 'one topic at a time', 'you got this']} />
+        </Reveal>
 
         <div className="section-row"><h2 className="section-title">Your subjects</h2><span className="muted">{SUBJECTS.length} {SUBJECTS.length === 1 ? 'subject' : 'subjects'}</span></div>
         <div className="subjects">

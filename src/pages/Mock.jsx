@@ -8,6 +8,7 @@ import { api } from '../api';
 import { useLang } from '../lang';
 import AiIcon from '../components/AiIcon';
 import { SkRadio, SkCheck, PwRound, PwSigil } from '../components/sakuga';
+import { AsciiKnight } from '../components/canvasfx';
 
 const plain = h => (h || '').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ').trim();
 const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -119,6 +120,7 @@ export default function Mock({ ctx }) {
     <div className="wrap narrow">
       <p className="eyebrow">Practice like the real thing</p>
       <h1 className="page-h">Mock test</h1>
+      <AsciiKnight height={300} caption="Armour on. Sixty marks ahead. " />
       <p className="lead">A full 60-mark paper in the exam pattern. Type your answers, or write them on paper and add a photo. Then <b>AI checks every answer</b>, gives marks, and tells you what you missed.</p>
       <div className="card" style={{ marginTop: 20 }}>
         <b>Time</b>

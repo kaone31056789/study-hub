@@ -13,7 +13,9 @@ import './meme-img.css';
 
 import './features.css';
 import './ink.css';
+import './rework.css';
 import './portal.js';
+import './decrypt.js';
 
 initSync();
 createRoot(document.getElementById('root')).render(<App />);

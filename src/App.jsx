@@ -19,9 +19,9 @@ const LIT = '.card,.subj,.row,.tcard,.rev-card,.gl-item,.quick a,.top .tabs';
 addEventListener('pointermove', e => {
   const el = e.pointerType === 'mouse' && e.target.closest?.(LIT);
   if (!el) return;
-  const r = el.getBoundingClientRect();
-  el.style.setProperty('--mx', e.clientX - r.left + 'px');
-  el.style.setProperty('--my', e.clientY - r.top + 'px');
+  const r = el.getBoundingClientRect(), z = r.width / el.offsetWidth || 1; // page may be CSS-zoomed on big screens
+  el.style.setProperty('--mx', (e.clientX - r.left) / z + 'px');
+  el.style.setProperty('--my', (e.clientY - r.top) / z + 'px');
 }, { passive: true });
 
 // Hash routing (#/pblj/learn/u1-jvm) so the built site works on any static server with no rewrite rules.

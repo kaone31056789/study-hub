@@ -5,7 +5,8 @@ import { api } from '../api';
 import { useLang } from '../lang';
 import { useSpeech } from '../speech';
 import { store } from '../store';
-import { SkSlider, PwRaven, PwSage } from './sakuga';
+import { SkSlider, PwSage } from './sakuga';
+import TypeGarden from './TypeGarden';
 import { getCode, createCode, connectCode, disconnect, pullAndMerge } from '../sync';
 
 // Tiny safe markdown: escape first, then **bold**, `code`, bullets, line breaks.
@@ -35,6 +36,7 @@ const CHIPS = {
   bhai: ['Isko aur simple samjhao', 'Real life example do', '5 marks ka exam answer likh do', 'Diagram kaise banau?'],
   gaali: ['Aur simple samjha saale', 'Desi example de', '5 marks ka answer likh de', 'Diagram kaise banaun be?']
 };
+const CHIP_ICONS = ['💡', '🏠', '📝', '✏️'];
 export function AskAI({ topic, context }) {
   const lang = useLang();
   const [open, setOpen] = useState(false);
@@ -71,7 +73,10 @@ export function AskAI({ topic, context }) {
                 <button className="nudge-x" onClick={() => setOpen(false)} aria-label="Close">✕</button>
               </div>
               <div className="sheet-body">
-                {log.length === 0 && <div className="ask-chips">{CHIPS[lang].map(c => <button key={c} className="xp-chip" onClick={() => send(c)}>{c}</button>)}</div>}
+                {log.length === 0 && <>
+                  <TypeGarden text={q || undefined} words={[lang === 'en' ? 'ask anything' : lang === 'bhai' ? 'doubt poochho' : 'pooch na be']} height={150} className="ask-garden" />
+                  <div className="ask-chips">{CHIPS[lang].map((c, i) => <button key={c} className="xp-chip ask-chip" onClick={() => send(c)}><span aria-hidden="true">{CHIP_ICONS[i]}</span>{c}</button>)}</div>
+                </>}
                 {log.map((m, i) => <div key={i} className={'ask-msg ' + (m.me ? 'me' : m.err ? 'err' : 'ai')} dangerouslySetInnerHTML={{ __html: m.me || m.err ? esc(m.t) : miniMd(m.t) }} />)}
                 {busy && <div className="ask-msg ai pw-sage"><PwSage state="thinking" label={lang === 'en' ? 'Thinking' : 'Soch raha hai'} detail={topic} /></div>}
                 <div ref={end} />
@@ -79,7 +84,9 @@ export function AskAI({ topic, context }) {
               <form className="ask-form" onSubmit={e => { e.preventDefault(); send(); }}>
                 <textarea value={q} onChange={e => setQ(e.target.value)} rows={2} maxLength={1500} placeholder={lang === 'en' ? 'Type your doubt…' : 'Apna doubt likho…'}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }} aria-label="Your question" />
-                <PwRaven busy={busy} onSend={() => send()} label={lang === 'en' ? 'Send' : 'Bhejo'} />
+                <button className="ask-send" disabled={busy || !q.trim()} aria-label={lang === 'en' ? 'Send' : 'Bhejo'}>
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h13M12 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
               </form>
             </motion.div>
           </motion.div>

@@ -117,13 +117,35 @@ export function EasyExplain({ e, lang = 'en' }) {
   );
   return (
     <div className="bx">
-      {part(0, 'bx-s', <p className="bx-s">{e.s}</p>)}
-      {part(1, 'bx-ex', <p className="bx-body">{e.story}</p>)}
-      {e.words?.length > 0 && part(2, 'bx-words', <dl className="bx-dl">{e.words.map(([w, m]) => <div key={w}><dt>{w}</dt><dd>{m}</dd></div>)}</dl>)}
-      {e.how?.length > 0 && part(3, 'bx-java', <ol className="bx-how">{e.how.map((h, i) => <li key={i} dangerouslySetInnerHTML={{ __html: h }} />)}</ol>)}
+      {part(0, 'bx-s', <p className="bx-s"><span className="bx-ink">{e.s}</span></p>)}
+      {part(1, 'bx-ex', <p className="bx-body bx-quote">{e.story}</p>)}
+      {e.words?.length > 0 && part(2, 'bx-words', <dl className="bx-dl">{e.words.map(([w, m], i) => <div key={w} style={{ '--i': i }}><dt>{w}</dt><dd>{m}</dd></div>)}</dl>)}
+      {e.how?.length > 0 && part(3, 'bx-java', <ol className="bx-how">{e.how.map((h, i) => <li key={i} style={{ '--i': i }} dangerouslySetInnerHTML={{ __html: h }} />)}</ol>)}
       {part(4, 'bx-exam', <p className="bx-body">{e.exam}</p>)}
-      <div className="bx-yaad"><span>{L[5]}</span><b>{e.yaad}</b></div>
+      <Yaad label={L[5]} text={e.yaad} />
     </div>
+  );
+}
+
+// "RENT: Real, Energy compaction, No edge jump, Time-fast" -> one tile per letter, each with its word.
+function Yaad({ label, text }) {
+  const m = /^([A-Z]{2,9})\s*[:=–-]\s*(.+)$/.exec(text || '');
+  const words = m && m[2].replace(/\.\s*$/, '').split(/\s*[,;]\s*/).filter(Boolean);
+  const ok = words && words.length === m[1].length;
+  return (
+    <motion.div className="bx-yaad" initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-20px' }} transition={{ duration: 0.4 }}>
+      <span>{label}</span>
+      {ok ? (
+        <div className="yaad-tiles" aria-label={text}>
+          {words.map((w, i) => (
+            <motion.div key={i} className="yaad-tile" initial={{ opacity: 0, y: 14, rotate: -4 }} whileInView={{ opacity: 1, y: 0, rotate: 0 }} viewport={{ once: true }}
+              transition={{ type: 'spring', stiffness: 380, damping: 22, delay: 0.15 + i * 0.09 }}>
+              <b>{m[1][i]}</b><small>{w}</small>
+            </motion.div>
+          ))}
+        </div>
+      ) : <b>{text}</b>}
+    </motion.div>
   );
 }
 

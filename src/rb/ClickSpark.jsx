@@ -308,12 +308,13 @@ const ClickSpark = forwardRef(
         const canvas = document.createElement('canvas');
         canvas.width = Math.ceil((box.right - box.left) * ratio);
         canvas.height = Math.ceil((box.bottom - box.top) * ratio);
+        const z = rect.width / root.offsetWidth || 1; // root may be CSS-zoomed on big screens
         Object.assign(canvas.style, {
           position: 'absolute',
-          left: `${box.left - rect.left}px`,
-          top: `${box.top - rect.top}px`,
-          width: `${box.right - box.left}px`,
-          height: `${box.bottom - box.top}px`,
+          left: `${(box.left - rect.left) / z}px`,
+          top: `${(box.top - rect.top) / z}px`,
+          width: `${(box.right - box.left) / z}px`,
+          height: `${(box.bottom - box.top) / z}px`,
           display: 'block',
           pointerEvents: 'none'
         });
