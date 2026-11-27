@@ -19,7 +19,7 @@ import { BeginnerProse, TermCards } from '../components/Beginner';
 import { TapReveal, AsciiFooter, CardArt } from '../components/asciiui';
 import { WIDGETS } from '../widgets';
 import { store, shuffle } from '../store';
-import { InkMist, Ascii } from '../components/canvasfx';
+import { InkMist, Ascii, PageArt } from '../components/canvasfx';
 import { SkTabs, SkCheck, SkToggle, SkInput, SkProgress, SkRating, SkTooltip, SkButton, PwHoard, PwSigil, toast, fxHit, fx } from '../components/sakuga';
 
 const UCOL = ['var(--warn)', 'var(--u1)', 'var(--u2)', 'var(--u3)', 'var(--u1)', 'var(--u2)'];
@@ -529,8 +529,11 @@ function Confidence({ sid, id }) {
 /* ---------------- FLASHCARDS ---------------- */
 // ASCII Magic scene behind the flashcard deck, one per unit
 const UNIT_ART = ['ink-in-water', 'spiral-galaxy', 'koi-pond-ripples', 'sea-torii-sunset'];
+// flashcard scenery per subject (falls back to the calm set above)
+const SUBJECT_ART = { dip: ['histogram', 'wave-interference', 'pixel-paint-program', 'ink-in-water'], pblj: ['binary-tree', 'sort-race', 'neural-forward-pass', 'matrix-rain'] };
 function Cards({ ctx }) {
   const { S, meta } = ctx;
+  const ART = SUBJECT_ART[meta.id] || UNIT_ART;
   const all = useMemo(() => S.cards.map(([u, q, a]) => ({ u, q, a })), [S]);
   const [unit, setUnit] = useState('all');
   const [deck, setDeck] = useState(all);
@@ -568,7 +571,7 @@ function Cards({ ctx }) {
 
   return (
     <div className="wrap narrow">
-      <div className="page-ascii"><Ascii piece="black-hole" size={5} look="dots" /></div>
+      <PageArt slot="cards" />
       <p className="eyebrow">Quick revision</p>
       <h1 className="page-h">Flashcards</h1>
       <p className="lead">Answer in your head, then flip to check. Cards you know come back later (10 min → 1 → 3 → 7 → 15 days); the ones you miss come back soon. Keys: <kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> move.</p>
@@ -580,9 +583,9 @@ function Cards({ ctx }) {
         <>
           <div className="flash-stage">
           <AnimatePresence mode="wait">
-            <motion.div key={UNIT_ART[c.u % UNIT_ART.length]} className="flash-scene" aria-hidden="true"
+            <motion.div key={ART[c.u % ART.length]} className="flash-scene" aria-hidden="true"
               initial={{ opacity: 0, scale: 0.96, filter: 'blur(6px)' }} animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }} exit={{ opacity: 0, scale: 1.03, filter: 'blur(6px)' }} transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}>
-              <Ascii piece={UNIT_ART[c.u % UNIT_ART.length]} size={5} look="dots" />
+              <Ascii piece={ART[c.u % ART.length]} size={5} look="dots" />
             </motion.div>
           </AnimatePresence>
           {[-2, -1, 1, 2].map(o => { const k = i + o; if (k < 0 || k >= deck.length) return null; return (
@@ -604,7 +607,7 @@ function Cards({ ctx }) {
                 <span className="face-hint">Tap to flip · swipe for next</span>
               </div>
               <div className="face back"><span className="face-tag">Answer</span><div className="face-a" dangerouslySetInnerHTML={{ __html: flip ? c.a : '' }} />
-                {flip && <div className="back-art" key={i}><Ascii piece={UNIT_ART[(c.u + 1) % UNIT_ART.length]} size={8} look="dots" className="back-bg" /><span>┌─ picture it</span><CardArt text={c.q + ' ' + c.a} /></div>}</div>
+                {flip && <div className="back-art" key={i}><Ascii piece={ART[(c.u + 1) % ART.length]} size={8} look="dots" className="back-bg" /><span>┌─ picture it</span><CardArt text={c.q + ' ' + c.a} /></div>}</div>
             </div>
           </motion.div>
           </div>
@@ -643,7 +646,7 @@ function Quiz({ ctx }) {
 
   if (!qz) return (
     <div className="wrap narrow">
-      <div className="page-ascii"><ascii-art piece="starfield-warp" size="5" /></div>
+      <PageArt slot="quiz" />
       <p className="eyebrow">Test yourself</p><h1 className="page-h">Quiz</h1>
       <p className="lead">10 random questions from a bank of {total}. You see why after each answer, and which topics to revise at the end.</p>
       <div className="quiz-start">
@@ -701,7 +704,7 @@ function Revise({ ctx }) {
   const terms = (S.glossary || []).filter(([k, v]) => !q || (k + ' ' + v).toLowerCase().includes(q.toLowerCase()));
   return (
     <div className="wrap">
-      <div className="page-ascii"><ascii-art piece="torii-gate-tunnel" size="5" /></div>
+      <PageArt slot="revise" />
       <p className="eyebrow">Last-minute revision</p>
       <h1 className="page-h">Revise</h1>
       <p className="lead">Every topic boiled down to the points you must write. Turn on <b>Test me</b> to hide the points, try to recall them, then tap to check.</p>

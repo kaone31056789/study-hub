@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { store } from '../store';
 import { sfx, haptic, useSound, setSound } from '../sound';
 import { toast } from './sakuga';
+import { PageArt } from './canvasfx';
 
 /* ── daily seal ── */
 const iso = d => { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
@@ -156,6 +157,7 @@ export function Focus({ ctx }) {
   const nextId = order.find(id => !done.has(id));
   return (
     <div className="wrap narrow focus">
+      <PageArt slot="focus" />
       <p className="eyebrow">Exam-day focus</p>
       <h1 className="page-h">Focus</h1>
       <p className="lead">{dLeft > DAY ? `${Math.floor(dLeft / DAY)} days ${Math.floor((dLeft % DAY) / 36e5)} hours until the ${meta.short} exam.` : dLeft > 0 ? `${Math.floor(dLeft / 36e5)} hours to go. Light revision only.` : `${meta.short} exam is today. Breathe, you've got this.`} The timer keeps running while you study on other pages.</p>

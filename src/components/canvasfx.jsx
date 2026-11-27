@@ -1,6 +1,7 @@
 // Canvas UI effects (src/canvasui, MIT + Commons Clause, github.com/DavidHDev/canvas-ui), tuned for the ink-wash theme.
 // Both are WebGL, pause off-screen and respect reduced motion. `off` renders the children plain (used for the light theme).
 import { useEffect, useRef, useState } from 'react';
+import { useSkin } from '../theme';
 import { Clouds } from '../canvasui/Clouds/Clouds';
 import { Ripple } from '../canvasui/Ripple/Ripple';
 
@@ -11,6 +12,19 @@ export const Ascii = ({ piece, size = 8, look = 'dots', mono = true, caption, cl
     {caption && <p>{caption}</p>}
   </div>
 );
+
+// Page art that follows the skin: one ASCII Magic piece per page slot (cards, quiz, revise, focus).
+const SKIN_ART = {
+  ink: { cards: 'black-hole', quiz: 'starfield-warp', revise: 'torii-gate-tunnel', focus: 'hourglass' },
+  matcha: { cards: 'bamboo-grove-path', quiz: 'munnar-tea-mist', revise: 'bonsai-tree', focus: 'coffee-steam' },
+  sakura: { cards: 'cherry-blossom-river', quiz: 'kyoto-pagoda-dusk', revise: 'autumn-pagoda-maples', focus: 'fireflies' },
+  aizome: { cards: 'fuji-dawn-lake', quiz: 'ocean-waves', revise: 'moonlit-sea', focus: 'rainy-window' },
+  kohaku: { cards: 'river-lantern-festival', quiz: 'palace-gate-lanterns', revise: 'campfire', focus: 'candle-flame' },
+};
+export function PageArt({ slot }) {
+  const skin = useSkin(), piece = (SKIN_ART[skin] || SKIN_ART.ink)[slot];
+  return <div className="page-ascii">{piece === 'black-hole' ? <Ascii piece={piece} size={5} look="dots" /> : <ascii-art key={piece} piece={piece} size="5" />}</div>;
+}
 
 // Vengeance UI morph-text idea: phrases replace each other through a blur.
 export function MorphText({ words, every = 2800 }) {

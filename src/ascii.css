@@ -717,3 +717,10 @@ header.top .tabs .tab-more-btn:hover,header.top .tabs .tab-more-btn.on{color:var
 @media (max-width:900px){
   :root[data-skin="kohaku"] body::after{mask:linear-gradient(#000,rgba(0,0,0,.25) 60%);-webkit-mask:linear-gradient(#000,rgba(0,0,0,.25) 60%)}
   :root[data-skin="aizome"] body::after{mask:linear-gradient(rgba(0,0,0,.25),#000 50%);-webkit-mask:linear-gradient(rgba(0,0,0,.25),#000 50%)}}
+
+/* ── status pills follow the skin (no fixed pink / yellow) ── */
+:root .pill{background:var(--accent-soft);color:var(--accent)}
+:root[data-theme="light"] .pill{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in oklab,var(--accent) 35%,transparent)}
+:root .pill.hot,:root[data-theme="light"] .pill.hot{background:var(--accent);color:var(--accent-ink,#fff);border-color:transparent;animation:pill-pulse 2.2s ease-in-out infinite}
+@keyframes pill-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--accent) 45%,transparent)}50%{box-shadow:0 0 0 6px transparent}}
+@media (prefers-reduced-motion:reduce){:root .pill.hot{animation:none}}
