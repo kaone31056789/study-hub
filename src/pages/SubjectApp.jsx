@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Calendar03Icon, BookOpen01Icon, CardsIcon, Quiz01Icon, File01Icon, Task01Icon, ArrowRight01Icon, Target01Icon, Note01Icon, Menu01Icon, MathIcon } from '@hugeicons/core-free-icons';
+import { Calendar03Icon, BookOpen01Icon, CardsIcon, Quiz01Icon, File01Icon, Task01Icon, ArrowRight01Icon, Target01Icon, Note01Icon, Menu01Icon, MathIcon, Fire03Icon } from '@hugeicons/core-free-icons';
 import Mock from './Mock';
 import Cram from './Cram';
 import Formulas from './Formulas';
 import { AskAI, AudioBar, SyncButton } from '../components/Extras';
-import { bumpWeak, weakList, clearWeak, getSrs, gradeCard } from '../progress';
+import { bumpWeak, weakList, clearWeak, getSrs, gradeCard, getMistakes, noteMistake, dropMistake } from '../progress';
+import { stampToday, InkScroll, ShareProgress, Focus, SoundToggle } from '../components/Rituals';
+import { sfx, haptic } from '../sound';
 import { Brand } from '../components/Logo';
 import { ThemeToggle, SkinToggle, useTheme } from '../theme';
 import { LangToggle, useLang, useT, desiOf } from '../lang';
@@ -33,6 +35,7 @@ export default function SubjectApp({ meta, view, arg }) {
     store.set(meta.id + ':done', [...n]);
     setDone(n);
     if (adding && S) {
+      sfx('chime'); haptic(20); stampToday();
       const el = e?.currentTarget;
       // <sakuga-button> plays its own impact; anything else (the tick circles) gets a small hit.
       if (el && el.tagName !== 'SAKUGA-BUTTON') { const r = el.getBoundingClientRect(); fxHit(r.left + r.width / 2, r.top + r.height / 2); }
@@ -59,6 +62,7 @@ export default function SubjectApp({ meta, view, arg }) {
           : view === 'mock' ? <Mock ctx={ctx} />
           : view === 'cram' ? <Cram ctx={ctx} />
           : view === 'formulas' ? <Formulas ctx={ctx} />
+          : view === 'focus' ? <Focus ctx={ctx} />
           : <Plan ctx={ctx} />}
       </motion.main>
       <AsciiFooter title={meta.short} line={meta.name + ' · ' + meta.code + ' · one topic at a time'} />
@@ -73,24 +77,58 @@ function Header({ meta, view, done, total }) {
       <div className="top-in">
         <Brand title={meta.short} sub={meta.code} back />
         <nav className="tabs" aria-label="Sections">
-          {TABS.map(([k, l]) => (
+          {TABS.slice(0, MAIN_TABS).map(([k, l]) => (
             <a key={k} href={'#/' + meta.id + '/' + k} className={view === k ? 'on' : ''}>
               {view === k && <motion.span layoutId="tabpill" className="tab-pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
               <span className="tab-txt">{l}</span>
             </a>
           ))}
+          <TabMore meta={meta} view={view} />
         </nav>
         <div className="prog"><span>{done}/{total} done</span><div className="bar"><i style={{ width: total ? (done / total) * 100 + '%' : 0 }} /></div></div>
         <LangToggle />
         <SyncButton />
-        <SkinToggle /><ThemeToggle />
+        <SoundToggle /><SkinToggle /><ThemeToggle />
       </div>
     </header>
   );
 }
 
-const TABS = [['plan', 'Plan', Calendar03Icon], ['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Target01Icon], ['cram', 'Cram', Note01Icon], ['cards', 'Cards', CardsIcon], ['quiz', 'Quiz', Quiz01Icon], ['paper', 'PYQ', File01Icon], ['formulas', 'Formulas', MathIcon]];
-const SHORT = { plan: 'Plan', learn: 'Learn', revise: 'Revise', mock: 'Mock', cram: 'Cram', cards: 'Cards', quiz: 'Quiz', paper: 'PYQ', formulas: 'Formulas' };
+// the last four sit under "More" in the header; Cram is still reachable by link but has no tab
+const MAIN_TABS = 5;
+function TabMore({ meta, view }) {
+  const [open, setOpen] = useState(false);
+  const extra = TABS.slice(MAIN_TABS), cur = extra.find(([k]) => k === view);
+  useEffect(() => setOpen(false), [view]);
+  useEffect(() => {
+    if (!open) return;
+    const off = e => { if (!e.target.closest?.('.tab-more')) setOpen(false); };
+    const esc = e => e.key === 'Escape' && setOpen(false);
+    addEventListener('pointerdown', off); addEventListener('keydown', esc);
+    return () => { removeEventListener('pointerdown', off); removeEventListener('keydown', esc); };
+  }, [open]);
+  return (
+    <div className="tab-more">
+      <button className={'tab-more-btn' + (cur ? ' on' : '')} onClick={() => setOpen(o => !o)} aria-expanded={open} aria-haspopup="menu">
+        {cur && <motion.span layoutId="tabpill" className="tab-pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+        <span className="tab-txt">{cur ? cur[1] : 'More'}</span>
+        <svg className={'tm-arrow' + (open ? ' up' : '')} width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div className="tab-more-menu" role="menu" initial={{ opacity: 0, y: -6, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}>
+            {extra.map(([k, l, icon]) => (
+              <a key={k} role="menuitem" href={'#/' + meta.id + '/' + k} className={view === k ? 'on' : ''}><HugeiconsIcon icon={icon} size={17} strokeWidth={1.8} />{l}</a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+const TABS = [['plan', 'Plan', Calendar03Icon], ['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Target01Icon], ['cards', 'Cards', CardsIcon], ['quiz', 'Quiz', Quiz01Icon], ['paper', 'PYQ', File01Icon], ['formulas', 'Formulas', MathIcon], ['focus', 'Focus', Fire03Icon]];
+const SHORT = { plan: 'Plan', learn: 'Learn', revise: 'Revise', mock: 'Mock', cram: 'Cram', cards: 'Cards', quiz: 'Quiz', paper: 'PYQ', formulas: 'Formulas', focus: 'Focus' };
 const PRIMARY = ['plan', 'learn', 'revise', 'mock'];
 
 // Phone tab bar (shown under 760px via CSS)
@@ -229,11 +267,15 @@ function Plan({ ctx }) {
         )}
       </section>
 
+      <section className="plan-scroll">
+        <InkScroll done={n} total={total} />
+        <div className="plan-share"><ShareProgress meta={meta} done={n} total={total} /><a className="btn" href={'#/' + meta.id + '/focus'}>Focus timer</a></div>
+      </section>
+
       <WeakCard ctx={ctx} />
 
       <div className="quick">
         <a href={'#/' + meta.id + '/mock'}><HugeiconsIcon icon={Target01Icon} size={18} /><b>Mock test</b><small>AI checks your answers</small></a>
-        <a href={'#/' + meta.id + '/cram'}><HugeiconsIcon icon={Note01Icon} size={18} /><b>Cram sheet</b><small>last 1 hour</small></a>
         <a href={'#/' + meta.id + '/learn'}><HugeiconsIcon icon={BookOpen01Icon} size={18} /><b>All topics</b><small>browse & tick off</small></a>
         <a href={'#/' + meta.id + '/revise'}><HugeiconsIcon icon={Task01Icon} size={18} /><b>Revise</b><small>key points per topic</small></a>
         <a href={'#/' + meta.id + '/cards'}><HugeiconsIcon icon={CardsIcon} size={18} /><b>Flashcards</b><small>{S.cards.length} cards</small></a>
@@ -509,13 +551,14 @@ function Cards({ ctx }) {
   const dueN = deck.filter(x => srs[x.q] && srs[x.q].due <= now).length;
   const newN = deck.filter(x => !srs[x.q]).length;
 
-  const pickUnit = u => { setUnit(u); const d = all.filter(x => u === 'all' || x.u === u); setDeck(smart ? order(d) : d); setI(0); setFlip(false); };
+  const [fixN] = useState(() => getMistakes(meta.id).length);
+  const pickUnit = u => { setUnit(u); const d = u === 'fix' ? getMistakes(meta.id).map(m => ({ ...m, fix: true })) : all.filter(x => u === 'all' || x.u === u); setDeck(smart && u !== 'fix' ? order(d) : d); setI(0); setFlip(false); };
   const move = d => { setFlip(false); setI(x => (x + d + deck.length) % deck.length); };
-  const mark = k => { setSrs(gradeCard(meta.id, c.q, k)); move(1); };
+  const mark = k => { if (c.fix) { if (k) dropMistake(meta.id, c.q); } else setSrs(gradeCard(meta.id, c.q, k)); stampToday(); move(1); };
   useEffect(() => {
     const on = e => {
       if (/INPUT|TEXTAREA|SAKUGA-/.test(e.target.tagName)) return; // sakuga controls own their arrow/space keys
-      if (e.key === ' ') { e.preventDefault(); setFlip(f => !f); }
+      if (e.key === ' ') { e.preventDefault(); sfx('flip'); setFlip(f => !f); }
       else if (e.key === 'ArrowRight') move(1);
       else if (e.key === 'ArrowLeft') move(-1);
     };
@@ -532,7 +575,7 @@ function Cards({ ctx }) {
       <div className="srs-stats"><span><b>{dueN}</b> due now</span><span><b>{newN}</b> new</span><span><b>{deck.length - dueN - newN}</b> scheduled</span>
         <span className="sk-row"><SkCheck checked={smart} onChange={on => { setSmart(on); setDeck(on ? order(deck) : all.filter(x => unit === 'all' || x.u === unit)); setI(0); }}>Smart order</SkCheck>
           <SkTooltip label="What is smart order?" text="Cards due for review come first, then new ones. Cards you already know wait until their day comes." /></span></div>
-      <div className="sk-seg"><SkTabs label="Unit" value={unit} onChange={pickUnit} options={['all', ...Object.keys(S.units).map(Number)].map(u => [u, u === 'all' ? 'All' : 'Unit ' + u])} /></div>
+      <div className="sk-seg"><SkTabs label="Unit" value={unit} onChange={pickUnit} options={[...['all', ...Object.keys(S.units).map(Number)].map(u => [u, u === 'all' ? 'All' : 'Unit ' + u]), ...(fixN ? [['fix', 'Fix these · ' + fixN]] : [])]} /></div>
       {c && (
         <>
           <div className="flash-stage">
@@ -552,10 +595,10 @@ function Cards({ ctx }) {
             drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.6}
             onDragEnd={(e, info) => { if (info.offset.x < -80) move(1); else if (info.offset.x > 80) move(-1); }}
             initial={{ opacity: 0, x: 30, scale: 0.97 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-            onClick={e => { fx.swish(e.currentTarget); setFlip(f => !f); }}>
+            onClick={e => { fx.swish(e.currentTarget); sfx('flip'); haptic(8); setFlip(f => !f); }}>
             <div className="flash-inner">
               <div className="face front">
-                <span className="face-tag">Unit {c.u} · Question{known.has(c.q) && <span className="known"> · known</span>}</span>
+                <span className="face-tag">{c.fix ? <>Fix this · you missed it in a quiz</> : <>Unit {c.u} · Question{known.has(c.q) && <span className="known"> · known</span>}</>}</span>
                 <div className="face-q" dangerouslySetInnerHTML={{ __html: c.q }} />
                 <CardArt text={c.q} />
                 <span className="face-hint">Tap to flip · swipe for next</span>
@@ -620,6 +663,7 @@ function Quiz({ ctx }) {
         <div className="score-big" ref={el => { if (el && !el.dataset.fx) { el.dataset.fx = 1; requestAnimationFrame(() => fx.boom(el)); } }}><GradientText colors={pct >= 80 ? ['#4cc777', '#9be15d', '#4cc777'] : ['#ff7a3d', '#ffb38a', '#ff7a3d']}>{qz.score}/{qz.qs.length}</GradientText></div>
         {pct >= 80 && <Ascii piece="empty-task-confetti" size={7} look="" mono={false} />}
         <p>{pct >= 80 ? 'Solid. You know these well.' : pct >= 50 ? 'Getting there. Revisit the topics below.' : 'Go back over the topics below, then try again.'}</p>
+        {qz.wrong.length > 0 && <p className="muted">{qz.wrong.length} missed {qz.wrong.length === 1 ? 'question is' : 'questions are'} now in <a href={`#/${meta.id}/cards`}>Cards → Fix these</a>, so they come back until you get them.</p>}
         {wt.length > 0 && <><h3>Revise these</h3><div className="rows">{wt.map(id => <TopicRow key={id} ctx={ctx} id={id} />)}</div></>}
         <div className="cta"><button className="btn primary" onClick={() => start(qz.u)}>New quiz</button><button className="btn" onClick={() => setQz(null)}>Change unit</button><a className="btn" href={`#/${meta.id}/cards`}>Flashcards</a></div>
       </div>
@@ -631,7 +675,7 @@ function Quiz({ ctx }) {
     <div className="wrap narrow">
       <div className="qz-top"><span>Question {qz.i + 1} of {qz.qs.length}</span><span>Score {qz.score}</span></div>
       <div className="sk-progress"><SkProgress label="Quiz progress" value={(qz.i + (answered ? 1 : 0)) / qz.qs.length} /></div>
-      <MCQ key={qz.i} q={q} big onAnswer={ok => { bumpWeak(meta.id, q.tid, ok ? -0.5 : 1); setAnswered(true); setQz(z => ({ ...z, score: z.score + (ok ? 1 : 0), wrong: ok ? z.wrong : [...z.wrong, q] })); }} />
+      <MCQ key={qz.i} q={q} big onAnswer={ok => { bumpWeak(meta.id, q.tid, ok ? -0.5 : 1); noteMistake(meta.id, q, ctx.byId[q.tid]?.unit, ok); if (ok) sfx('chime'); stampToday(); setAnswered(true); setQz(z => ({ ...z, score: z.score + (ok ? 1 : 0), wrong: ok ? z.wrong : [...z.wrong, q] })); }} />
       {answered && (
         <div className="cta">
           <button className="btn primary" autoFocus onClick={() => { setAnswered(false); setQz(z => ({ ...z, i: z.i + 1 })); }}>{qz.i + 1 < qz.qs.length ? 'Next question →' : 'See result'}</button>
@@ -652,7 +696,7 @@ function Revise({ ctx }) {
   const [q, setQ] = useState('');
   const list = S.topics.filter(t => t.rev && (unit === 'all' || t.unit === unit));
   const nRev = list.filter(t => rev.has(t.id)).length;
-  const toggleRev = id => { const n = new Set(rev); n.has(id) ? n.delete(id) : n.add(id); store.set(meta.id + ':revised', [...n]); setRev(n); };
+  const toggleRev = id => { const n = new Set(rev); n.has(id) ? n.delete(id) : (n.add(id), stampToday()); store.set(meta.id + ':revised', [...n]); setRev(n); };
   const reveal = id => setShown(x => new Set(x).add(id));
   const terms = (S.glossary || []).filter(([k, v]) => !q || (k + ' ' + v).toLowerCase().includes(q.toLowerCase()));
   return (

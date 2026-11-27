@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { BrainIcon, Layers01Icon, Target01Icon, Note01Icon, CheckmarkCircle02Icon, ArrowRight01Icon, Calendar03Icon, Task01Icon, CardsIcon, BookOpen01Icon, File01Icon } from '@hugeicons/core-free-icons';
+import { BrainIcon, Layers01Icon, Target01Icon, Note01Icon, CheckmarkCircle02Icon, ArrowRight01Icon, Calendar03Icon, Task01Icon, CardsIcon, BookOpen01Icon, File01Icon, SmartPhone01Icon } from '@hugeicons/core-free-icons';
 import CountUp from '../rb/CountUp';
 import Aurora from '../rb/Aurora';
 import Nudge from '../components/Nudge';
@@ -10,6 +10,7 @@ import { Brand } from '../components/Logo';
 import { Reveal } from '../components/ui';
 import { Ascii, MorphText } from '../components/canvasfx';
 import TypeGarden from '../components/TypeGarden';
+import { SealCalendar, SoundToggle } from '../components/Rituals';
 import { AsciiFooter, AsciiStrip } from '../components/asciiui';
 import { RELEASES_URL, useLatestApk } from '../components/UpdatePrompt';
 import { SUBJECTS, SEASON } from '../subjects';
@@ -26,7 +27,7 @@ const AURORA = {
   aizome: [['#cfd9f2', '#7f95dd', '#e8ecf6'], ['#121a33', '#3a52b0', '#1f2a4a']],
   kohaku: [['#f7e0b8', '#f0a23b', '#fbf0dc'], ['#26190b', '#c27a1e', '#33240f']],
 };
-const QUICK = [['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Note01Icon], ['cram', 'Cram', Target01Icon], ['cards', 'Cards', CardsIcon], ['paper', 'PYQ', File01Icon]];
+const QUICK = [['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Note01Icon], ['cards', 'Cards', CardsIcon], ['paper', 'PYQ', File01Icon]];
 const QuickLinks = ({ id, className }) => (
   <div className={className}>
     {QUICK.map(([k, label, icon]) => <a key={k} href={`#/${id}/${k}`}><HugeiconsIcon icon={icon} size={18} />{label}</a>)}
@@ -101,10 +102,10 @@ export default function Home() {
         <div className="top-in">
           <Brand title="Study Hub" sub="end-semester prep" />
           <div className="top-actions">
-            {!window.Capacitor && <a className="season-chip app-dl" href={apk?.url || RELEASES_URL} title={apk ? 'Latest Android app: v' + apk.n + ', ' + apk.mb + ' MB' : 'Android app'}>📱 <span className="lbl-long">Android app{apk && <> v{apk.n} · {apk.mb} MB</>}</span><span className="lbl-short">App{apk && <> v{apk.n}</>}</span></a>}
+            {!window.Capacitor && <a className="season-chip app-dl" href={apk?.url || RELEASES_URL} title={apk ? 'Latest Android app: v' + apk.n + ', ' + apk.mb + ' MB' : 'Android app'}><HugeiconsIcon icon={SmartPhone01Icon} size={15} /> <span className="lbl-long">Android app{apk && <> v{apk.n} · {apk.mb} MB</>}</span><span className="lbl-short">App{apk && <> v{apk.n}</>}</span></a>}
             <span className="season-chip hide-sm"><HugeiconsIcon icon={Calendar03Icon} size={15} /> {fmt(start)} – {fmt(SEASON.end)}</span>
             <LangToggle />
-            <SkinToggle /><ThemeToggle />
+            <SoundToggle /><SkinToggle /><ThemeToggle />
           </div>
         </div>
       </header>
@@ -138,6 +139,8 @@ export default function Home() {
           <TypeGarden editable height={300} label="Type a word and watch it bloom"
             words={lang === 'gaali' ? ['padh le bc', 'phone rakh', 'kal paper hai'] : lang === 'bhai' ? ['chal padhte hain', 'ek topic ek baar', 'tension mat le'] : ['study hub', 'one topic at a time', 'you got this']} />
         </Reveal>
+
+        <Reveal><SealCalendar /></Reveal>
 
         <div className="section-row"><h2 className="section-title">Your subjects</h2><span className="muted">{SUBJECTS.length} {SUBJECTS.length === 1 ? 'subject' : 'subjects'}</span></div>
         <div className="subjects">
@@ -196,7 +199,7 @@ export default function Home() {
         <div className="flow">
           {STEPS.map(([icon, t, d], i) => (
             <Reveal key={t} delay={i * 0.06} className="flow-step">
-              <div className="flow-icon"><HugeiconsIcon icon={icon} size={22} strokeWidth={1.8} /><span>{i + 1}</span></div>
+              <div className="flow-icon"><HugeiconsIcon icon={icon} size={20} strokeWidth={1.8} /><span>{String(i + 1).padStart(2, '0')}</span></div>
               <b>{t}</b>
               <p>{d}</p>
             </Reveal>

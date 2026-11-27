@@ -545,3 +545,146 @@ sakuga-tooltip{position:relative;z-index:5}
 :root[data-theme="light"] .page-ascii{background:#16130f;border:6px solid var(--surface);outline:1px solid var(--line);opacity:1;
   box-shadow:0 1px 0 rgba(0,0,0,.04),0 22px 40px -26px rgba(40,30,20,.55)}
 :root[data-theme="light"] .page-ascii ascii-art{filter:saturate(.75) sepia(.15) contrast(1.05)}
+
+/* ── daily seal: the stamp moment + the 14-day calendar ── */
+.stamp-ov{position:fixed;inset:0;z-index:2147482000;display:grid;place-items:center;align-content:center;gap:18px;pointer-events:none;
+  background:radial-gradient(closest-side,color-mix(in oklab,var(--bg) 70%,transparent),transparent);animation:st-fade 1.9s ease both}
+.stamp-hit{position:relative;display:grid;place-items:center;animation:st-hit .42s cubic-bezier(.5,0,.75,0) both}
+.stamp-hit .seal-mark{filter:drop-shadow(0 10px 24px rgba(0,0,0,.35));rotate:-8deg}
+.stamp-ink{position:absolute;inset:-30px;border-radius:50%;border:3px solid var(--accent);opacity:0;animation:st-ring .7s .4s cubic-bezier(.22,1,.36,1) both}
+.stamp-ov p{margin:0;font:600 15px/1.3 var(--mono);color:var(--text);background:var(--surface);border:1px solid var(--line);padding:8px 14px;border-radius:999px;animation:st-up .5s .45s cubic-bezier(.22,1,.36,1) both}
+@keyframes st-hit{0%{transform:scale(2.4) translateY(-30px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes st-ring{0%{opacity:.8;transform:scale(.6)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes st-up{from{opacity:0;transform:translateY(8px)}}
+@keyframes st-fade{0%,80%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.stamp-hit,.stamp-ink,.stamp-ov p{animation:none}}
+.seal-cal{margin:28px 0 8px;padding:16px 18px}
+.seal-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.seal-head span{font:600 13px var(--mono);color:var(--muted)}
+.seal-k{font-style:normal;color:var(--accent);margin-right:6px;font-family:"Shippori Mincho B1",serif;font-weight:800}
+.seal-row{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:6px}
+.seal-day{display:grid;justify-items:center;gap:4px;padding:6px 0;border-radius:10px}
+.seal-day small{font:600 10px var(--mono);color:var(--muted)}
+.seal-day.today{background:var(--accent-soft);outline:1px dashed color-mix(in oklab,var(--accent) 60%,transparent)}
+.seal-empty{width:30px;height:30px;display:grid;place-items:center;border:1px dashed var(--line);border-radius:7px;font:500 11px var(--mono);color:var(--muted)}
+.seal-mark.r0{rotate:-6deg}.seal-mark.r1{rotate:4deg}.seal-mark.r2{rotate:-2deg}
+@media (max-width:640px){.seal-row{grid-template-columns:repeat(7,1fr)}.seal-day:nth-child(-n+7){display:none}}
+
+/* ── sumi-e progress scroll ── */
+.plan-scroll{display:grid;gap:12px;margin:18px 0}
+.ink-scroll{margin:0;padding:14px 16px 12px}
+.ink-scroll svg{display:block;width:100%;height:auto;background:color-mix(in oklab,var(--surface-2) 60%,transparent);border-radius:10px}
+.ink-scroll figcaption{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:13px}
+.ink-scroll figcaption span{color:var(--muted)}
+.ink-scroll .is-off .is-stroke{stroke-opacity:.08;stroke-dasharray:.012 .012}
+.ink-scroll .is-off .is-fill{fill-opacity:.025}
+.ink-scroll .is-on .is-stroke{stroke-dasharray:1;stroke-dashoffset:1;animation:is-draw 1.1s calc(var(--i) * 90ms) cubic-bezier(.65,0,.35,1) forwards}
+.ink-scroll .is-on .is-fill{animation:is-wash 1.2s calc(var(--i) * 90ms) ease both}
+.ink-scroll .is-seal{animation:is-wash .6s 1.6s both}
+@keyframes is-draw{to{stroke-dashoffset:0}}
+@keyframes is-wash{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){.ink-scroll .is-on .is-stroke{animation:none;stroke-dashoffset:0}.ink-scroll .is-on .is-fill,.ink-scroll .is-seal{animation:none}}
+.plan-share{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ── share card preview ── */
+.share-ov{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.55);backdrop-filter:blur(4px)}
+.share-box{display:grid;gap:12px;justify-items:center;max-height:100%}
+.share-box img{max-height:min(72vh,720px);max-width:100%;border-radius:14px;box-shadow:0 24px 60px -20px rgba(0,0,0,.6)}
+.share-box .cta{margin:0;justify-content:center}
+
+/* ── focus mode ── */
+.focus-stage{position:relative;width:min(320px,86vw);aspect-ratio:1;margin:18px auto 8px}
+.focus-ring{position:absolute;inset:0;width:100%;height:100%}
+.focus-ring circle:last-child{transition:stroke-dasharray .3s linear}
+.focus-mid{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:2px}
+.campfire{margin:0 0 6px;font:700 13px/1 var(--mono);color:var(--muted);text-align:center;white-space:pre}
+.campfire.lit{color:var(--accent);text-shadow:0 0 10px color-mix(in oklab,var(--accent) 60%,transparent)}
+.focus-time{font:800 46px/1 var(--mono);letter-spacing:.02em}
+.focus-phase{font:600 12px var(--mono);text-transform:uppercase;letter-spacing:.16em;color:var(--muted)}
+.focus-ctl{justify-content:center}.focus-ctl .btn.on{background:var(--accent-soft);border-color:var(--accent)}
+.focus-stats{text-align:center}
+.focus-next{display:grid;gap:4px;margin-top:18px;text-decoration:none;color:inherit}
+
+/* ── mock: your answer next to the model answer, both in handwriting ── */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.compare>div{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;background:var(--surface-2);min-width:0}
+.compare>div:last-child{border-color:color-mix(in oklab,var(--accent) 45%,var(--line))}
+.cmp-k{display:block;font:700 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.hand-ans,.hand-ans *{font-family:Kalam,"Segoe Print",cursive!important}
+.hand-ans{font-size:16.5px;line-height:1.5;white-space:pre-wrap;margin:0}
+.prose.hand-ans{white-space:normal}
+.auto-note{font-size:12.5px;margin:4px 0}
+@media (max-width:720px){.compare{grid-template-columns:1fr}}
+
+/* ── header: tabs take the free space (centred), one even gap between every group ── */
+header.top .top-in{gap:12px}
+header.top .tabs{flex:1;justify-content:center;min-width:0}
+header.top .prog{margin:0 4px}
+.home-top .top-actions{gap:10px}
+
+/* ── nudge: ink card with a tea bowl ── */
+.nudge-card{border:1px solid var(--line)!important;border-left:3px solid var(--accent)!important;border-radius:14px!important;padding:18px 18px 16px!important;
+  box-shadow:0 26px 60px -26px rgba(0,0,0,.65)!important;background:radial-gradient(120% 80% at 100% 0,var(--accent-soft),transparent 55%),var(--surface)!important}
+.nudge-k{font:700 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.nudge-card h4{font-size:22px!important;margin:6px 40px 8px 0!important}
+.nudge-card p{font-size:14.5px!important}
+.nudge-card .hand{margin:10px 0 14px!important}
+.nudge-btns{margin:0!important}
+.nudge-btns .btn{padding:10px 12px!important;font-size:14.5px!important}
+.nudge-btns .btn.primary{color:var(--accent-ink,#fff)}
+.nudge-x{width:30px!important;height:30px!important;top:12px!important;right:12px!important;border:1px solid var(--line)!important;font-size:19px!important;font-weight:400!important;line-height:1;color:var(--muted)!important}
+.nudge-x:hover{color:var(--text)!important}
+.nudge-cup{width:58px!important;height:50px!important;top:-44px!important;right:44px!important}
+
+/* ── home: stats, exam timeline and the five steps ── */
+.glance{padding:4px 0!important;overflow:hidden}
+.glance-item{position:relative;padding:18px 10px 20px;border-left:1px dashed var(--line)!important}
+.glance-item:first-child{border-left:0!important}
+.glance-item b{font-size:clamp(28px,3vw,38px)!important;color:var(--strong)}
+.glance-item:first-child b{color:var(--accent)}
+.glance-item>span{font:600 10.5px var(--mono)!important;letter-spacing:.12em;text-transform:uppercase}
+.glance-item::after{content:"";position:absolute;left:50%;bottom:9px;width:16px;height:2px;border-radius:2px;background:var(--accent);opacity:.4;translate:-50%}
+.track-line{height:8px!important;border:1px solid var(--line)!important;background:repeating-linear-gradient(90deg,var(--surface-3) 0 6px,transparent 6px 10px)!important}
+.track-pin b{font:700 11.5px var(--mono);letter-spacing:.08em;white-space:nowrap}
+.track-pin small{white-space:nowrap;font-family:var(--mono);font-size:11px}
+.track-pin .pin-dot{border-width:3px!important;box-shadow:0 0 0 4px color-mix(in oklab,var(--accent) 18%,transparent)!important}
+.track-pin.end{transform:translateX(-100%);align-items:flex-end}
+.track-pin.end .pin-dot{border-color:var(--muted)!important;box-shadow:none!important;margin-right:-8px}
+.flow::before{display:none}
+.flow{gap:12px}
+.flow-step{padding:18px 16px 16px!important;text-align:left;border:1px solid var(--line);border-radius:14px;background:var(--surface);transition:translate .2s cubic-bezier(.23,1,.32,1),border-color .2s}
+.flow-step:hover{translate:0 -3px;border-color:color-mix(in oklab,var(--accent) 55%,var(--line))}
+.flow-icon{width:40px!important;height:40px!important;margin:0 0 14px!important;border-radius:10px!important;border:1px dashed color-mix(in oklab,var(--accent) 55%,var(--line))!important;box-shadow:none!important;background:var(--accent-soft)!important}
+.flow-icon span{top:50%!important;right:auto!important;left:calc(100% + 12px);translate:0 -50%;width:auto!important;height:auto!important;border:0!important;border-radius:0!important;background:none!important;color:var(--muted)!important;font:700 12px var(--mono)!important;letter-spacing:.12em}
+.flow-step b{font-size:15px}
+.flow-step p{font-size:13.5px}
+@media (max-width:760px){.flow-step{grid-template-columns:40px 1fr!important}.flow-icon{margin:0!important}.flow-icon span{display:none}}
+
+/* ── floating focus timer (shown on other pages while a session runs) ── */
+.focus-mini{position:fixed;left:20px;bottom:20px;z-index:80;display:flex;align-items:center;gap:10px;padding:8px 10px 8px 8px;border-radius:999px;
+  background:color-mix(in oklab,var(--surface) 88%,transparent);border:1px solid var(--line);backdrop-filter:blur(10px);box-shadow:0 18px 40px -18px rgba(0,0,0,.6);
+  animation:fm-in .35s cubic-bezier(.23,1,.32,1) both}
+.focus-mini.on{border-color:color-mix(in oklab,var(--accent) 50%,var(--line))}
+.fm-time{display:grid;line-height:1.05;text-decoration:none;color:var(--text)}
+.fm-time b{font:800 16px var(--mono)}
+.fm-time small{font:600 9.5px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.fm-btn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--surface-2);color:var(--text);cursor:pointer;transition:transform .16s ease-out}
+.fm-btn:active{transform:scale(.94)}
+@keyframes fm-in{from{opacity:0;transform:translateY(12px) scale(.96)}}
+@media (max-width:760px){.focus-mini{left:12px;bottom:calc(84px + env(safe-area-inset-bottom))}}
+@media (prefers-reduced-motion:reduce){.focus-mini{animation:none}}
+
+/* ── header "More" dropdown (Quiz, PYQ, Formulas, Focus) ── */
+.tab-more{position:relative;display:flex}
+.tab-more-btn{position:relative;display:inline-flex;align-items:center;gap:5px;font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:inherit}
+header.top .tabs .tab-more-btn{padding:7px 10px;border-radius:10px;color:var(--muted);font-size:14.5px;font-weight:600}
+header.top .tabs .tab-more-btn:hover,header.top .tabs .tab-more-btn.on{color:var(--text)}
+.tab-more-btn .tab-txt,.tm-arrow{position:relative;z-index:1}
+.tm-arrow{transition:rotate .2s cubic-bezier(.23,1,.32,1)}.tm-arrow.up{rotate:180deg}
+.tab-more-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:180px;z-index:60;display:grid;gap:2px;padding:6px;border-radius:12px;transform-origin:top right;
+  background:var(--surface);border:1px solid var(--line);box-shadow:0 22px 48px -22px rgba(0,0,0,.65)}
+.tab-more-menu a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--text);text-decoration:none;font-weight:600;font-size:14px}
+.tab-more-menu a:hover{background:var(--surface-2)}
+.tab-more-menu a.on{background:var(--accent-soft);color:var(--strong)}
+.tab-more-menu a svg{color:var(--accent)}
+@media (min-width:761px){header.top .tabs{overflow:visible}}

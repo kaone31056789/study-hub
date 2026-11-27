@@ -9,6 +9,7 @@ const SubjectApp = lazy(loadSubject);
 (window.requestIdleCallback || (f => setTimeout(f, 1500)))(loadSubject);
 import { SUBJECTS } from './subjects';
 import UpdatePrompt from './components/UpdatePrompt';
+import { StampOverlay, FocusMini } from './components/Rituals';
 import { useTheme } from './theme';
 import { asciiSwap } from './asciiswap';
 
@@ -58,6 +59,8 @@ export default function App() {
       {meta ? <Suspense fallback={null}><SubjectApp key={meta.id} meta={meta} view={view} arg={arg} /></Suspense> : <Home />}
     </ClickSpark>
     <UpdatePrompt />
+    <StampOverlay />
+    <FocusMini />
     </MotionConfig>
   );
 }

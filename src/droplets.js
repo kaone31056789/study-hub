@@ -1,5 +1,6 @@
 // Ink drops on the whole page: a tap anywhere sends rings out in the skin's accent, and now and then
 // a drop falls by itself. In the Ink wash skin a drop is sumi ink instead: it blooms and feathers out. One fixed canvas behind the content; idle (no frames) when nothing moves.
+import { sfx } from './sound';
 const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (!calm) {
   const c = document.createElement('canvas');
@@ -59,6 +60,6 @@ if (!calm) {
   const blots = () => Array.from({ length: 9 }, (_, i) => ({ a: i / 9 * 6.28 + Math.random() * 0.6, d: 0.15 + Math.random() * 0.5, r: 0.18 + Math.random() * 0.24, k: 0.5 + Math.random() * 0.5 }));
   const fibres = () => Array.from({ length: 11 }, () => ({ a: Math.random() * 6.28, L: 0.35 + Math.random() * 0.55, w: 0.6 + Math.random() * 1.4, j: Array.from({ length: 7 }, () => (Math.random() - 0.5) * 0.7) }));
   const drop = (x, y, s = 120 + Math.random() * 60) => { drops.push({ x, y, s, t: performance.now(), blobs: ink ? blots() : null, fib: ink ? fibres() : null }); if (!raf) raf = requestAnimationFrame(frame); };
-  addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button === 0) drop(e.clientX, e.clientY); }, { passive: true });
+  addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button === 0) { drop(e.clientX, e.clientY); sfx('drop'); } }, { passive: true });
   setInterval(() => { if (!document.hidden && drops.length < 2) drop(W * (0.1 + Math.random() * 0.8), H * (0.25 + Math.random() * 0.65), 90 + Math.random() * 80); }, 5200);
 }

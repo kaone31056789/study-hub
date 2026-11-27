@@ -9,8 +9,12 @@ import { useLang } from '../lang';
 import AiIcon from '../components/AiIcon';
 import { SkRadio, SkCheck, PwRound, PwSigil } from '../components/sakuga';
 import { AsciiKnight } from '../components/canvasfx';
+import { stampToday } from '../components/Rituals';
 
 const plain = h => (h || '').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ').trim();
+// auto-tick a key point when at least half of its keywords show up in the typed answer
+const STOP = new Set('with that this from have when then than into each only also used uses which their there these those where what your about after before more most such them they will been were'.split(' '));
+const hits = (pt, a) => { const w = (pt.toLowerCase().match(/[a-z0-9]{4,}/g) || []).filter(x => !STOP.has(x)); return w.length > 0 && w.filter(x => a.includes(x.slice(0, 5))).length / w.length >= 0.5; };
 const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
 // Photo of a handwritten answer -> resized JPEG base64 (no data: prefix)
@@ -89,6 +93,12 @@ export default function Mock({ ctx }) {
   const scoreOf = q => (res[q.k] && !res[q.k].err ? res[q.k].score : manualScore(q));
   const total = all.reduce((s, q) => s + scoreOf(q), 0);
   const attempted = q => (ans[q.k] || '').trim() || pics[q.k];
+  useEffect(() => {          // entering "check": pre-tick the points your typed answer already covers
+    if (stage !== 'check') return;
+    const auto = {};
+    all.forEach(q => { const a = (ans[q.k] || '').toLowerCase(); if (a.trim()) points(q).forEach((pt, i) => { if (hits(pt, a)) auto[q.k + ':' + i] = true; }); });
+    setChecks(c => ({ ...auto, ...c }));
+  }, [stage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const gradeOne = async q => {
     if (!attempted(q)) { setRes(r => ({ ...r, [q.k]: { score: 0, good: [], missing: ['Not attempted'], feedback: '' } })); return; }
@@ -113,7 +123,7 @@ export default function Mock({ ctx }) {
   const finish = () => {
     all.forEach(q => { const r = scoreOf(q) / q.m; bumpWeak(meta.id, q.id, r < 0.5 ? 2 : r < 0.8 ? 1 : -1); });
     const h = [...history, { at: Date.now(), score: total }].slice(-20);
-    store.set(hKey, h); setHistory(h); setStage('result'); window.scrollTo(0, 0);
+    store.set(hKey, h); setHistory(h); stampToday(); setStage('result'); window.scrollTo(0, 0);
   };
 
   if (stage === 'start') return (
@@ -187,14 +197,21 @@ export default function Mock({ ctx }) {
                 {r.feedback && <p className="fb">🤖 {r.feedback}</p>}
               </div>
             )}
+            {(ans[q.k] || '').trim() && t && (
+              <div className="compare">
+                <div><span className="cmp-k">Your answer</span><p className="hand-ans">{ans[q.k]}</p></div>
+                <div><span className="cmp-k">Model answer</span>{q.m === 2 && t.short ? <Html className="prose hand-ans" html={t.short} /> : <Html className="prose hand-ans" html={t.answer} />}</div>
+              </div>
+            )}
             {r?.err && <p className="mi-err">AI: {r.err} Use the checklist below.</p>}
+            {(!r || r.err) && p.some((_, i) => checks[q.k + ':' + i]) && <p className="muted auto-note">Ticked from your answer. Untick anything you didn't really cover.</p>}
             {(!r || r.err) && <div className="mock-checks">{p.map((pt, i) => (
               <SkCheck key={i} checked={!!checks[q.k + ':' + i]} onChange={on => setChecks(c => ({ ...c, [q.k + ':' + i]: on }))}>{pt}</SkCheck>
             ))}</div>}
             <div className="wg-row" style={{ marginTop: 10 }}>
               <button className="btn sm" disabled={!!busy} onClick={async () => { setBusy('Checking…'); setOne(q.k); await gradeOne(q); setOne(null); setBusy(''); }}>🤖 {r ? 'Re-check' : 'Check this'}</button>
               {one === q.k && <PwSigil label="Checking this answer" />}
-              {t && <details className="model-ans"><summary>Model answer</summary>{q.m === 2 && t.short ? <Html className="prose short" html={t.short} /> : <Html className="prose" html={t.answer} />}</details>}
+              {t && !(ans[q.k] || '').trim() && <details className="model-ans"><summary>Model answer</summary>{q.m === 2 && t.short ? <Html className="prose short" html={t.short} /> : <Html className="prose" html={t.answer} />}</details>}
             </div>
           </motion.div>
         );

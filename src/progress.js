@@ -23,3 +23,13 @@ export function gradeCard(sid, q, knewIt) {
   store.set(srsKey(sid), s);
   return s;
 }
+
+// Quiz mistakes become flashcards ("Fix these" deck in Cards). A right answer later removes it.
+const mk = sid => sid + ':mistakes';
+export const getMistakes = sid => store.get(mk(sid), []);
+export function noteMistake(sid, q, unit, ok) {
+  let m = getMistakes(sid).filter(x => x.q !== q.q);
+  if (!ok) m = [{ q: q.q, a: `<b>${q.o[q.a]}</b>${q.why ? '<br>' + q.why : ''}`, u: unit, tid: q.tid }, ...m].slice(0, 80);
+  store.set(mk(sid), m);
+}
+export const dropMistake = (sid, q) => store.set(mk(sid), getMistakes(sid).filter(x => x.q !== q));
