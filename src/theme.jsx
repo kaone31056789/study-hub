@@ -34,8 +34,8 @@ export function themeReveal(change, e, kind = 'kohaku') {
   r.style.setProperty('--vt-y', (e?.clientY ?? 30) + 'px');
   const canvasFx = { matcha: matchaWhisk, aizome: dyeDrip, kohaku: amberResin }[kind];
   if (canvasFx) return canvasFx(() => flushSync(change), e);
-  if (kind === 'sakura') return petalStorm(() => flushSync(change), e, { light: current === 'light' });
-  if (kind === 'ink') return inkFlood(() => flushSync(change), e, { accent: '#d9452b', light: current === 'light' });
+  if (kind === 'sakura') return petalStorm(() => flushSync(change), e, { light: document.documentElement.dataset.theme === 'light' });
+  if (kind === 'ink') return inkFlood(() => flushSync(change), e, { accent: '#d9452b', light: document.documentElement.dataset.theme === 'light' });
   r.classList.add(...cls);
   document.startViewTransition(() => flushSync(change)).finished.finally(() => r.classList.remove(...cls));
 }
@@ -61,8 +61,8 @@ const SKINS = [
   ['ink', '墨', 'Ink wash', 'sumi ink · vermilion', ['#0e0d0c', '#e9e2d4', '#d9452b']],
   ['matcha', '茶', 'Matcha', 'tea green · lattice', ['#121a12', '#f2f0e4', '#a3c45a']],
   ['sakura', '桜', 'Sakura', 'blossom pink · petals', ['#1b1217', '#fbf2f3', '#ff8fb1']],
-  ['aizome', '藍', 'Aizome', 'indigo · gold rings', ['#0f1628', '#eef1f7', '#e8b64c']],
-  ['kohaku', '琥', 'Kohaku', 'amber · dots', ['#1a140c', '#f7f0e2', '#f0a23b']],
+  ['aizome', '藍', 'Aizome', 'indigo · moon over waves', ['#0f1628', '#eef1f7', '#e8b64c']],
+  ['kohaku', '琥', 'Kohaku', 'amber · lantern night', ['#1a140c', '#f7f0e2', '#f0a23b']],
 ];
 let skin = store.get('skin', 'ink');
 if (!SKINS.some(x => x[0] === skin)) skin = 'ink';   // old crt/blueprint/sepia choices

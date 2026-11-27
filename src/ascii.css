@@ -688,3 +688,32 @@ header.top .tabs .tab-more-btn:hover,header.top .tabs .tab-more-btn.on{color:var
 .tab-more-menu a.on{background:var(--accent-soft);color:var(--strong)}
 .tab-more-menu a svg{color:var(--accent)}
 @media (min-width:761px){header.top .tabs{overflow:visible}}
+
+/* ── Aizome: a full-colour moonlit night (moon, mountain, a curling wave, gold-edged seigaiha) along
+   the bottom, over a shibori (tie-dye) kanoko texture ── */
+:root[data-skin="aizome"] body::after{background:url(./scenes/aizome-scene.svg) center bottom/100% auto no-repeat;top:auto;bottom:0;left:0;width:100vw;height:min(38vw,60vh);
+  opacity:.9;filter:none;animation:none;transform:none;
+  -webkit-mask:linear-gradient(90deg,#000 0 18%,rgba(0,0,0,.28) 32% 68%,#000 82%);mask:linear-gradient(90deg,#000 0 18%,rgba(0,0,0,.28) 32% 68%,#000 82%)}
+:root[data-skin="aizome"]:not([data-theme="light"]) body::after{opacity:.62}
+:root[data-skin="aizome"][data-theme="light"] body::after{opacity:.8}
+:root[data-skin="aizome"]:not([data-theme="light"]) body{background-image:radial-gradient(110% 70% at 50% 115%,rgba(43,68,168,.28),transparent 60%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cg fill='none' stroke='%237fa0ff' stroke-opacity='.09'%3E%3Crect x='9' y='9' width='8' height='8' rx='2.5' transform='rotate(45 13 13)'/%3E%3Crect x='-4' y='-4' width='8' height='8' rx='2.5' transform='rotate(45 0 0)'/%3E%3Crect x='22' y='-4' width='8' height='8' rx='2.5' transform='rotate(45 26 0)'/%3E%3Crect x='-4' y='22' width='8' height='8' rx='2.5' transform='rotate(45 0 26)'/%3E%3Crect x='22' y='22' width='8' height='8' rx='2.5' transform='rotate(45 26 26)'/%3E%3C/g%3E%3Ccircle cx='13' cy='13' r='1.1' fill='%23e8b64c' fill-opacity='.18'/%3E%3C/svg%3E");background-attachment:fixed}
+:root[data-skin="aizome"][data-theme="light"] body{background-image:radial-gradient(110% 70% at 50% 115%,rgba(43,68,168,.12),transparent 60%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cg fill='none' stroke='%232b44a8' stroke-opacity='.1'%3E%3Crect x='9' y='9' width='8' height='8' rx='2.5' transform='rotate(45 13 13)'/%3E%3Crect x='-4' y='-4' width='8' height='8' rx='2.5' transform='rotate(45 0 0)'/%3E%3Crect x='22' y='-4' width='8' height='8' rx='2.5' transform='rotate(45 26 0)'/%3E%3Crect x='-4' y='22' width='8' height='8' rx='2.5' transform='rotate(45 0 26)'/%3E%3Crect x='22' y='22' width='8' height='8' rx='2.5' transform='rotate(45 26 26)'/%3E%3C/g%3E%3Ccircle cx='13' cy='13' r='1.1' fill='%23b8862b' fill-opacity='.25'/%3E%3C/svg%3E");background-attachment:fixed}
+:root[data-skin="aizome"] .top{background-color:color-mix(in srgb,var(--header-bg) 84%,transparent)!important;backdrop-filter:blur(10px)}
+
+/* ── Kohaku: a full-colour lantern night (glowing chochin on a rope, maple leaves, fireflies) across
+   the top, over a gold kikko (honeycomb) texture and a warm lamp glow ── */
+:root[data-skin="kohaku"] body::after{background:url(./scenes/kohaku-scene.svg) center top/100% auto no-repeat;top:0;left:0;width:100vw;height:min(40vw,64vh);
+  opacity:.92;filter:none;transform-origin:50% 0;animation:scene-sway 12s ease-in-out infinite alternate;
+  -webkit-mask:linear-gradient(90deg,#000 0 16%,rgba(0,0,0,.3) 30% 70%,#000 84%);mask:linear-gradient(90deg,#000 0 16%,rgba(0,0,0,.3) 30% 70%,#000 84%)}
+:root[data-skin="kohaku"]:not([data-theme="light"]) body::after{opacity:.7}
+:root[data-skin="kohaku"][data-theme="light"] body::after{opacity:.85}
+:root[data-skin="kohaku"]:not([data-theme="light"]) body{background-image:radial-gradient(90% 60% at 50% -10%,rgba(240,162,59,.16),transparent 65%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23f0a23b' stroke-opacity='.075'/%3E%3C/svg%3E");background-attachment:fixed}
+:root[data-skin="kohaku"][data-theme="light"] body{background-image:radial-gradient(90% 60% at 50% -10%,rgba(240,162,59,.18),transparent 65%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23b8650f' stroke-opacity='.1'/%3E%3C/svg%3E");background-attachment:fixed}
+:root[data-skin="kohaku"] .top{background-color:color-mix(in srgb,var(--header-bg) 82%,transparent)!important;backdrop-filter:blur(10px)}
+@media (max-width:900px){
+  :root[data-skin="kohaku"] body::after{mask:linear-gradient(#000,rgba(0,0,0,.25) 60%);-webkit-mask:linear-gradient(#000,rgba(0,0,0,.25) 60%)}
+  :root[data-skin="aizome"] body::after{mask:linear-gradient(rgba(0,0,0,.25),#000 50%);-webkit-mask:linear-gradient(rgba(0,0,0,.25),#000 50%)}}
