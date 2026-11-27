@@ -13,7 +13,8 @@ const pal = () => {
   const cs = getComputedStyle(document.documentElement), v = k => cs.getPropertyValue(k).trim();
   const light = document.documentElement.dataset.theme === 'light', acc = hex(v('--accent') || '#d9452b');
   return { red: mix(acc, [0, 0, 0], 0), line: mix(acc, [255, 255, 255], light ? 0.8 : 0.6), blue: v('--muted') || (light ? '#3d3a36' : '#a89f90'),
-    text: v('--strong') || v('--text') || (light ? '#1b1917' : '#e9e2d4'), vein: v('--bg') || (light ? '#f6f1e7' : '#0e0d0c') };
+    text: v('--strong') || v('--text') || (light ? '#1b1917' : '#e9e2d4'), vein: v('--bg') || (light ? '#f6f1e7' : '#0e0d0c'),
+    ...(document.documentElement.dataset.skin === 'sakura' ? { sakura: true, red: light ? '#f48fb1' : '#f7aac4', core: '#c2185b', line: '#fff3f7' } : {}) };
 };
 
 const h = n => { const x = Math.sin(n) * 43758.5453; return x - Math.floor(x); };
@@ -280,7 +281,59 @@ class Garden {
     B.fill([base, ...s1.slice(1, N), tip, tip, ...s2.slice(1, N).reverse(), base], this.C.blue);
     if (L > 6) { const v = []; for (let i = 0; i <= 8; i++) v.push(ax(0.08 + 0.72 * i / 8)); B.stroke(v, this.C.vein, Math.max(0.8, L * 0.03)); }
   }
+  // cherry blossom (sakura skin): five notched petals open one after another, then the centre and stamens
+  blossom(B, cx, cy, R, rot, e, a) {
+    const st = 70;
+    for (let i = 0; i < 5; i++) {
+      const s = spr((a - i * st) / 1000, 8, 13); if (s <= 0.001) continue;
+      const pa = rot + i * Math.PI * 0.4 - Math.PI / 2, pts = [[cx, cy]];
+      for (let k = 0; k <= 22; k++) {
+        const f = -1 + 2 * k / 22, rr = R * Math.min(1.1, s) * (0.3 + 0.7 * Math.pow(Math.cos(f * Math.PI / 2), 0.55)) * (1 - 0.2 * Math.exp(-((f / 0.16) ** 2)));
+        const an = pa + f * 0.58; pts.push([cx + Math.cos(an) * rr, cy + Math.sin(an) * rr]);
+      }
+      B.fill(pts, this.C.red);
+    }
+    const fr = eo((a - 5 * st - 60) / 420); if (fr <= 0) return;
+    const core = []; for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2; core.push([cx + Math.cos(an) * R * 0.2 * fr, cy + Math.sin(an) * R * 0.2 * fr]); }
+    B.fill(core, this.C.core);
+    if (R < 9) return;
+    for (let k = 0; k < 8; k++) {
+      const an = rot + k * Math.PI / 4 + e.ph1 * 0.2, x2 = cx + Math.cos(an) * R * 0.5 * fr, y2 = cy + Math.sin(an) * R * 0.5 * fr;
+      B.stroke([[cx, cy], [x2, y2]], this.C.core, Math.max(0.6, R * 0.035));
+      const d = []; for (let j = 0; j < 8; j++) { const b = j / 8 * Math.PI * 2; d.push([x2 + Math.cos(b) * R * 0.05, y2 + Math.sin(b) * R * 0.05]); }
+      B.fill(d, this.C.core);
+    }
+  }
+  // other flowers, same colour as the roses: camellia, tulip, daisy (picked per stem, stable)
+  ell(cx, cy, rx, ry, ang, n = 20) { const c = Math.cos(ang), s = Math.sin(ang), p = []; for (let k = 0; k < n; k++) { const t = k / n * Math.PI * 2, x = Math.cos(t) * rx, y = Math.sin(t) * ry; p.push([cx + x * c - y * s, cy + x * s + y * c]); } return p; }
+  camellia(B, cx, cy, R, rot, e, a) {
+    const ring = (n, r, rr, off, d0) => { for (let i = 0; i < n; i++) { const s = spr((a - d0 - i * 50) / 1000, 8, 13); if (s <= 0.001) continue;
+      const an = rot + off + i * Math.PI * 2 / n; B.fill(this.ell(cx + Math.cos(an) * r * R * s, cy + Math.sin(an) * r * R * s, rr * R * s, rr * R * 0.8 * s, an), this.C.red);
+      if (R >= 12 && s > 0.5) B.stroke(this.ell(cx + Math.cos(an) * r * R * s, cy + Math.sin(an) * r * R * s, rr * R * s * 0.7, rr * R * 0.5 * s, an, 12).slice(2, 9), this.C.line, Math.max(0.6, R * 0.03)); } };
+    ring(6, 0.55, 0.5, 0, 0); ring(5, 0.28, 0.38, 0.4, 300);
+    const fr = eo((a - 620) / 400); if (fr > 0) B.fill(this.ell(cx, cy, R * 0.18 * fr, R * 0.18 * fr, 0, 14), this.C.line);
+  }
+  tulip(B, cx, cy, R, rot, e, a) {
+    const up = rot - Math.PI / 2, P = [[-0.42, -0.25], [0.42, 0.25], [0, 0]];
+    P.forEach(([dx, tilt], i) => { const s = spr((a - i * 90) / 1000, 8, 12); if (s <= 0.001) return;
+      const an = up + tilt, ox = Math.cos(up + Math.PI / 2) * dx * R * 0.6, oy = Math.sin(up + Math.PI / 2) * dx * R * 0.6;
+      const pts = this.ell(cx + ox + Math.cos(an) * R * 0.45 * s, cy + oy + Math.sin(an) * R * 0.45 * s, R * 0.62 * s, R * (i === 2 ? 0.36 : 0.3) * s, an, 22);
+      B.fill(pts, this.C.red);
+      if (R >= 12 && s > 0.5) B.stroke(pts.slice(14, 21), this.C.line, Math.max(0.6, R * 0.035)); });
+  }
+  daisy(B, cx, cy, R, rot, e, a) {
+    for (let i = 0; i < 14; i++) { const s = spr((a - i * 28) / 1000, 9, 14); if (s <= 0.001) continue;
+      const an = rot + i * Math.PI * 2 / 14; B.fill(this.ell(cx + Math.cos(an) * R * 0.55 * s, cy + Math.sin(an) * R * 0.55 * s, R * 0.45 * s, R * 0.11 * s, an, 14), this.C.red); }
+    const fr = eo((a - 450) / 400); if (fr <= 0) return;
+    B.fill(this.ell(cx, cy, R * 0.24 * fr, R * 0.24 * fr, 0, 16), this.C.line);
+    if (R >= 12) for (let k = 0; k < 7; k++) { const an = k * 2.4 + e.ph1; B.fill(this.ell(cx + Math.cos(an) * R * 0.12 * fr, cy + Math.sin(an) * R * 0.12 * fr, R * 0.03, R * 0.03, 0, 6), this.C.red); }
+  }
   rose(B, cx, cy, R, rot, e, a) {
+    if (this.C.sakura) return this.blossom(B, cx, cy, R, rot, e, a);
+    const kind = Math.floor(h((e.ph1 || 0) * 13.7 + (e.ph2 || 0)) * 4);   // 0 rose · 1 camellia · 2 tulip · 3 daisy
+    if (kind === 1) return this.camellia(B, cx, cy, R, rot, e, a);
+    if (kind === 2) return this.tulip(B, cx, cy, R, rot, e, a);
+    if (kind === 3) return this.daisy(B, cx, cy, R, rot, e, a);
     const cr = Math.cos(rot), sr = Math.sin(rot), T = (x, y) => [cx + x * cr - y * sr, cy + x * sr + y * cr];
     // petals, back to front: [cx, cy, rx, ry, angle, depth, edge]
     const P = [[0, -0.36, 0.56, 0.54, 0, 0, 0], [-0.5, -0.06, 0.6, 0.6, -0.35, 0, 0], [0.52, -0.06, 0.6, 0.6, 0.35, 0, 0],

@@ -124,7 +124,7 @@ export function BhaiExplain({ b, gaali }) {
           {k === 's' ? <p className="bx-s">{b.s}</p> : <Html className="prose bx-body" html={b[k]} />}
         </motion.div>
       ))}
-      {b.yaad && <div className="bx-yaad"><span>🧠 {gaali ? 'Ratt le ye line' : 'Ek line mein yaad rakh'}</span><b>{b.yaad}</b></div>}
+      {b.yaad && <div className="bx-yaad"><span><i className="bx-g" aria-hidden="true">記</i>{gaali ? 'Ratt le ye line' : 'Ek line mein yaad rakh'}</span><b>{b.yaad}</b></div>}
     </div>
   );
 }
@@ -200,11 +200,11 @@ export function GaaliCoach({ id }) {
 
 // Sticky-note "meme moment" that ties a famous meme line to the concept.
 export function MemeCard({ m, compact, unit, id }) {
-  if (compact) return <p className="rev-meme"><span aria-hidden="true">😂</span> <b>"{m.line}"</b> <span dangerouslySetInnerHTML={{ __html: '· ' + m.punch.replace(/<[^>]+>/g, '').split('. ')[0] }} /></p>;
+  if (compact) return <p className="rev-meme"><i className="bx-g" aria-hidden="true">笑</i><b>"{m.line}"</b> <span dangerouslySetInnerHTML={{ __html: '· ' + m.punch.replace(/<[^>]+>/g, '').split('. ')[0] }} /></p>;
   return (
     <motion.figure className="meme" initial={{ opacity: 0, rotate: -3, y: 10 }} whileInView={{ opacity: 1, rotate: -1, y: 0 }} viewport={{ once: true }}
       whileHover={{ rotate: 0, scale: 1.01 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }}>
-      <span className="meme-tag">😂 Meme moment</span>
+      <span className="meme-tag"><i className="bx-g" aria-hidden="true">笑</i>Meme moment</span>
       <MemePhoto id={id} img={m.img} unit={unit} line={m.line} />
       <blockquote>"{m.line}"</blockquote>
       {m.from && <figcaption>— {m.from}</figcaption>}

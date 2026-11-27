@@ -14,7 +14,7 @@ import Diagram from '../components/Diagram';
 import GradientText from '../rb/GradientText';
 import { Html, CodeBlock, MCQ, Walkthrough, Explorer, Reveal, MemeCard, EasyExplain, GaaliCoach } from '../components/ui';
 import { BeginnerProse, TermCards } from '../components/Beginner';
-import { TapReveal, AsciiFooter, CardArt, AsciiDeck } from '../components/asciiui';
+import { TapReveal, AsciiFooter, CardArt } from '../components/asciiui';
 import { WIDGETS } from '../widgets';
 import { store, shuffle } from '../store';
 import { InkMist, Ascii } from '../components/canvasfx';
@@ -485,6 +485,8 @@ function Confidence({ sid, id }) {
 }
 
 /* ---------------- FLASHCARDS ---------------- */
+// ASCII Magic scene behind the flashcard deck, one per unit
+const UNIT_ART = ['ink-in-water', 'spiral-galaxy', 'koi-pond-ripples', 'sea-torii-sunset'];
 function Cards({ ctx }) {
   const { S, meta } = ctx;
   const all = useMemo(() => S.cards.map(([u, q, a]) => ({ u, q, a })), [S]);
@@ -523,7 +525,7 @@ function Cards({ ctx }) {
 
   return (
     <div className="wrap narrow">
-      <div className="page-ascii"><AsciiDeck /></div>
+      <div className="page-ascii"><Ascii piece="black-hole" size={5} look="dots" /></div>
       <p className="eyebrow">Quick revision</p>
       <h1 className="page-h">Flashcards</h1>
       <p className="lead">Answer in your head, then flip to check. Cards you know come back later (10 min → 1 → 3 → 7 → 15 days); the ones you miss come back soon. Keys: <kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> move.</p>
@@ -534,6 +536,12 @@ function Cards({ ctx }) {
       {c && (
         <>
           <div className="flash-stage">
+          <AnimatePresence mode="wait">
+            <motion.div key={UNIT_ART[c.u % UNIT_ART.length]} className="flash-scene" aria-hidden="true"
+              initial={{ opacity: 0, scale: 0.96, filter: 'blur(6px)' }} animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }} exit={{ opacity: 0, scale: 1.03, filter: 'blur(6px)' }} transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}>
+              <Ascii piece={UNIT_ART[c.u % UNIT_ART.length]} size={5} look="dots" />
+            </motion.div>
+          </AnimatePresence>
           {[-2, -1, 1, 2].map(o => { const k = i + o; if (k < 0 || k >= deck.length) return null; return (
             <motion.button key={k} className="flash-ghost" onClick={() => move(o)} aria-label={'Go to card ' + (k + 1)} tabIndex={-1}
               initial={{ opacity: 0 }} animate={{ x: o * 210, y: o * 54, rotate: o * 13, scale: 1 - Math.abs(o) * 0.16, opacity: 1 - Math.abs(o) * 0.32 }}

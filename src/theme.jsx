@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { flushSync } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Sun03Icon, Moon02Icon } from '@hugeicons/core-free-icons';
@@ -17,13 +18,24 @@ const apply = () => {
 apply();
 
 export const setTheme = t => { current = t; store.set('theme', t); apply(); subs.forEach(f => f()); };
+// Theme switch "trip": the old page warps through colour (hue spin, RGB shear, blur) while the new
+// theme opens as a circle from the tap point. View Transitions where supported; instant otherwise.
+export function themeReveal(change, e) {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!document.startViewTransition || reduce) return change();
+  const r = document.documentElement;
+  r.style.setProperty('--vt-x', (e?.clientX ?? innerWidth - 60) + 'px');
+  r.style.setProperty('--vt-y', (e?.clientY ?? 30) + 'px');
+  r.classList.add('vt-trip');
+  document.startViewTransition(() => flushSync(change)).finished.finally(() => r.classList.remove('vt-trip'));
+}
 export const useTheme = () => useSyncExternalStore(f => { subs.add(f); return () => subs.delete(f); }, () => current);
 
 export function ThemeToggle() {
   const theme = useTheme();
   const light = theme === 'light';
   return (
-    <button className="theme-btn" onClick={() => setTheme(light ? 'dark' : 'light')} aria-label={light ? 'Switch to dark theme' : 'Switch to light theme'} title={light ? 'Dark theme' : 'Light theme'}>
+    <button className="theme-btn" onClick={e => themeReveal(() => setTheme(light ? 'dark' : 'light'), e)} aria-label={light ? 'Switch to dark theme' : 'Switch to light theme'} title={light ? 'Dark theme' : 'Light theme'}>
       <AnimatePresence mode="wait" initial={false}>
         <motion.span key={theme} initial={{ rotate: -90, scale: 0.4, opacity: 0 }} animate={{ rotate: 0, scale: 1, opacity: 1 }} exit={{ rotate: 90, scale: 0.4, opacity: 0 }} transition={{ duration: 0.25 }} style={{ display: 'grid' }}>
           <HugeiconsIcon icon={light ? Moon02Icon : Sun03Icon} size={19} strokeWidth={1.9} />
@@ -46,6 +58,7 @@ if (!SKINS.some(x => x[0] === skin)) skin = 'ink';   // old crt/blueprint/sepia 
 const applySkin = () => { document.documentElement.dataset.skin = skin; };
 applySkin();
 const skinSubs = new Set();
+export const useSkin = () => useSyncExternalStore(f => { skinSubs.add(f); return () => skinSubs.delete(f); }, () => skin);
 export function SkinToggle() {
   const s = useSyncExternalStore(f => { skinSubs.add(f); return () => skinSubs.delete(f); }, () => skin);
   const [open, setOpen] = useState(false);
@@ -67,10 +80,10 @@ export function SkinToggle() {
         <div className="skin-menu" role="menu">
           <p>Colours · light &amp; dark</p>
           {SKINS.map(([id, k, name, note, sw]) => (
-            <button key={id} role="menuitemradio" aria-checked={id === s} className={'skin-opt' + (id === s ? ' on' : '')} onClick={() => pick(id)}>
+            <button key={id} role="menuitemradio" aria-checked={id === s} className={'skin-opt' + (id === s ? ' on' : '')} onClick={e => { setOpen(false); themeReveal(() => pick(id), e); }}>
               <b style={{ color: sw[2] }} aria-hidden="true">{k}</b>
               <span><b>{name}</b><small>{note}</small></span>
-              <span className="skin-sw" aria-hidden="true">{sw.map(c => <i key={c} style={{ background: c }} />)}</span>
+              <span className="skin-sw" aria-hidden="true">{(current === 'light' ? [sw[1], sw[0], sw[2]] : sw).map(c => <i key={c} style={{ background: c }} />)}</span>
             </button>
           ))}
         </div>

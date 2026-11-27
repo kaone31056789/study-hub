@@ -14,10 +14,18 @@ import { AsciiFooter, AsciiStrip } from '../components/asciiui';
 import { RELEASES_URL, useLatestApk } from '../components/UpdatePrompt';
 import { SUBJECTS, SEASON } from '../subjects';
 import { store } from '../store';
-import { ThemeToggle, SkinToggle, useTheme } from '../theme';
+import { ThemeToggle, SkinToggle, useTheme, useSkin } from '../theme';
 import { LangToggle, useLang, useT } from '../lang';
 
 // Shortcuts into a subject's main sections (shown on the next-exam card and every subject card).
+// hero aurora per colour theme: [light, dark]
+const AURORA = {
+  ink: [['#f6d6bf', '#f0a27a', '#f3e6d6'], ['#2b2723', '#d9452b', '#5e5850']],
+  sakura: [['#fbd3e0', '#f48fb1', '#fde8ef'], ['#2e1622', '#c2366b', '#3a2230']],
+  matcha: [['#dfe9c4', '#a3c45a', '#f0f2df'], ['#18241a', '#6f9a3a', '#26321f']],
+  aizome: [['#cfd9f2', '#7f95dd', '#e8ecf6'], ['#121a33', '#3a52b0', '#1f2a4a']],
+  kohaku: [['#f7e0b8', '#f0a23b', '#fbf0dc'], ['#26190b', '#c27a1e', '#33240f']],
+};
 const QUICK = [['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Note01Icon], ['cram', 'Cram', Target01Icon], ['cards', 'Cards', CardsIcon], ['paper', 'PYQ', File01Icon]];
 const QuickLinks = ({ id, className }) => (
   <div className={className}>
@@ -55,7 +63,7 @@ const STEPS = [
 
 export default function Home() {
   const apk = useLatestApk();
-  const theme = useTheme();
+  const theme = useTheme(), skin = useSkin();
   const lang = useLang();
   const T = useT();
   const [data, setData] = useState({});
@@ -101,7 +109,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="dash-aurora" aria-hidden="true"><Aurora key={theme} colorStops={theme === 'light' ? ['#7aa2ff', '#ffd43b', '#ff8fb1'] : ['#2b2723', '#d9452b', '#5e5850']} lightMode={theme === 'light'} amplitude={1.1} blend={0.55} speed={0.55} /></div>
+      <div className="dash-aurora" aria-hidden="true"><Aurora key={theme + skin} colorStops={(AURORA[skin] || AURORA.ink)[theme === 'light' ? 0 : 1]} lightMode={theme === 'light'} amplitude={1.1} blend={0.55} speed={0.55} /></div>
       <main className="wrap wide dash">
         <section className="dash-head">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>

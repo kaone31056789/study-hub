@@ -148,7 +148,15 @@ export function AsciiStrip({ units = [], done = 0, total = 0 }) {
     io.observe(el.current);
     return () => { clearInterval(id); io.disconnect(); };
   }, []);
-  const N = 22, sweep = t % (N + 12);
+  const [N, setN] = useState(22);
+  useEffect(() => {                                   // bars span the whole row: chars = row width / glyph width
+    const bar = el.current?.querySelector('.as-bar'); if (!bar) return;
+    const g = document.createElement('canvas').getContext('2d');
+    const fit = () => { g.font = getComputedStyle(bar).font; const cw = g.measureText('█').width || 7; setN(Math.max(8, Math.floor(bar.clientWidth / cw))); };
+    const ro = new ResizeObserver(fit); ro.observe(bar); document.fonts?.ready.then(fit);
+    return () => ro.disconnect();
+  }, [units.length]);
+  const sweep = t % (N + 12);
   const wave = Array.from({ length: 34 }, (_, i) => BR[Math.round((Math.sin(i * 0.42 - t * 0.35) * 0.5 + 0.5) * (Math.sin(i * 0.13 + t * 0.05) * 0.35 + 0.65) * 4)]).join('');
   const bar = p => { const f = p * N, full = Math.floor(f), rem = Math.round((f - full) * 8); return '█'.repeat(full) + (full < N ? PART[rem] : '') + '·'.repeat(Math.max(0, N - full - 1)); };
   const pct = total ? Math.round(done / total * 100) : 0;

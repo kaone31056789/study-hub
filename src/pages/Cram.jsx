@@ -46,8 +46,8 @@ export default function Cram({ ctx }) {
           {diagrams && t.dg && <div className="cram-dg"><Diagram spec={t.dg} /></div>}
           <div className="cram-hooks">
             {t.trick && <Html className="rev-trick" html={t.trick} />}
-            {desiOf(t, lang)?.yaad && <p className="rev-meme">🧠 {desiOf(t, lang).yaad}</p>}
-            {t.meme && <p className="rev-meme">😂 "{t.meme.line}"</p>}
+            {desiOf(t, lang)?.yaad && <p className="rev-meme"><i className="bx-g" aria-hidden="true">記</i>{desiOf(t, lang).yaad}</p>}
+            {t.meme && <p className="rev-meme"><i className="bx-g" aria-hidden="true">笑</i>"{t.meme.line}"</p>}
           </div>
         </article>
       ))}

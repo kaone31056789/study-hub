@@ -121,7 +121,7 @@ sakuga-input::part(input){font:400 15px Inter,system-ui,sans-serif}
 @media (max-width:760px){.sk-toast{bottom:calc(86px + env(safe-area-inset-bottom))}}
 /* both reserve headroom for effects that fly above them; give it back so they sit in the row (effects may overlap text above) */
 .rev-bar sakuga-toggle{zoom:.7;margin:-55px 0}   /* equal top/bottom so flex centring lines the switch up with the tabs */
-.sk-row sakuga-tooltip{margin-top:-60px}
+.sk-row sakuga-tooltip{margin:0}
 
 /* ---------- "Start reading" portal: black hole + ink spiral (portal.js) ---------- */
 @property --hole{syntax:'<length>';inherits:false;initial-value:0px}

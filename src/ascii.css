@@ -338,10 +338,11 @@ td .mh{font-size:1.1em}
 .as-top{display:flex;justify-content:space-between;gap:8px}
 .as-w{color:var(--accent);opacity:.8;letter-spacing:-.5px}
 .as-p{color:var(--strong);font-weight:800}
-.as-row{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center}
+.as-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center}
 .as-row b{color:var(--accent);font-weight:800}
 .as-bar i{font-style:normal;color:color-mix(in oklab,var(--accent) 75%,var(--muted))}
-.as-bar i.hi{color:var(--strong);text-shadow:0 0 6px var(--accent)}
+.as-bar{display:block;overflow:hidden;white-space:pre}
+.as-bar i.hi{color:color-mix(in oklab,var(--accent) 55%,#fff);text-shadow:0 0 8px var(--accent)}
 .as-n{color:var(--text-2,var(--text))}
 .as-l{color:var(--text-2,var(--text));font-weight:500;margin-top:2px}
 .as-cur{color:var(--accent);animation:as-blink 1s steps(1) infinite;margin-left:2px}
@@ -440,3 +441,64 @@ body::after{z-index:-2!important}
 :root[data-theme="light"] :is(.face.front){background:var(--surface)}
 
 :root[data-theme="light"] .face.front .card-art{opacity:.85;text-shadow:none}
+
+/* ── segmented tabs: flat inline pill instead of a raised folder tab; rows line up ── */
+sakuga-tabs{margin-top:0!important}
+sakuga-tabs::part(indicator){top:3px;bottom:3px;border:0;border-radius:8px;margin:0;background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px color-mix(in oklab,var(--accent) 70%,transparent)}
+sakuga-tabs::part(tabs){align-items:stretch}
+.srs-stats{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px}
+.srs-stats .sk-row{display:inline-flex;align-items:center;gap:10px}
+.srs-stats sakuga-tooltip{position:relative;top:0;margin:0}
+
+/* ── page ASCII art sits on its own card so blossoms/scenes never bleed through ── */
+.page-ascii{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:0 18px 40px -28px rgba(0,0,0,.6)}
+.page-ascii .ascii-block{margin:0}
+sakuga-tooltip{position:relative;z-index:5}
+.page-ascii ascii-art{opacity:1}
+
+/* ── revise / cram callouts ── */
+.rev-trick,.rev-meme{display:flex;gap:10px;align-items:flex-start;border:1px dashed var(--line);border-left:3px solid var(--accent);background:color-mix(in oklab,var(--surface-2) 85%,var(--accent) 15%);border-radius:10px;padding:10px 12px;line-height:1.5}
+.rev-trick::before{content:"┌ trick";flex:none;font:700 10px/1.9 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.rev-meme .bx-g{flex:none;margin:1px 0 0}
+.rev-trick b,.rev-trick strong{color:var(--strong)}
+:root{--logo-bg:#0e0d0c;--logo-ink:#e9e2d4}
+:root[data-skin="sakura"]{--logo-bg:#2a1620;--logo-ink:#fff0f5}
+:root[data-skin="matcha"]{--logo-bg:#142014;--logo-ink:#eef5e4}
+:root[data-skin="aizome"]{--logo-bg:#0c1430;--logo-ink:#f4f1e4}
+:root[data-skin="kohaku"]{--logo-bg:#22170a;--logo-ink:#fff4e2}
+
+/* ── flashcards: ASCII Magic scene behind the deck (changes per unit) ── */
+.flash-scene{position:absolute;left:50%;top:50%;width:min(760px,120%);translate:-50% -50%;z-index:-1;pointer-events:none;opacity:.32;
+  -webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent)}
+.flash-scene .ascii-block{margin:0}.flash-scene ascii-art{display:block;width:100%}
+:root[data-theme="light"] .flash-scene{opacity:.22;filter:saturate(.6)}
+.flash-stage{isolation:isolate}
+
+/* ── theme switch: the old page "trips" (hue spin, shear, blur) as the new theme opens from the tap ── */
+.vt-trip::view-transition-group(root){animation:none}
+.vt-trip::view-transition-old(root){animation:vt-trip-out .8s cubic-bezier(.7,0,.3,1) both;z-index:1;mix-blend-mode:normal}
+.vt-trip::view-transition-new(root){animation:vt-reveal .8s cubic-bezier(.65,0,.35,1) both;z-index:2;mix-blend-mode:normal}
+@keyframes vt-reveal{
+  0%{clip-path:circle(0 at var(--vt-x) var(--vt-y));filter:hue-rotate(120deg) saturate(2.4) blur(6px)}
+  45%{filter:hue-rotate(-40deg) saturate(1.6) blur(1px)}
+  100%{clip-path:circle(160vmax at var(--vt-x) var(--vt-y));filter:none}}
+@keyframes vt-trip-out{
+  0%{filter:none;transform:none}
+  20%{filter:hue-rotate(70deg) saturate(2.4) contrast(1.25);transform:translateX(-7px) skewX(-3deg)}
+  40%{filter:hue-rotate(-110deg) saturate(2) invert(.12);transform:translateX(6px) skewX(2.5deg) scale(1.01)}
+  60%{filter:hue-rotate(200deg) blur(2px) saturate(2.6);transform:translate(-3px,2px) skewY(1deg)}
+  100%{filter:hue-rotate(300deg) blur(10px) saturate(0);transform:scale(1.06)}}
+
+/* ── light theme details: brush underlines, paper fibre, hanko corners, frosted header ── */
+:root[data-theme="light"] :is(h1.page-h,.dash-title,.fs-title){position:relative}
+:root[data-theme="light"] :is(h1.page-h,.dash-title)::after{content:"";display:block;width:min(220px,40%);height:10px;margin-top:6px;
+  background:var(--accent);opacity:.75;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 C40 2 80 8 120 5 S190 3 218 6 L216 8 C180 6 140 9 100 8 S30 9 3 8Z'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 C40 2 80 8 120 5 S190 3 218 6 L216 8 C180 6 140 9 100 8 S30 9 3 8Z'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+:root[data-theme="light"] :is(.subj,.next-card,.rev-card,.tcard,.card,.bx-part,.pq,.fs-note){
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .3 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E")}
+:root[data-theme="light"] :is(.subj,.next-card,.rev-card){position:relative}
+:root[data-theme="light"] :is(.subj,.next-card,.rev-card)::before{content:"";position:absolute;top:10px;right:10px;width:14px;height:14px;pointer-events:none;
+  border-top:2px solid var(--accent);border-right:2px solid var(--accent);opacity:.55;border-radius:0 3px 0 0}
+:root[data-theme="light"] .top{backdrop-filter:blur(12px) saturate(1.2);background-color:color-mix(in srgb,var(--header-bg) 78%,transparent)!important}
+:root[data-theme="light"] .skin-menu{background:var(--surface);box-shadow:0 18px 40px -20px rgba(60,40,20,.35)}
