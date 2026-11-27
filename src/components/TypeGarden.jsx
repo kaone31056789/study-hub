@@ -191,7 +191,7 @@ class Garden {
   }
   wordParams(ws) {
     const r = rng(ws * 7 + 13);
-    return { roseP: 0.3 + r() * 0.3, leafy: 0.6 + r() * 0.8, dens: 1, lean: (r() - 0.5) * 0.6, big: 0.85 + r() * 0.45, curvy: 0.8 + r() * 0.6, bridgeP: Math.min(0.95, 0.45 + r() * 0.35), w: 0.5 };
+    return { roseP: 0.6 + r() * 0.25, leafy: 0.6 + r() * 0.8, dens: 1, lean: (r() - 0.5) * 0.6, big: 0.85 + r() * 0.45, curvy: 0.8 + r() * 0.6, bridgeP: Math.min(0.95, 0.45 + r() * 0.35), w: 0.5 };
   }
   grow(r, E, nid, p, o) {
     const tip = o.tip || (r() < p.roseP ? 'rose' : r() < 0.45 ? 'fan' : r() < 0.6 ? 'leaf' : 'curl');
@@ -214,14 +214,14 @@ class Garden {
       const over = tp[1] > -0.78 && tp[1] < 0.05 && Math.abs(tp[0]) < p.w * 0.5; // keep letters readable
       const layer = over ? (r() < 0.22 ? 1 : 0) : (r() < 0.6 ? 1 : tl);
       E.push({ t: 'rose', id: nid(), x: tp[0], y: tp[1], R, rot: (r() - 0.5), ph1: r() * 6.28, ph2: r() * 6.28, turns: 1.8 + r(), layer, d0: td });
-      if (r() < 0.2) { const oo = ta + (r() < 0.5 ? 1 : -1) * 1.3; E.push({ t: 'rose', id: nid(), x: tp[0] + Math.cos(oo) * R * 1.4, y: tp[1] + Math.sin(oo) * R * 1.4, R: R * (0.6 + r() * 0.3), rot: (r() - 0.5) * 1.2, ph1: r() * 6.28, ph2: r() * 6.28, turns: 1.8 + r(), layer, d0: td + 120 }); }
+      if (r() < 0.45) { const oo = ta + (r() < 0.5 ? 1 : -1) * 1.3; E.push({ t: 'rose', id: nid(), x: tp[0] + Math.cos(oo) * R * 1.4, y: tp[1] + Math.sin(oo) * R * 1.4, R: R * (0.6 + r() * 0.3), rot: (r() - 0.5) * 1.2, ph1: r() * 6.28, ph2: r() * 6.28, turns: 1.8 + r(), layer, d0: td + 120 }); }
     } else if (tip === 'fan') {
       const spread = 0.6 + r() * 0.3;
       for (let j = 0; j < 2; j++) E.push({ t: 'leaf', id: nid(), x: tp[0], y: tp[1], a: ta + (j - 0.5) * spread, L: 0.2 + r() * 0.2, bend: (j - 0.5) * 0.8, layer: tl, d0: td + j * 60 });
     } else if (tip === 'leaf') {
       E.push({ t: 'leaf', id: nid(), x: tp[0], y: tp[1], a: ta + (r() - 0.5) * 0.3, L: 0.16 + r() * 0.16, bend: r() - 0.5, layer: tl, d0: td });
     }
-    if (!o.depth && r() < 0.3) {
+    if (!o.depth && r() < 0.55) {
       const u = 0.35 + r() * 0.35, [q, a] = at(P, u);
       this.grow(r, E, nid, p, { base: q, dir: a + (r() < 0.5 ? -1 : 1) * (0.7 + r() * 0.4), len: (o.len || 0.8) * (0.35 + r() * 0.2), d0: o.d0 + dur * u, depth: 1, layer0: layerAt(segs, u) });
     }
@@ -231,7 +231,7 @@ class Garden {
     const r = rng((l.ws ^ Math.imul(l.wi + 1, 2654435761)) + Math.floor(this.rand() * 1e6));
     const p = this.wordParams(l.ws), E = []; let k0 = 0; const nid = () => l.id * 100 + (k0++);
     const w = this.mw(l.ch), inX = () => (r() - 0.5) * w * 0.7; p.w = w;
-    const nUp = 1 + (r() < 0.45 ? 1 : 0);
+    const nUp = 1 + (r() < 0.7 ? 1 : 0);
     for (let i = 0; i < nUp; i++)
       this.grow(r, E, nid, p, { base: [inX(), -r() * 0.3], dir: -Math.PI / 2 + p.lean * 0.5 + (r() - 0.5) * 0.7, len: 0.6 + r() * 0.5, d0: 40 + i * 130, tip: l.wi === 0 && i === 0 ? 'rose' : null });
     if (r() < 0.4) this.grow(r, E, nid, p, { base: [inX(), -0.1 - r() * 0.35], dir: Math.PI / 2 + (r() - 0.5) * 0.8, len: 0.35 + r() * 0.35, d0: 160 });
@@ -255,7 +255,7 @@ class Garden {
     const w = this.mw(l.ch), n = 1 + Math.floor(r() * 2.5); p.w = w;
     for (let i = 0; i < n; i++) {
       const dir = -Math.PI / 2 + 0.6 + (i - (n - 1) / 2) * 0.9 + (r() - 0.5) * 0.4;
-      this.grow(r, E, nid, p, { base: [(r() - 0.2) * w * 0.6, -r() * 0.5], dir, len: 0.4 + r() * 0.45, d0: rel + 40 + i * 90, depth: 1, tip: i === 0 || r() < 0.5 ? 'rose' : 'fan' });
+      this.grow(r, E, nid, p, { base: [(r() - 0.2) * w * 0.6, -r() * 0.5], dir, len: 0.4 + r() * 0.45, d0: rel + 40 + i * 90, depth: 1, tip: i === 0 || r() < 0.75 ? 'rose' : 'fan' });
     }
     l.endEls = E;
   }

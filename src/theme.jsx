@@ -30,13 +30,14 @@ export function themeReveal(change, e, kind = 'kohaku') {
   r.classList.add(...cls);
   document.startViewTransition(() => flushSync(change)).finished.finally(() => r.classList.remove(...cls));
 }
+let flipN = 0;   // light/dark switches cycle through three effects each
 export const useTheme = () => useSyncExternalStore(f => { subs.add(f); return () => subs.delete(f); }, () => current);
 
 export function ThemeToggle() {
   const theme = useTheme();
   const light = theme === 'light';
   return (
-    <button className="theme-btn" onClick={e => themeReveal(() => setTheme(light ? 'dark' : 'light'), e, light ? 'dark' : 'light')} aria-label={light ? 'Switch to dark theme' : 'Switch to light theme'} title={light ? 'Dark theme' : 'Light theme'}>
+    <button className="theme-btn" onClick={e => themeReveal(() => setTheme(light ? 'dark' : 'light'), e, (light ? 'dark' : 'light') + '-' + (flipN++ % 3))} aria-label={light ? 'Switch to dark theme' : 'Switch to light theme'} title={light ? 'Dark theme' : 'Light theme'}>
       <AnimatePresence mode="wait" initial={false}>
         <motion.span key={theme} initial={{ rotate: -90, scale: 0.4, opacity: 0 }} animate={{ rotate: 0, scale: 1, opacity: 1 }} exit={{ rotate: 90, scale: 0.4, opacity: 0 }} transition={{ duration: 0.25 }} style={{ display: 'grid' }}>
           <HugeiconsIcon icon={light ? Moon02Icon : Sun03Icon} size={19} strokeWidth={1.9} />
@@ -56,7 +57,13 @@ const SKINS = [
 ];
 let skin = store.get('skin', 'ink');
 if (!SKINS.some(x => x[0] === skin)) skin = 'ink';   // old crt/blueprint/sepia choices
-const applySkin = () => { document.documentElement.dataset.skin = skin; };
+// favicon = the 学 seal in the skin's colours
+const seal = (bg, acc) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect x="1.5" y="1.5" width="37" height="37" rx="8" fill="${bg}" stroke="${acc}" stroke-width="2.5"/><text x="20" y="28.5" text-anchor="middle" font-family="Yu Mincho,MS Mincho,Noto Serif CJK JP,serif" font-weight="800" font-size="22" fill="${acc}">学</text></svg>`;
+const applySkin = () => {
+  document.documentElement.dataset.skin = skin;
+  const [, , , , [bg, , acc]] = SKINS.find(x => x[0] === skin);
+  const l = document.querySelector('link[rel="icon"]'); if (l) l.href = 'data:image/svg+xml,' + encodeURIComponent(seal(bg, acc));
+};
 applySkin();
 const skinSubs = new Set();
 export const useSkin = () => useSyncExternalStore(f => { skinSubs.add(f); return () => skinSubs.delete(f); }, () => skin);

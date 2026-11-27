@@ -479,11 +479,22 @@ sakuga-tooltip{position:relative;z-index:5}
 .vt-on::view-transition-old(root),.vt-on::view-transition-new(root){mix-blend-mode:normal;animation:none}
 .vt-on::view-transition-new(root){z-index:2}
 /* to light: sunrise bursts out of the button */
-.vt-light::view-transition-new(root){animation:vt-sun .7s cubic-bezier(.22,1,.36,1) both}
+.vt-light-0::view-transition-new(root){animation:vt-sun .7s cubic-bezier(.22,1,.36,1) both}
 @keyframes vt-sun{0%{clip-path:circle(0 at var(--vt-x) var(--vt-y));filter:brightness(1.8)}100%{clip-path:circle(160vmax at var(--vt-x) var(--vt-y));filter:none}}
 /* to dark: the lit page collapses into the button like a closing eye */
-.vt-dark::view-transition-old(root){z-index:3;animation:vt-eclipse .7s cubic-bezier(.7,0,.3,1) both}
+.vt-dark-0::view-transition-old(root){z-index:3;animation:vt-eclipse .7s cubic-bezier(.7,0,.3,1) both}
 @keyframes vt-eclipse{0%{clip-path:circle(160vmax at var(--vt-x) var(--vt-y))}100%{clip-path:circle(0 at var(--vt-x) var(--vt-y));filter:brightness(.6)}}
+/* light 1: venetian blinds open; dark 1: night drops from the top like a curtain */
+@property --vtp{syntax:'<number>';inherits:true;initial-value:0}
+.vt-light-1::view-transition-new(root){-webkit-mask:repeating-linear-gradient(#000 0 calc(var(--vtp)*.5px),transparent calc(var(--vtp)*.5px) 50px);
+  mask:repeating-linear-gradient(#000 0 calc(var(--vtp)*.5px),transparent calc(var(--vtp)*.5px) 50px);animation:vt-p .8s cubic-bezier(.65,0,.35,1) both}
+.vt-dark-1::view-transition-new(root){animation:vt-curtain .75s cubic-bezier(.7,0,.2,1) both}
+@keyframes vt-curtain{0%{clip-path:inset(0 0 100% 0)}100%{clip-path:inset(0)}}
+@keyframes vt-p{0%{--vtp:0}100%{--vtp:101}}
+/* light 2 / dark 2: halftone dots swell until they join */
+.vt-light-2::view-transition-new(root),.vt-dark-2::view-transition-new(root){
+  -webkit-mask:radial-gradient(circle,#000 calc(var(--vtp)*.21px),transparent calc(var(--vtp)*.21px + 1px)) 0 0/30px 30px;
+  mask:radial-gradient(circle,#000 calc(var(--vtp)*.21px),transparent calc(var(--vtp)*.21px + 1px)) 0 0/30px 30px;animation:vt-p .85s cubic-bezier(.55,0,.25,1) both}
 /* ink: new theme bleeds in like ink on wet paper */
 .vt-ink::view-transition-new(root){animation:vt-bleed .9s cubic-bezier(.22,1,.36,1) both}
 .vt-ink::view-transition-old(root){animation:vt-grey .9s ease both}
