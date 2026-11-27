@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Sun03Icon, Moon02Icon } from '@hugeicons/core-free-icons';
 import { store } from './store';
+import { inkFlood } from './inkflood';
 import { fxPalette } from './components/sakuga';
 
 // Theme = saved choice, else the notebook light theme. Applied as <html data-theme="...">.
@@ -20,7 +21,7 @@ apply();
 export const setTheme = t => { current = t; store.set('theme', t); apply(); subs.forEach(f => f()); };
 // Theme switch transitions (View Transitions; instant where unsupported or with reduced motion).
 // kind picks the effect: 'light' sunrise burst / 'dark' page collapses into the button,
-// and each skin its own: ink bleed, matcha swirl, sakura sweep, aizome dye rising, kohaku trip.
+// and each skin its own: ink flood (canvas, inkflood.js), matcha swirl, sakura sweep, aizome dye rising, kohaku trip.
 export function themeReveal(change, e, kind = 'kohaku') {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!document.startViewTransition || reduce) return change();
@@ -28,10 +29,7 @@ export function themeReveal(change, e, kind = 'kohaku') {
   if (e && !e.clientX && !e.clientY) e = null;   // keyboard-triggered clicks report 0,0
   r.style.setProperty('--vt-x', (e?.clientX ?? innerWidth - 60) + 'px');
   r.style.setProperty('--vt-y', (e?.clientY ?? 30) + 'px');
-  if (kind === 'ink') for (let i = 1; i <= 5; i++) {   // where the ink drops land: first at the tap, the rest scattered
-    r.style.setProperty(`--d${i}x`, (i === 1 ? (e?.clientX ?? innerWidth / 2) : innerWidth * (0.08 + Math.random() * 0.84)) + 'px');
-    r.style.setProperty(`--d${i}y`, (i === 1 ? (e?.clientY ?? innerHeight / 2) : innerHeight * (0.1 + Math.random() * 0.8)) + 'px');
-  }
+  if (kind === 'ink') return inkFlood(() => flushSync(change), e, { accent: '#d9452b', light: current === 'light' });
   r.classList.add(...cls);
   document.startViewTransition(() => flushSync(change)).finished.finally(() => r.classList.remove(...cls));
 }
