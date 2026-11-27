@@ -11,7 +11,8 @@ const hex = v => { const m = /^#?([0-9a-f]{6})$/i.exec(v.trim()); const n = m ? 
 const mix = (a, b, t) => '#' + a.map((x, i) => Math.round(x + (b[i] - x) * t).toString(16).padStart(2, '0')).join('');
 const pal = () => {
   const cs = getComputedStyle(document.documentElement), v = k => cs.getPropertyValue(k).trim();
-  const light = document.documentElement.dataset.theme === 'light', acc = hex(v('--accent') || '#d9452b');
+  const light = document.documentElement.dataset.theme === 'light', ink = (document.documentElement.dataset.skin || 'ink') === 'ink';
+  const acc = hex(ink ? '#d9452b' : v('--accent') || '#d9452b');
   return { red: mix(acc, [0, 0, 0], 0), line: mix(acc, [255, 255, 255], light ? 0.8 : 0.6), blue: v('--muted') || (light ? '#3d3a36' : '#a89f90'),
     text: v('--strong') || v('--text') || (light ? '#1b1917' : '#e9e2d4'), vein: v('--bg') || (light ? '#f6f1e7' : '#0e0d0c'),
     ...(document.documentElement.dataset.skin === 'sakura' ? { sakura: true, red: light ? '#f48fb1' : '#f7aac4', core: '#c2185b', line: '#fff3f7' } : {}) };
@@ -313,20 +314,29 @@ class Garden {
     ring(6, 0.55, 0.5, 0, 0); ring(5, 0.28, 0.38, 0.4, 300);
     const fr = eo((a - 620) / 400); if (fr > 0) B.fill(this.ell(cx, cy, R * 0.18 * fr, R * 0.18 * fr, 0, 14), this.C.line);
   }
+  // a pointed petal (lens) from (cx,cy) along ang: narrow base, full middle, sharp tip
+  lens(cx, cy, len, wid, ang, n = 14) {
+    const c = Math.cos(ang), s = Math.sin(ang), L = [], Rr = [];
+    for (let k = 0; k <= n; k++) { const t = k / n, x = t * len, y = wid * Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.08)), 0.75) * (1 - 0.35 * t);
+      L.push([cx + x * c - y * s, cy + x * s + y * c]); Rr.push([cx + x * c + y * s, cy + x * s - y * c]); }
+    return [...L, ...Rr.reverse()];
+  }
   tulip(B, cx, cy, R, rot, e, a) {
-    const up = rot - Math.PI / 2, P = [[-0.42, -0.25], [0.42, 0.25], [0, 0]];
-    P.forEach(([dx, tilt], i) => { const s = spr((a - i * 90) / 1000, 8, 12); if (s <= 0.001) return;
-      const an = up + tilt, ox = Math.cos(up + Math.PI / 2) * dx * R * 0.6, oy = Math.sin(up + Math.PI / 2) * dx * R * 0.6;
-      const pts = this.ell(cx + ox + Math.cos(an) * R * 0.45 * s, cy + oy + Math.sin(an) * R * 0.45 * s, R * 0.62 * s, R * (i === 2 ? 0.36 : 0.3) * s, an, 22);
-      B.fill(pts, this.C.red);
-      if (R >= 12 && s > 0.5) B.stroke(pts.slice(14, 21), this.C.line, Math.max(0.6, R * 0.035)); });
+    const up = rot * 0.4 - Math.PI / 2;
+    [[-0.32, 0.88], [0.32, 0.88], [0, 1]].forEach(([tilt, sc], i) => {
+      const s = spr((a - i * 110) / 1000, 8, 12); if (s <= 0.001) return;
+      B.fill(this.lens(cx, cy + R * 0.25, R * 1.05 * sc * s, R * 0.34 * s, up + tilt * s), this.C.red);
+    });
+    const fr = eo((a - 380) / 400);
+    if (fr > 0 && R >= 12) B.stroke([[cx, cy + R * 0.2], [cx + Math.cos(up) * R * 0.75 * fr, cy + R * 0.2 + Math.sin(up) * R * 0.75 * fr]], this.C.line, Math.max(0.6, R * 0.03));
   }
   daisy(B, cx, cy, R, rot, e, a) {
-    for (let i = 0; i < 14; i++) { const s = spr((a - i * 28) / 1000, 9, 14); if (s <= 0.001) continue;
-      const an = rot + i * Math.PI * 2 / 14; B.fill(this.ell(cx + Math.cos(an) * R * 0.55 * s, cy + Math.sin(an) * R * 0.55 * s, R * 0.45 * s, R * 0.11 * s, an, 14), this.C.red); }
-    const fr = eo((a - 450) / 400); if (fr <= 0) return;
-    B.fill(this.ell(cx, cy, R * 0.24 * fr, R * 0.24 * fr, 0, 16), this.C.line);
-    if (R >= 12) for (let k = 0; k < 7; k++) { const an = k * 2.4 + e.ph1; B.fill(this.ell(cx + Math.cos(an) * R * 0.12 * fr, cy + Math.sin(an) * R * 0.12 * fr, R * 0.03, R * 0.03, 0, 6), this.C.red); }
+    for (let i = 0; i < 12; i++) { const s = spr((a - i * 30) / 1000, 9, 14); if (s <= 0.001) continue;
+      const an = rot + i * Math.PI * 2 / 12;
+      B.fill(this.lens(cx + Math.cos(an) * R * 0.16, cy + Math.sin(an) * R * 0.16, R * 0.82 * s, R * 0.13 * s, an, 10), this.C.red); }
+    const fr = eo((a - 420) / 400); if (fr <= 0) return;
+    B.fill(this.ell(cx, cy, R * 0.25 * fr, R * 0.25 * fr, 0, 16), this.C.line);
+    B.fill(this.ell(cx, cy, R * 0.13 * fr, R * 0.13 * fr, 0, 12), this.C.red);
   }
   rose(B, cx, cy, R, rot, e, a) {
     if (this.C.sakura) return this.blossom(B, cx, cy, R, rot, e, a);

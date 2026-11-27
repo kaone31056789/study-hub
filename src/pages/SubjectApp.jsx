@@ -560,7 +560,8 @@ function Cards({ ctx }) {
                 <CardArt text={c.q} />
                 <span className="face-hint">Tap to flip · swipe for next</span>
               </div>
-              <div className="face back"><span className="face-tag">Answer</span><div className="face-a" dangerouslySetInnerHTML={{ __html: flip ? c.a : '' }} /></div>
+              <div className="face back"><span className="face-tag">Answer</span><div className="face-a" dangerouslySetInnerHTML={{ __html: flip ? c.a : '' }} />
+                {flip && <div className="back-art" key={i}><Ascii piece={UNIT_ART[(c.u + 1) % UNIT_ART.length]} size={8} look="dots" className="back-bg" /><span>┌─ picture it</span><CardArt text={c.q + ' ' + c.a} /></div>}</div>
             </div>
           </motion.div>
           </div>
