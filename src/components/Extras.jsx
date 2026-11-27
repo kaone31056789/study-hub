@@ -5,6 +5,7 @@ import { api } from '../api';
 import { useLang } from '../lang';
 import { useSpeech } from '../speech';
 import { store } from '../store';
+import { SkSlider, PwRaven, PwSage } from './sakuga';
 import { getCode, createCode, connectCode, disconnect, pullAndMerge } from '../sync';
 
 // Tiny safe markdown: escape first, then **bold**, `code`, bullets, line breaks.
@@ -72,13 +73,13 @@ export function AskAI({ topic, context }) {
               <div className="sheet-body">
                 {log.length === 0 && <div className="ask-chips">{CHIPS[lang].map(c => <button key={c} className="xp-chip" onClick={() => send(c)}>{c}</button>)}</div>}
                 {log.map((m, i) => <div key={i} className={'ask-msg ' + (m.me ? 'me' : m.err ? 'err' : 'ai')} dangerouslySetInnerHTML={{ __html: m.me || m.err ? esc(m.t) : miniMd(m.t) }} />)}
-                {busy && <div className="ask-msg ai typing"><i /><i /><i /></div>}
+                {busy && <div className="ask-msg ai pw-sage"><PwSage state="thinking" label={lang === 'en' ? 'Thinking' : 'Soch raha hai'} detail={topic} /></div>}
                 <div ref={end} />
               </div>
               <form className="ask-form" onSubmit={e => { e.preventDefault(); send(); }}>
                 <textarea value={q} onChange={e => setQ(e.target.value)} rows={2} maxLength={1500} placeholder={lang === 'en' ? 'Type your doubt…' : 'Apna doubt likho…'}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }} aria-label="Your question" />
-                <button className="btn primary" disabled={busy || !q.trim()}>Send</button>
+                <PwRaven busy={busy} onSend={() => send()} label={lang === 'en' ? 'Send' : 'Bhejo'} />
               </form>
             </motion.div>
           </motion.div>
@@ -99,7 +100,7 @@ export function AudioBar({ parts, label = '🔊 Sunao' }) {
       {sp.state === 'playing' && <button className="btn sm" onClick={sp.pause}>⏸ Pause</button>}
       {sp.state === 'paused' && <button className="btn sm" onClick={sp.resume}>▶ Resume</button>}
       {sp.state !== 'idle' && <button className="btn sm ghost" onClick={sp.stop}>⏹ Stop</button>}
-      <select value={rate} onChange={e => setRate(+e.target.value)} aria-label="Speed">{[0.8, 1, 1.2, 1.5].map(r => <option key={r} value={r}>{r}×</option>)}</select>
+      <span className="sk-speed"><span aria-hidden="true">Speed</span><SkSlider label="Speed" value={rate} onChange={setRate} min={0.6} max={1.6} step={0.1} unit="×" /></span>
       {sp.state === 'playing' && <span className="eq" aria-hidden="true"><i /><i /><i /><i /></span>}
     </div>
   );

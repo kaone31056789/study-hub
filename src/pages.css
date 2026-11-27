@@ -85,10 +85,7 @@ button.check:hover{border-color:var(--ok)}
 .ti-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:20px;position:sticky;top:60px;z-index:5;padding:10px 0;background:linear-gradient(var(--bg) 70%,transparent)}
 .ti-bar .seg{margin:0}
 .seg-n{font-size:11.5px;opacity:.7;margin-left:3px}
-.ti-search{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--muted)}
-.ti-search:focus-within{border-color:var(--accent)}
-.ti-search input{border:0;background:none;padding:10px 0;flex:1;min-width:0}
-.ti-search input:focus{outline:none}
+.ti-search{flex:1;min-width:220px;--sk-input-width:100%}
 .unit-sec{margin-top:30px}
 .unit-sec-head{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:10px;margin-bottom:14px}
 .unit-sec-head h2{margin:0;font-size:19px;letter-spacing:-.015em}

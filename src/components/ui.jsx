@@ -9,6 +9,7 @@ import Stepper, { Step } from '../rb/Stepper';
 import SpotlightCard from '../rb/SpotlightCard';
 import { useTheme } from '../theme';
 import { MemePhoto } from './MemeImage';
+import { fx } from './sakuga';
 
 const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 // Content files write JSP/EL "${...}" as "#{...}" so JS template literals don't try to interpolate it.
@@ -34,14 +35,14 @@ export function MCQ({ q, onAnswer, big }) {
   const [pick, setPick] = useState(null);
   useEffect(() => setPick(null), [q]);
   const answered = pick !== null;
-  const choose = i => { if (answered) return; setPick(i); onAnswer?.(i === q.a); };
+  const choose = (i, el) => { if (answered) return; setPick(i); const ok = i === q.a; ok ? fx.right(el) : fx.wrong(el); onAnswer?.(ok); };
   return (
     <div className={'mcq' + (big ? ' big' : '')}>
       <p className="mcq-q" dangerouslySetInnerHTML={{ __html: q.q }} />
       <div className="opts">
         {q.o.map((o, i) => (
           <button key={i} className={'opt' + (answered && i === q.a ? ' right' : '') + (answered && i === pick && i !== q.a ? ' wrong' : '')}
-            disabled={answered} onClick={() => choose(i)} dangerouslySetInnerHTML={{ __html: o }} />
+            disabled={answered} onClick={e => choose(i, e.currentTarget)} dangerouslySetInnerHTML={{ __html: o }} />
         ))}
       </div>
       {answered && <p className="why"><b>{pick === q.a ? 'Correct. ' : 'Not quite. '}</b><span dangerouslySetInnerHTML={{ __html: q.why }} /></p>}
@@ -104,7 +105,7 @@ export function BhaiExplain({ b, gaali }) {
 const EX_LABELS = {
   en: ['🎯 The idea in one line', '🏠 Real-life story', '📖 Words decoded', '⚙️ How it works', '📝 What to write in the exam', '🧠 Remember it'],
   bhai: ['🎯 Ek line mein', '🏠 Desi example se samjho', '📖 Mushkil words ka matlab', '⚙️ Kaise kaam karta hai', '📝 Exam mein kya likhna hai', '🧠 Yaad rakh'],
-  gaali: ['🎯 Seedhi baat, saale', '🏠 Desi example se samajh', '📖 Bhaari words ka matlab', '⚙️ Kaise chalta hai, dekh', '📝 Exam mein ye chhaap', '🧠 Ratt le ye line']
+  gaali: ['🎯 Seedhi baat, bhosdike', '🏠 Desi example, ab toh samajh ja chutiye', '📖 Bhaari words ka matlab, dictionary mat khol', '⚙️ Kaise chalta hai, dhyan se dekh gadhe', '📝 Exam mein ye chhaap, harami', '🧠 Ratt le ye line, kamine']
 };
 export function EasyExplain({ e, lang = 'en' }) {
   if (!e?.story) return <BhaiExplain b={e} gaali={lang === 'gaali'} />; // old shape fallback
@@ -124,6 +125,26 @@ export function EasyExplain({ e, lang = 'en' }) {
       <div className="bx-yaad"><span>{L[5]}</span><b>{e.yaad}</b></div>
     </div>
   );
+}
+
+// Gaali mode: one savage push per topic (picked by topic id, so it stays the same on every visit).
+const COACH = [
+  'Kal paper hai aur tu abhi bhi reels dekh raha tha, bc? Chal padh.',
+  'Ye topic chhoda toh 10 marks ki maa chud jaayegi. Padh, chutiye.',
+  'Diagram bana, formula likh, table bana. Bas itna kar le, harami.',
+  'Topper banne ko nahi bol raha, bas fail mat ho, bhosdike.',
+  'Ek baar dhyan se padh le, doosri baar padhne ka time nahi milega, gadhe.',
+  'Numerical mein steps likh, sirf answer likha toh examiner teri lega.',
+  'Phone ulta rakh. Haan, abhi. Ab padh, kamine.',
+  'Itna simple topic bhi nahi aaya toh engineering chhod ke chai ki tapri khol le.',
+  'Samajh nahi aaya? Simple wala section phir se padh, nalle.',
+  'Exam hall mein yaad nahi aayega toh mummy ko kya bolega? Abhi ratt le.',
+  'Har topic ke baad tick kar, warna kal subah bolega "ye toh padha hi nahi", chutiye.',
+  'Bakchodi kal kar lena, aaj sirf ye topic. Chal, bc.'
+];
+export function GaaliCoach({ id }) {
+  const n = [...String(id)].reduce((a, c) => a + c.charCodeAt(0), 0) % COACH.length;
+  return <p className="gaali-coach"><span aria-hidden="true">🤬</span>{COACH[n]}</p>;
 }
 
 // Sticky-note "meme moment" that ties a famous meme line to the concept.

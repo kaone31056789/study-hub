@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <!-- ink bleeding into wet paper: wobble the ridge edge, then soften it -->
+    <filter id="bleed" x="-5%" y="-30%" width="110%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.009 0.05" numOctaves="4" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="34" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="1.4"/>
+    </filter>
+    <filter id="sun" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="7"/><feGaussianBlur stdDeviation="0.8"/></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="6"/></filter>
+    <!-- dense at the ridge, washing out into mist below -->
+    <linearGradient id="far" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9e2d4" stop-opacity=".10"/><stop offset=".45" stop-color="#e9e2d4" stop-opacity=".03"/><stop offset="1" stop-color="#e9e2d4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="mid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9e2d4" stop-opacity=".16"/><stop offset=".5" stop-color="#e9e2d4" stop-opacity=".04"/><stop offset="1" stop-color="#e9e2d4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="near" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfc6b6" stop-opacity=".22"/><stop offset=".55" stop-color="#cfc6b6" stop-opacity=".05"/><stop offset="1" stop-color="#cfc6b6" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- the sun as a red seal -->
+  <circle cx="1262" cy="118" r="44" fill="#d9452b" opacity=".5" filter="url(#sun)"/>
+  <path filter="url(#bleed)" fill="url(#far)" d="M0 250 C90 228 150 170 230 150 C300 132 330 186 400 172 C470 158 520 92 600 80 C680 68 720 140 790 150 C870 162 930 110 1010 98 C1090 86 1150 150 1230 160 C1320 170 1380 120 1460 128 C1520 134 1570 170 1600 180 L1600 480 L0 480Z"/>
+  <path filter="url(#bleed)" fill="url(#mid)" d="M0 330 C70 300 120 250 190 236 C250 224 290 262 350 256 C430 248 470 178 560 168 C640 160 690 236 770 250 C850 264 900 214 970 206 C1060 196 1110 262 1190 270 C1270 278 1330 226 1410 222 C1490 218 1550 262 1600 276 L1600 480 L0 480Z"/>
+  <path filter="url(#bleed)" fill="url(#near)" d="M0 400 C60 380 110 330 170 322 C240 312 280 360 360 356 C440 352 490 300 560 296 C630 292 680 350 760 362 C840 374 900 330 980 318 C1060 306 1120 360 1200 372 C1290 386 1360 340 1440 330 C1510 322 1560 352 1600 362 L1600 480 L0 480Z"/>
+  <ellipse cx="800" cy="470" rx="900" ry="60" fill="#0e0d0c" filter="url(#soft)"/>
+</svg>

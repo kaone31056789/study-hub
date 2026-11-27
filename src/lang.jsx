@@ -21,20 +21,20 @@ const L = {
     dashLead: 'Every topic gives you a plain-language explanation, a step-by-step walkthrough and a simulator, then the exact theory answer and diagram to write in the exam.'
   },
   gaali: {
-    idea: 'Samajh le saale, simple hai', steps: 'Ek-ek step padh, jaldi mat kar', stepsSub: 'Click karta ja chutiye, ek baar mein ek cheez.',
-    try: 'Khud haath laga ke dekh', trySub: 'Khel isse, tabhi bheje mein ghusega.',
-    short: '2 marks ka answer, ratt le', shortSub: 'Short question aaye toh ye likh. English mein, Hinglish mein mat likh dena gadhe.',
-    answer: 'Exam mein yahi chhaapna hai', answerSub: '5/10 marks ke liye ye likh. Headings same rakh, English mein likh, warna marks katenge phir rona mat.',
-    diagram: 'Ye diagram bana, free ke marks hain', diagramSub: 'Boxes aur arrows copy kar le. Itna bhi nahi kiya toh kya ukhaad lega?',
-    code: 'Paper pe ye code likh', codeSub: 'Chhota sa hai, itna toh likh hi sakta hai kamine.',
-    trick: 'Aise yaad rakh, bewakoof', check: 'Ab bata, samjha ya nahi?',
-    markDone: 'Haan saale, samajh gaya', learned: '✓ Samajh gaya, mast', allTopics: '← Saare topics dikha',
-    dashTitle: 'Subject chun aur padhna shuru kar, bakchodi band.',
-    dashLead: 'Har topic pehle desi bhasha mein samjhaya hai, phir step by step, phir simulator, aur end mein exam mein kya chhaapna hai. Ab bahane mat bana, padh.'
+    idea: 'Seedhi baat, bhosdike: samajh le', steps: 'Step by step padh, chutiye, jaldi kis baat ki hai', stepsSub: 'Ek click, ek cheez. Saare ek saath dabayega toh bheja phat jaayega, bc.',
+    try: 'Haath laga ke dekh, gaandu', trySub: 'Isse khel. Reels se zyada mazaa aayega aur marks bhi milenge, harami.',
+    short: '2 marks ka answer: ratt le, kamine', shortSub: 'Short question aaye toh bas yahi likh. English mein, Hinglish mein likha toh examiner teri lega.',
+    answer: 'Exam mein yahi chhaapna hai, chutiye', answerSub: '5/10 marks ke liye ye likh. Headings same, English mein, aur diagram ke saath. Warna result dekh ke rona mat, bc.',
+    diagram: 'Ye diagram bana, free ke marks hain, gadhe', diagramSub: 'Boxes, arrows, labels copy kar. Itna bhi nahi kiya toh kya ukhaad lega zindagi mein, bhosdike?',
+    code: 'Paper pe ye code likh', codeSub: 'Chhota sa hai, itna toh likh hi sakta hai, nikamme.',
+    trick: 'Aise yaad rakh, bewakoof', check: 'Ab bata, samjha ya phir se padhega, chutiye?',
+    markDone: 'Haan bc, samajh gaya', learned: '✓ Samajh gaya, ab agla', allTopics: '← Saare topics dikha',
+    dashTitle: 'Subject chun aur padh, bakchodi band kar.',
+    dashLead: 'Har topic pehle desi bhasha mein, phir step by step, phir simulator, aur end mein exam mein kya chhaapna hai. Bahane mat bana, phone rakh, padh, harami.'
   },
   bhai: {
-    idea: 'Simple bhasha mein samjho', steps: 'Step by step samjho', stepsSub: 'Ek-ek step click karo. Ek baar mein ek hi cheez.',
-    try: 'Khud try karke dekho', trySub: 'Isse khelo bhai, concept yahin dimaag mein baithega.',
+    idea: 'Simple bhasha mein samjho', steps: 'Step by step samjho', stepsSub: 'Ek-ek step click karo, ek baar mein ek hi cheez. Jaldi mat karo.',
+    try: 'Khud try karke dekho', trySub: 'Isse khelo bhai. Concept yahin dimaag mein pakka baithega.',
     short: '2 marks ka answer', shortSub: 'Short question aaye toh bas ye likh dena (English mein hi).',
     answer: 'Exam wala full answer', answerSub: '5/10 marks ke liye ye likhna hai. Headings same rakhna. Exam mein English mein hi likhna.',
     diagram: 'Ye diagram banana hai', diagramSub: 'Paper pe boxes, arrows aur labels copy kar lo. Diagram = free marks.',

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Calendar03Icon, BookOpen01Icon, CardsIcon, Quiz01Icon, File01Icon, Task01Icon, ArrowRight01Icon, Search01Icon, Target01Icon, Note01Icon, Menu01Icon } from '@hugeicons/core-free-icons';
+import { Calendar03Icon, BookOpen01Icon, CardsIcon, Quiz01Icon, File01Icon, Task01Icon, ArrowRight01Icon, Target01Icon, Note01Icon, Menu01Icon } from '@hugeicons/core-free-icons';
 import Mock from './Mock';
 import Cram from './Cram';
 import { AskAI, AudioBar, SyncButton } from '../components/Extras';
@@ -12,9 +12,11 @@ import { LangToggle, useLang, useT, desiOf } from '../lang';
 import Diagram from '../components/Diagram';
 import GradientText from '../rb/GradientText';
 import ShinyText from '../rb/ShinyText';
-import { Html, CodeBlock, MCQ, Walkthrough, Explorer, Reveal, MemeCard, EasyExplain } from '../components/ui';
+import { Html, CodeBlock, MCQ, Walkthrough, Explorer, Reveal, MemeCard, EasyExplain, GaaliCoach } from '../components/ui';
 import { WIDGETS } from '../widgets';
 import { store, shuffle } from '../store';
+import { InkMist } from '../components/canvasfx';
+import { SkTabs, SkCheck, SkToggle, SkInput, SkProgress, SkRating, SkTooltip, SkButton, PwHoard, PwSigil, toast, fxHit, fx } from '../components/sakuga';
 
 const UCOL = ['var(--warn)', 'var(--u1)', 'var(--u2)', 'var(--u3)', 'var(--u1)', 'var(--u2)'];
 
@@ -23,23 +25,23 @@ export default function SubjectApp({ meta, view, arg }) {
   const [done, setDone] = useState(() => new Set(store.get(meta.id + ':done', [])));
   useEffect(() => { meta.load().then(m => setS(m.default)); }, [meta]);
 
-  const [cheer, setCheer] = useState(null);
-  const cheerT = useRef();
   const toggleDone = (id, e) => {
     const adding = !done.has(id);
     const n = new Set(done); adding ? n.add(id) : n.delete(id);
     store.set(meta.id + ':done', [...n]);
     setDone(n);
     if (adding && S) {
-      const r = e?.currentTarget?.getBoundingClientRect();
-      setCheer({ k: Date.now(), x: r ? r.left + r.width / 2 : window.innerWidth / 2, y: r ? r.top + r.height / 2 : window.innerHeight / 2, n: S.topics.filter(t => n.has(t.id)).length, total: S.topics.length });
-      clearTimeout(cheerT.current);
-      cheerT.current = setTimeout(() => setCheer(null), 2400);
+      const el = e?.currentTarget;
+      // <sakuga-button> plays its own impact; anything else (the tick circles) gets a small hit.
+      if (el && el.tagName !== 'SAKUGA-BUTTON') { const r = el.getBoundingClientRect(); fxHit(r.left + r.width / 2, r.top + r.height / 2); }
+      const k = S.topics.filter(t => n.has(t.id)).length;
+      toast(k === S.topics.length ? 'All topics learned!' : `${k}/${S.topics.length} learned`);
     }
   };
 
-  if (!S) return <><Header meta={meta} view={view} done={0} total={0} /><BottomNav meta={meta} view={view} /></>;
-  const ctx = { S, meta, done, toggleDone, byId: Object.fromEntries(S.topics.map(t => [t.id, t])), order: S.plan.flatMap(r => r.ids) };
+  if (!S) return <><Header meta={meta} view={view} done={0} total={0} /><div className="subj-loading"><PwSigil label={'Loading ' + meta.short} /><p>Opening {meta.short}…</p></div><BottomNav meta={meta} view={view} /></>;
+  const lbl = { pyq: 'last year', asked: 'Asked last year', filter: "Last year's", paper: "Last year's paper", paperSub: 'with answers', paperLead: 'Every question from last year, linked to its answer. The 2-mark answers are right here, so tap to reveal them.', ...S.lbl };
+  const ctx = { S, meta, done, toggleDone, lbl, byId: Object.fromEntries(S.topics.map(t => [t.id, t])), order: S.plan.flatMap(r => r.ids) };
   const n = S.topics.filter(t => done.has(t.id)).length;
 
   return (
@@ -57,7 +59,6 @@ export default function SubjectApp({ meta, view, arg }) {
           : <Plan ctx={ctx} />}
       </motion.main>
       <BottomNav meta={meta} view={view} />
-      <Celebrate cheer={cheer} />
     </>
   );
 }
@@ -125,31 +126,6 @@ function BottomNav({ meta, view }) {
   );
 }
 
-// Confetti burst + toast when a topic is marked learned
-const CONFETTI = ['#ff7a3d', '#ffb38a', '#b48cff', '#4cc777', '#6d9cff', '#f5c451'];
-function Celebrate({ cheer }) {
-  return (
-    <AnimatePresence>
-      {cheer && (
-        <motion.div key={cheer.k} className="cheer-layer" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          {Array.from({ length: 22 }, (_, i) => {
-            const a = (i / 22) * Math.PI * 2, d = 70 + (i % 5) * 22;
-            return (
-              <motion.i key={i} className="confetti" style={{ left: cheer.x, top: cheer.y, background: CONFETTI[i % CONFETTI.length] }}
-                initial={{ x: 0, y: 0, scale: 1, rotate: 0, opacity: 1 }}
-                animate={{ x: Math.cos(a) * d, y: Math.sin(a) * d + 60, rotate: 360, scale: 0.4, opacity: 0 }}
-                transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }} />
-            );
-          })}
-          <motion.div className="toast" initial={{ y: 40, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 30, opacity: 0 }} transition={{ type: 'spring', stiffness: 380, damping: 28 }}>
-            <b>✓ Topic learned</b><span>{cheer.n}/{cheer.total} done{cheer.n === cheer.total ? '. Everything covered!' : '. Keep going'}</span>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
 const metaLine = t => (t.unit ? 'Unit ' + t.unit + ' · ' + t.marks + ' marks' : 'Foundation · read this first');
 const plain = h => (h || '').replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ').trim();
 const clip = (txt, n) => (txt.length > n ? txt.slice(0, n).replace(/\s\S*$/, '') + '…' : txt);
@@ -187,7 +163,7 @@ function TopicRow({ ctx, id, i = 0 }) {
       <Check ctx={ctx} id={id} />
       <a className="row-main" href={href}>
         <span className="row-title">{t.title}</span>
-        <span className="row-meta">{metaLine(t)}{t.pyq && <> · <span className="pyq-txt">asked last year</span></>}{(t.widget || t.explore) && <> · simulator</>}</span>
+        <span className="row-meta">{metaLine(t)}{t.pyq && <> · <span className="pyq-txt">{ctx.lbl.asked.toLowerCase()}</span></>}{(t.widget || t.explore) && <> · simulator</>}</span>
       </a>
       <span className="row-time">{t.mins} min</span>
       <a className="row-go" href={href} tabIndex={-1} aria-hidden="true">→</a>
@@ -208,9 +184,11 @@ function Plan({ ctx }) {
   const nt = nextId && byId[nextId];
   return (
     <div className="wrap">
-      <span className="pill"><ShinyText text={S.hero.eyebrow} color={light ? '#15142b' : '#ff9a66'} shineColor={light ? '#2f5bff' : '#ffffff'} speed={2.4} /></span>
-      <h1 className="page-h"><GradientText colors={light ? ['#c2410c', '#e2550a', '#7c3aed', '#c2410c'] : ['#ff7a3d', '#ffb38a', '#b48cff', '#ff7a3d']} animationSpeed={6}>{(lang === 'gaali' && S.hero.titleGaali) || (lang !== 'en' && S.hero.titleBhai) || S.hero.title}</GradientText></h1>
-      <p className="lead">{(lang === 'gaali' && S.hero.textGaali) || (lang !== 'en' && S.hero.textBhai) || S.hero.text}</p>
+      <InkMist off={light}>
+        <span className="pill"><ShinyText text={S.hero.eyebrow} color={light ? '#15142b' : '#e07a5f'} shineColor={light ? '#2f5bff' : '#ffffff'} speed={2.4} /></span>
+        <h1 className="page-h"><GradientText colors={light ? ['#c2410c', '#e2550a', '#7c3aed', '#c2410c'] : ['#e9e2d4', '#9a9184', '#d9452b', '#e9e2d4']} animationSpeed={6}>{(lang === 'gaali' && S.hero.titleGaali) || (lang !== 'en' && S.hero.titleBhai) || S.hero.title}</GradientText></h1>
+        <p className="lead">{(lang === 'gaali' && S.hero.textGaali) || (lang !== 'en' && S.hero.textBhai) || S.hero.text}</p>
+      </InkMist>
 
       <section className="plan-top">
         <Reveal className="card plan-progress">
@@ -256,7 +234,7 @@ function Plan({ ctx }) {
         <a href={'#/' + meta.id + '/revise'}><HugeiconsIcon icon={Task01Icon} size={18} /><b>Revise</b><small>key points per topic</small></a>
         <a href={'#/' + meta.id + '/cards'}><HugeiconsIcon icon={CardsIcon} size={18} /><b>Flashcards</b><small>{S.cards.length} cards</small></a>
         <a href={'#/' + meta.id + '/quiz'}><HugeiconsIcon icon={Quiz01Icon} size={18} /><b>Quiz</b><small>10 random questions</small></a>
-        <a href={'#/' + meta.id + '/paper'}><HugeiconsIcon icon={File01Icon} size={18} /><b>Last year's paper</b><small>with answers</small></a>
+        <a href={'#/' + meta.id + '/paper'}><HugeiconsIcon icon={File01Icon} size={18} /><b>{ctx.lbl.paper}</b><small>{ctx.lbl.paperSub}</small></a>
       </div>
 
       <details className="card pattern">
@@ -301,7 +279,7 @@ function WeakCard({ ctx }) {
   const max = w[0][1];
   return (
     <Reveal className="card weak-card">
-      <div className="weak-head"><b>🎯 Revise these first</b><button className="linkbtn" onClick={() => { clearWeak(meta.id); setW([]); }}>clear</button></div>
+      <div className="weak-head"><b>🎯 Revise these first</b></div>
       <p className="muted" style={{ margin: '2px 0 10px', fontSize: 14 }}>From your wrong quiz answers and mock scores.</p>
       {w.map(([id, v]) => (
         <a key={id} className="weak-row" href={'#/' + meta.id + '/learn/' + id}>
@@ -309,6 +287,8 @@ function WeakCard({ ctx }) {
           <div className="bar"><i style={{ width: (v / max) * 100 + '%', background: 'var(--bad)' }} /></div>
         </a>
       ))}
+      {/* the card goes after the dragon has finished scorching it */}
+      <div className="pw-hoard"><PwHoard label="Hold to clear list" doneLabel="Cleared" onDelete={() => { clearWeak(meta.id); setTimeout(() => setW([]), 1600); }} /></div>
     </Reveal>
   );
 }
@@ -320,7 +300,7 @@ function TopicsIndex({ ctx }) {
   const preview = t => desiOf(t, lang)?.s || plain(t.simple);
   const [f, setF] = useState('all');
   const [q, setQ] = useState('');
-  const FILTERS = [['all', 'All', () => true], ['todo', 'To do', t => !done.has(t.id)], ['pyq', "Last year's", t => t.pyq], ['done', 'Done', t => done.has(t.id)]];
+  const FILTERS = [['all', 'All', () => true], ['todo', 'To do', t => !done.has(t.id)], ['pyq', ctx.lbl.filter, t => t.pyq], ['done', 'Done', t => done.has(t.id)]];
   const test = FILTERS.find(x => x[0] === f)[2];
   const match = t => test(t) && (!q || (t.title + ' ' + plain(t.q) + ' ' + plain(t.simple)).toLowerCase().includes(q.toLowerCase()));
   const shown = S.topics.filter(match);
@@ -330,8 +310,8 @@ function TopicsIndex({ ctx }) {
       <h1 className="page-h">All topics</h1>
       <p className="lead">Every topic in one place. Open one to learn it, or tick the circle when you're done.</p>
       <div className="ti-bar">
-        <div className="seg">{FILTERS.map(([k, l, fn]) => <button key={k} className={f === k ? 'on' : ''} onClick={() => setF(k)}>{l} <span className="seg-n">{S.topics.filter(fn).length}</span></button>)}</div>
-        <label className="ti-search"><HugeiconsIcon icon={Search01Icon} size={17} /><input type="search" placeholder="Search topics, e.g. thread, JSP, @Entity" value={q} onChange={e => setQ(e.target.value)} aria-label="Search topics" /></label>
+        <SkTabs label="Show topics" value={f} onChange={setF} options={FILTERS.map(([k, l, fn]) => [k, `${l} ${S.topics.filter(fn).length}`])} />
+        <div className="ti-search"><SkInput label="Search topics" placeholder="Search topics, e.g. thread, JSP, @Entity" value={q} onChange={setQ} /></div>
       </div>
       {shown.length === 0 && <p className="muted" style={{ marginTop: 30 }}>No topics match. Try another filter.</p>}
       {Object.entries(S.units).map(([u, name]) => {
@@ -355,7 +335,7 @@ function TopicsIndex({ ctx }) {
                     transition={{ duration: 0.35, delay: Math.min(i, 8) * 0.04 }} whileHover={{ y: -3 }}>
                     <div className="tcard-top">
                       <span className="tag">{t.unit ? t.marks + ' marks' : 'start here'}</span>
-                      {t.pyq && <span className="tag pyq">last year</span>}
+                      {t.pyq && <span className="tag pyq">{ctx.lbl.pyq}</span>}
                       <span style={{ flex: 1 }} />
                       <Check ctx={ctx} id={t.id} />
                     </div>
@@ -416,7 +396,7 @@ function Learn({ ctx, id }) {
                 <div className="unit-h" style={{ color: UCOL[u] }}><span className="dot" style={{ background: UCOL[u] }} />Unit {u} · {name}</div>
                 {S.topics.filter(x => x.unit === +u && (!q || (x.title + ' ' + x.q).toLowerCase().includes(q.toLowerCase()))).map(x => (
                   <a key={x.id} className={'side-item' + (x.id === t.id ? ' on' : '')} href={`#/${meta.id}/learn/${x.id}`}>
-                    <span className="mk">{done.has(x.id) ? '✓' : ''}</span><span style={{ flex: 1 }}>{x.title}</span>{x.pyq && <span className="pd" title="Asked last year" />}
+                    <span className="mk">{done.has(x.id) ? '✓' : ''}</span><span style={{ flex: 1 }}>{x.title}</span>{x.pyq && <span className="pd" title={ctx.lbl.asked} />}
                   </a>
                 ))}
               </div>
@@ -431,9 +411,10 @@ function Learn({ ctx, id }) {
         <motion.h1 initial={{ opacity: 0, y: 10, filter: 'blur(8px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.55, ease: [0.2, 0.7, 0.2, 1] }}>{t.title}</motion.h1>
         <div className="tags">
           <span className="tag">{t.unit ? t.marks + ' marks' : 'foundation'}</span><span className="tag">≈ {t.mins} min</span>
-          {t.pyq && <span className="tag pyq">Asked last year · {t.pyq}</span>}
+          {t.pyq && <span className="tag pyq">{ctx.lbl.asked} · {t.pyq}</span>}
           {t.imp && <span className="tag imp">On your important list</span>}
         </div>
+        {lang === 'gaali' && <GaaliCoach id={t.id} />}
         <div className="qbox"><small>Exam question</small><span dangerouslySetInnerHTML={{ __html: t.q }} /></div>
         <AudioBar key={t.id + lang} label={lang === 'en' ? '🔊 Listen to this topic' : '🔊 Topic suno'} parts={() => {
           const d = desiOf(t, lang);
@@ -441,7 +422,7 @@ function Learn({ ctx, id }) {
         }} />
         <AskAI topic={t.title} context={(t.rev || []).join(' ').replace(/<[^>]+>/g, '') + ' ' + (t.simple || '').replace(/<[^>]+>/g, '')} />
 
-        {sec(T('idea'), lang === 'gaali' ? 'Pehle concept samajh, phir exam wala answer neeche English mein hai. Gaaliyan exam mein mat likh dena.' : lang === 'bhai' ? 'Pehle concept samjho. Exam wala answer neeche English mein hai.' : 'No Java knowledge needed. Read this first, the exam answer is further down.', <>{desiOf(t, lang) ? <EasyExplain e={desiOf(t, lang)} lang={lang} /> : <Html className="prose simple" html={t.simple} />}{t.meme && <MemeCard m={t.meme} unit={t.unit} id={t.id} />}</>)}
+        {sec(T('idea'), lang === 'gaali' ? 'Pehle concept samajh, phir exam wala answer neeche English mein hai. Aur sun bhosdike, ye gaaliyan exam mein mat likh dena.' : lang === 'bhai' ? 'Pehle concept samjho. Exam wala answer neeche English mein hai.' : (S.ideaSub?.en || 'No Java knowledge needed. Read this first, the exam answer is further down.'), <>{desiOf(t, lang) ? <EasyExplain e={desiOf(t, lang)} lang={lang} /> : <Html className="prose simple" html={t.simple} />}{t.meme && <MemeCard m={t.meme} unit={t.unit} id={t.id} />}</>)}
         {(lang !== 'en' ? t.bhaiLearn || t.learn : t.learn) && sec(T('steps'), T('stepsSub'), <Walkthrough key={lang} steps={lang !== 'en' ? t.bhaiLearn || t.learn : t.learn} />)}
         {(W || t.explore) && (
           sec(T('try'), T('trySub'), <>
@@ -457,11 +438,30 @@ function Learn({ ctx, id }) {
         {t.quiz?.length > 0 && sec(T('check'), null, t.quiz.map((x, i) => <MCQ key={t.id + i} q={x} onAnswer={ok => bumpWeak(meta.id, t.id, ok ? -0.5 : 1)} />))}
 
         <div className="actions">
-          <button className={'btn ' + (done.has(t.id) ? 'ok' : 'primary')} onClick={e => toggleDone(t.id, e)}>{done.has(t.id) ? T('learned') : T('markDone')}</button>
+          <SkButton key={t.id} done={done.has(t.id)} onClick={e => toggleDone(t.id, e)}>{done.has(t.id) ? T('learned').replace(/^✓ /, '') : T('markDone')}</SkButton>
           {prev && <a className="btn" href={`#/${meta.id}/learn/${prev}`}>← Previous</a>}
           {next ? <a className="btn" href={`#/${meta.id}/learn/${next}`}>Next: {byId[next].title} →</a> : <a className="btn" href={`#/${meta.id}/cards`}>Revise with flashcards →</a>}
         </div>
+        <Confidence sid={meta.id} id={t.id} key={'c' + t.id} />
       </article>
+    </div>
+  );
+}
+
+// Self-rated confidence per topic. Low stars push the topic up "Revise these first"; high stars pull it down.
+function Confidence({ sid, id }) {
+  const [v, setV] = useState(() => store.get(sid + ':conf', {})[id] || 0);
+  const rate = n => {
+    const all = store.get(sid + ':conf', {});
+    if (n) all[id] = n; else delete all[id];
+    store.set(sid + ':conf', all);
+    if (n) bumpWeak(sid, id, n <= 2 ? 1 : n >= 4 ? -0.5 : 0);
+    setV(n);
+  };
+  return (
+    <div className="confidence">
+      <span>How sure are you about this topic?</span>
+      <SkRating label="Confidence" value={v} onChange={rate} />
     </div>
   );
 }
@@ -494,7 +494,7 @@ function Cards({ ctx }) {
   const mark = k => { setSrs(gradeCard(meta.id, c.q, k)); move(1); };
   useEffect(() => {
     const on = e => {
-      if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+      if (/INPUT|TEXTAREA|SAKUGA-/.test(e.target.tagName)) return; // sakuga controls own their arrow/space keys
       if (e.key === ' ') { e.preventDefault(); setFlip(f => !f); }
       else if (e.key === 'ArrowRight') move(1);
       else if (e.key === 'ArrowLeft') move(-1);
@@ -509,17 +509,16 @@ function Cards({ ctx }) {
       <h1 className="page-h">Flashcards</h1>
       <p className="lead">Answer in your head, then flip to check. Cards you know come back later (10 min → 1 → 3 → 7 → 15 days); the ones you miss come back soon. Keys: <kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> move.</p>
       <div className="srs-stats"><span><b>{dueN}</b> due now</span><span><b>{newN}</b> new</span><span><b>{deck.length - dueN - newN}</b> scheduled</span>
-        <label className="toggle"><input type="checkbox" checked={smart} onChange={e => { setSmart(e.target.checked); setDeck(e.target.checked ? order(deck) : all.filter(x => unit === 'all' || x.u === unit)); setI(0); }} />Smart order</label></div>
-      <div className="seg" style={{ marginTop: 16 }}>
-        {['all', ...Object.keys(S.units).map(Number)].map(u => <button key={u} className={unit === u ? 'on' : ''} onClick={() => pickUnit(u)}>{u === 'all' ? 'All' : 'Unit ' + u}</button>)}
-      </div>
+        <span className="sk-row"><SkCheck checked={smart} onChange={on => { setSmart(on); setDeck(on ? order(deck) : all.filter(x => unit === 'all' || x.u === unit)); setI(0); }}>Smart order</SkCheck>
+          <SkTooltip label="What is smart order?" text="Cards due for review come first, then new ones. Cards you already know wait until their day comes." /></span></div>
+      <div className="sk-seg"><SkTabs label="Unit" value={unit} onChange={pickUnit} options={['all', ...Object.keys(S.units).map(Number)].map(u => [u, u === 'all' ? 'All' : 'Unit ' + u])} /></div>
       {c && (
         <>
           <motion.div key={i} className={'flash' + (flip ? ' flipped' : '')} tabIndex={0} role="button" aria-label="Flip card (swipe to move)"
             drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.6}
             onDragEnd={(e, info) => { if (info.offset.x < -80) move(1); else if (info.offset.x > 80) move(-1); }}
             initial={{ opacity: 0, x: 30, scale: 0.97 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-            onClick={() => setFlip(f => !f)}>
+            onClick={e => { fx.swish(e.currentTarget); setFlip(f => !f); }}>
             <div className="flash-inner">
               <div className="face front">
                 <span className="face-tag">Unit {c.u} · Question{known.has(c.q) && <span className="known"> · known</span>}</span>
@@ -579,7 +578,7 @@ function Quiz({ ctx }) {
     return (
       <div className="wrap narrow">
         <p className="eyebrow">Result</p>
-        <div className="score-big"><GradientText colors={pct >= 80 ? ['#4cc777', '#9be15d', '#4cc777'] : ['#ff7a3d', '#ffb38a', '#ff7a3d']}>{qz.score}/{qz.qs.length}</GradientText></div>
+        <div className="score-big" ref={el => { if (el && !el.dataset.fx) { el.dataset.fx = 1; requestAnimationFrame(() => fx.boom(el)); } }}><GradientText colors={pct >= 80 ? ['#4cc777', '#9be15d', '#4cc777'] : ['#ff7a3d', '#ffb38a', '#ff7a3d']}>{qz.score}/{qz.qs.length}</GradientText></div>
         <p>{pct >= 80 ? 'Solid. You know these well.' : pct >= 50 ? 'Getting there. Revisit the topics below.' : 'Go back over the topics below, then try again.'}</p>
         {wt.length > 0 && <><h3>Revise these</h3><div className="rows">{wt.map(id => <TopicRow key={id} ctx={ctx} id={id} />)}</div></>}
         <div className="cta"><button className="btn primary" onClick={() => start(qz.u)}>New quiz</button><button className="btn" onClick={() => setQz(null)}>Change unit</button><a className="btn" href={`#/${meta.id}/cards`}>Flashcards</a></div>
@@ -591,7 +590,7 @@ function Quiz({ ctx }) {
   return (
     <div className="wrap narrow">
       <div className="qz-top"><span>Question {qz.i + 1} of {qz.qs.length}</span><span>Score {qz.score}</span></div>
-      <div className="bar wide"><i style={{ width: (qz.i / qz.qs.length) * 100 + '%' }} /></div>
+      <div className="sk-progress"><SkProgress label="Quiz progress" value={(qz.i + (answered ? 1 : 0)) / qz.qs.length} /></div>
       <MCQ key={qz.i} q={q} big onAnswer={ok => { bumpWeak(meta.id, q.tid, ok ? -0.5 : 1); setAnswered(true); setQz(z => ({ ...z, score: z.score + (ok ? 1 : 0), wrong: ok ? z.wrong : [...z.wrong, q] })); }} />
       {answered && (
         <div className="cta">
@@ -622,10 +621,8 @@ function Revise({ ctx }) {
       <h1 className="page-h">Revise</h1>
       <p className="lead">Every topic boiled down to the points you must write. Turn on <b>Test me</b> to hide the points, try to recall them, then tap to check.</p>
       <div className="rev-bar">
-        <div className="seg">
-          {['all', ...Object.keys(S.units).map(Number).filter(u => u > 0)].map(u => <button key={u} className={unit === u ? 'on' : ''} onClick={() => setUnit(u)}>{u === 'all' ? 'All' : 'Unit ' + u}</button>)}
-        </div>
-        <label className="toggle"><input type="checkbox" checked={test} onChange={e => { setTest(e.target.checked); setShown(new Set()); }} />Test me</label>
+        <SkTabs label="Unit" value={unit} onChange={setUnit} options={['all', ...Object.keys(S.units).map(Number).filter(u => u > 0)].map(u => [u, u === 'all' ? 'All' : 'Unit ' + u])} />
+        <span className="sk-row"><SkToggle label="Test me" checked={test} onChange={on => { setTest(on); setShown(new Set()); }} /><b className="sk-label" aria-hidden="true" onClick={e => e.currentTarget.previousSibling.flip?.()}>Test me</b></span>
         <span className="muted rev-count">{nRev}/{list.length} revised</span>
       </div>
       <div className="bar wide"><i style={{ width: list.length ? (nRev / list.length) * 100 + '%' : 0 }} /></div>
@@ -639,7 +636,7 @@ function Revise({ ctx }) {
                 <span className="dot" style={{ background: UCOL[t.unit] }} />
                 <a href={`#/${meta.id}/learn/${t.id}`}>{t.title}</a>
                 <span className="tag">{t.marks}</span>
-                {t.pyq && <span className="tag pyq">last year</span>}
+                {t.pyq && <span className="tag pyq">{ctx.lbl.pyq}</span>}
               </div>
               <div className="rev-body">
                 <ul className={'rev-pts' + (hidden ? ' hidden' : '')} aria-hidden={hidden}>
@@ -650,7 +647,7 @@ function Revise({ ctx }) {
               {t.trick && <Html className="rev-trick" html={t.trick} />}
               {t.meme && <MemeCard m={t.meme} compact />}
               <div className="rev-foot">
-                <button className={'btn sm' + (rev.has(t.id) ? ' ok' : '')} onClick={() => toggleRev(t.id)}>{rev.has(t.id) ? '✓ Revised' : 'Mark revised'}</button>
+                <button className={'btn sm' + (rev.has(t.id) ? ' ok' : '')} onClick={e => { if (!rev.has(t.id)) fx.tick(e.currentTarget); toggleRev(t.id); }}>{rev.has(t.id) ? '✓ Revised' : 'Mark revised'}</button>
                 <a className="btn sm ghost" href={`#/${meta.id}/learn/${t.id}`}>Full topic →</a>
               </div>
             </Reveal>
@@ -662,7 +659,7 @@ function Revise({ ctx }) {
         <section className="glossary">
           <h2>Jargon buster</h2>
           <p className="muted" style={{ marginTop: 0 }}>Every tricky word in this subject, in one plain line.</p>
-          <input type="search" placeholder="Search a word… e.g. bean, ORM, thread" value={q} onChange={e => setQ(e.target.value)} aria-label="Search glossary" />
+          <div className="sk-search"><SkInput label="Search glossary" placeholder="Search a word… e.g. bean, ORM, thread" value={q} onChange={setQ} /></div>
           <div className="gl-grid">
             {terms.map(([k, v]) => <div key={k} className="gl-item"><b>{k}</b><span>{v}</span></div>)}
             {terms.length === 0 && <p className="muted">No match.</p>}
@@ -679,8 +676,8 @@ function Paper({ ctx }) {
   return (
     <div className="wrap">
       <p className="eyebrow">Previous year · End semester</p>
-      <h1 className="page-h">Last year's paper</h1>
-      <p className="lead">Every question from last year, linked to its answer. The 2-mark answers are right here, so tap to reveal them.</p>
+      <h1 className="page-h">{ctx.lbl.paper}</h1>
+      <p className="lead">{ctx.lbl.paperLead}</p>
       {S.pyq.map(s => (
         <section className="paper-sec" key={s.title}>
           <h2>{s.title}</h2>

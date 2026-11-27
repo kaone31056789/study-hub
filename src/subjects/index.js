@@ -4,6 +4,15 @@ export const SEASON = { end: '2026-12-07' };
 
 export const SUBJECTS = [
   {
+    id: 'dip',
+    name: 'Introduction to Digital Image Processing',
+    short: 'DIP',
+    code: '24ITT-311',
+    exam: '2026-11-28',
+    blurb: 'Sampling, transforms, enhancement, restoration, colour, wavelets, morphology, compression and segmentation.',
+    load: () => import('./dip/index.js')
+  },
+  {
     id: 'pblj',
     name: 'Project Based Learning in Java',
     short: 'PBLJ',

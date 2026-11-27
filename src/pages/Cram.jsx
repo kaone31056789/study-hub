@@ -4,6 +4,7 @@ import Diagram from '../components/Diagram';
 import { AudioBar } from '../components/Extras';
 import { useLang, desiOf } from '../lang';
 import { weakList } from '../progress';
+import { SkTabs, SkCheck } from '../components/sakuga';
 
 const UCOL = ['var(--warn)', 'var(--u1)', 'var(--u2)', 'var(--u3)'];
 
@@ -24,9 +25,9 @@ export default function Cram({ ctx }) {
       <h1 className="page-h">Cram sheet</h1>
       <p className="lead">Only what you must write: key points, 2-mark answers, diagrams and memory hooks. Read it top to bottom, or print it.</p>
       <div className="rev-bar cram-bar">
-        <div className="seg">{['all', 1, 2, 3].map(u => <button key={u} className={unit === u ? 'on' : ''} onClick={() => setUnit(u)}>{u === 'all' ? 'All' : 'Unit ' + u}</button>)}</div>
-        <label className="toggle"><input type="checkbox" checked={pyqOnly} onChange={e => setPyqOnly(e.target.checked)} />Last year's only</label>
-        <label className="toggle"><input type="checkbox" checked={diagrams} onChange={e => setDiagrams(e.target.checked)} />Diagrams</label>
+        <SkTabs label="Unit" value={unit} onChange={setUnit} options={['all', 1, 2, 3].map(u => [u, u === 'all' ? 'All' : 'Unit ' + u])} />
+        <SkCheck checked={pyqOnly} onChange={setPyqOnly}>{ctx.lbl?.filter || "Last year's"} only</SkCheck>
+        <SkCheck checked={diagrams} onChange={setDiagrams}>Diagrams</SkCheck>
         <button className="btn sm" onClick={() => window.print()}>🖨 Print / PDF</button>
       </div>
       <AudioBar parts={audio} label="🔊 Play whole cram sheet" />
@@ -35,7 +36,7 @@ export default function Cram({ ctx }) {
           <header>
             <a href={`#/${meta.id}/learn/${t.id}`}>{t.title}</a>
             <span className="tag">{t.marks} marks</span>
-            {t.pyq && <span className="tag pyq">last year</span>}
+            {t.pyq && <span className="tag pyq">{ctx.lbl?.pyq || 'last year'}</span>}
             {weak.has(t.id) && <span className="tag weak-tag">weak</span>}
           </header>
           {t.rev && <ul className="rev-pts">{t.rev.map((p, i) => <li key={i} dangerouslySetInnerHTML={{ __html: p }} />)}</ul>}

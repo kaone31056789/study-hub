@@ -1,0 +1,288 @@
+/* =========================================================
+   Sumi: the dark theme as an ink-wash painting.
+   Black ink paper, washi-white text, grey washes, one
+   vermilion seal colour. Plus the Sakuga VFX controls and
+   motion borrowed from finktheartist.tech (brush-wipe
+   headings, ink-bleed page change, jittering grain).
+   Light theme is untouched apart from the shared bits at
+   the bottom.
+   ========================================================= */
+
+@property --ink-r{syntax:'<length>';inherits:false;initial-value:0px}
+
+:root:not([data-theme="light"]){
+  --bg:#0e0d0c; --surface:#161412; --surface-2:#1d1b18; --surface-3:#282521;
+  --text:#e9e2d4; --muted:#9a9184; --line:#2c2925;
+  --accent:#d9452b; --accent-ink:#fff6ee; --accent-soft:rgba(217,69,43,.14);
+  --u1:#8ea3c6; --u2:#9bb08a; --u3:#c4a46e;          /* ai indigo, matcha, kincha ochre */
+  --ok:#8fb07a; --ok-soft:rgba(143,176,122,.13); --bad:#e0664f; --bad-soft:rgba(224,102,79,.13);
+  --warn:#d4b06a; --warn-soft:rgba(212,176,106,.13);
+  --pyq:#e07a5f; --pyq-soft:rgba(224,122,95,.13);
+  --code:#0b0a09;
+  --strong:#f4eee2; --text-2:#cfc6b6; --label:#e07a5f;
+  --glass:rgba(20,18,16,.9); --header-bg:rgba(14,13,12,.84); --hover-line:#5a544c;
+  --ink-border:#3a3631; --ink-shadow:#000; --hi:#d9452b;
+  --font-head:"Shippori Mincho B1","Yu Mincho","Hiragino Mincho ProN",Georgia,serif;
+  --wash:rgba(233,226,212,.045);
+  /* Sakuga controls, in ink */
+  --sk-card:#1d1b18; --sk-ink:#e9e2d4; --sk-dim:#9a9184; --sk-soft:#000; --sk-pri:#e9e2d4; --sk-pri-ink:#0e0d0c;
+  --sk-acc:#d9452b; --sk-track:#2c2925; --sk-on-pri:#0e0d0c; --sk-fill:#d9452b;
+  --sk-sh:4px 4px 0 #000; --sk-bw:2px; --sk-r:11px;
+}
+
+/* ---------- the painting behind everything ---------- */
+:root:not([data-theme="light"]) body{background:var(--bg)}   /* flat on purpose: the Canvas UI pond paints this exact colour */
+:root:not([data-theme="light"]) body::after{          /* mountains in mist, fixed like a scroll painting */
+  content:"";position:fixed;inset:auto 0 0;height:max(240px,30vw);max-height:55vh;z-index:-1;pointer-events:none;
+  background:url(./ink-mountains.svg) center top/cover no-repeat;   /* crop the misty foot, never the ridges */
+}
+:root:not([data-theme="light"]) body::before{         /* washi grain, jittered like the portfolio's CRT noise */
+  content:"";position:fixed;inset:-50%;z-index:2147482000;pointer-events:none;opacity:.05;   /* over everything, like grain in a print */
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .91 0 0 0 0 .88 0 0 0 0 .83 0 0 0 1.4 -.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:ink-jit 1.4s steps(4) infinite;
+}
+@keyframes ink-jit{to{transform:translate(90px,60px)}}
+
+/* ---------- type ---------- */
+:root:not([data-theme="light"]) :is(h1,h2,h3,.page-h){letter-spacing:.005em;font-weight:800}
+:root:not([data-theme="light"]) .eyebrow{color:var(--muted);letter-spacing:.22em;display:flex;align-items:center;gap:10px}
+:root:not([data-theme="light"]) .eyebrow::before{    /* the hanko seal */
+  content:"";width:11px;height:11px;flex:none;background:var(--accent);border-radius:2px;
+  box-shadow:inset 0 0 0 1.5px rgba(14,13,12,.35);transform:rotate(-4deg)
+}
+:root:not([data-theme="light"]) .hand{color:var(--pyq)}
+:root:not([data-theme="light"]) .brand-txt mark{background:linear-gradient(transparent 58%,rgba(217,69,43,.5) 58%,rgba(217,69,43,.5) 90%,transparent 90%)}
+:root:not([data-theme="light"]) ::selection{background:var(--accent);color:var(--accent-ink)}
+
+/* ---------- surfaces: brush-dry borders, ink-black offset ---------- */
+:root:not([data-theme="light"]) :is(.card,.row,.tcard,.rev-card,.wg,.mcq,.pq,.next-card,.quick a,.gl-item,.dg,.simple,.short,.trick,.face,.subj,.code,.soon,.qbox,.how div,.box,.next-up,.final-cta){
+  border-color:rgba(233,226,212,.13)!important;
+}
+:root:not([data-theme="light"]) :is(.card,.subj,.rev-card,.tcard,.next-card,.gl-item,.row){
+  background-image:radial-gradient(120% 90% at 100% 0%,var(--wash),transparent 62%);
+}
+:root:not([data-theme="light"]) .top{border-bottom-color:rgba(233,226,212,.08)}
+:root:not([data-theme="light"]) .bar{background:#24211e}
+:root:not([data-theme="light"]) .bar i{background:linear-gradient(90deg,#5e5850,#e9e2d4 85%,var(--accent))}
+:root:not([data-theme="light"]) .dash-aurora{display:none}   /* the mountains are the art here; the pond also paints the page colour, which must match */
+:root:not([data-theme="light"]) :is(.track-line i,.next-card::before,.next-up::before){background:linear-gradient(90deg,#5e5850,#e9e2d4 80%,var(--accent))}
+/* old orange/violet glows -> grey wash, vermilion only where something is "on" */
+:root:not([data-theme="light"]) :is(.simple,.face.front,.season,.dg,.final-cta,.hp-flash){background:radial-gradient(120% 90% at 0 0,rgba(233,226,212,.06),transparent 58%),var(--surface)}
+:root:not([data-theme="light"]) :is(.hero .pill,.rev-reveal:hover,.codeview .cur){background:var(--accent-soft)}
+:root:not([data-theme="light"]) :is(.state.on,.hp-states span.on,.box.on){box-shadow:0 0 0 3px var(--accent-soft)}
+:root:not([data-theme="light"]) .logo-svg{box-shadow:none}
+/* the toggle's frames are painted lavender; wash them into ink */
+:root:not([data-theme="light"]) sakuga-toggle{filter:grayscale(1) invert(.9) contrast(1.15)}
+:root:not([data-theme="light"]) .season-count b{background:none;-webkit-text-fill-color:var(--accent);color:var(--accent)}
+
+/* the logo tile becomes a red seal, the ribbon a paper slip */
+:root:not([data-theme="light"]) .logo-svg rect:nth-of-type(1){fill:#000}
+:root:not([data-theme="light"]) .logo-svg rect:nth-of-type(2){fill:var(--accent);stroke:#0e0d0c}
+:root:not([data-theme="light"]) .logo-svg .logo-ribbon{fill:#e9e2d4}
+
+/* ---------- motion borrowed from the portfolio ---------- */
+/* 1. headings arrive as a brush stroke wiping left to right (portfolio: "type" clip-path reveal) */
+:root:not([data-theme="light"]) .page-h{animation:ink-brush .7s cubic-bezier(.23,1,.32,1) both}
+@keyframes ink-brush{from{clip-path:inset(0 100% 0 0);filter:blur(3px)}to{clip-path:inset(0 -2% 0 0);filter:blur(0)}}
+/* 2. section headings bleed in like ink hitting wet paper (portfolio: "scanin") */
+:root:not([data-theme="light"]) .sec>h2,:root:not([data-theme="light"]) .unit-sec-head h2{animation:ink-bleed .6s cubic-bezier(.23,1,.32,1) both}
+@keyframes ink-bleed{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:blur(0)}}
+
+/* 3. page change: the new page spreads out from where you tapped, with a soft ink edge
+      (portfolio: circular "dive-arrive"; here View Transitions + a radial mask) */
+::view-transition-old(root){animation:none}
+::view-transition-new(root){
+  -webkit-mask:radial-gradient(circle at var(--vx,50%) var(--vy,30%),#000 var(--ink-r),transparent calc(var(--ink-r) + 90px));
+          mask:radial-gradient(circle at var(--vx,50%) var(--vy,30%),#000 var(--ink-r),transparent calc(var(--ink-r) + 90px));
+  animation:ink-spread .55s cubic-bezier(.23,1,.32,1) both;
+}
+@keyframes ink-spread{from{--ink-r:0px}to{--ink-r:160vmax}}
+
+/* ---------- Sakuga controls: layout + fit with the app (both themes) ---------- */
+:root[data-theme="light"]{
+  --sk-card:#fff; --sk-ink:#15142b; --sk-soft:#15142b; --sk-pri:#2f5bff; --sk-acc:#ff5d8f; --sk-fill:#2f5bff;
+  --sk-sh:4px 4px 0 #15142b; --sk-bw:2px; --sk-r:11px;
+}
+sakuga-button::part(button){font:700 15px/1.2 Inter,system-ui,sans-serif;padding:12px 22px}
+sakuga-checkbox::part(label){font:500 14px/1.4 Inter,system-ui,sans-serif;color:var(--text)}
+sakuga-input::part(input){font:400 15px Inter,system-ui,sans-serif}
+.ti-search sakuga-input,.sk-search sakuga-input{display:block}
+.sk-row{display:inline-flex;align-items:center;gap:10px}
+.sk-row b{font-size:14px}
+.sk-label{cursor:pointer;user-select:none}
+.sk-seg{margin-top:16px}
+.sk-radio{margin:10px 0 16px}
+.sk-progress{display:flex;justify-content:center;overflow:visible;--sk-progress-width:min(100%,420px)}
+.confidence{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px;color:var(--muted);font-size:14px}
+.audio-bar sakuga-slider{--sk-slider-width:150px;margin:0}   /* drop its 30px bubble headroom so the track centres on the buttons; the bubble floats above */
+.audio-bar{margin-top:30px}
+.audio-bar .sk-speed{display:inline-flex;align-items:center;gap:10px;margin-left:6px;font-size:13px;color:var(--muted)}
+.sk-toast{position:fixed;left:50%;bottom:28px;translate:-50% 0;z-index:70}
+@media (max-width:760px){.sk-toast{bottom:calc(86px + env(safe-area-inset-bottom))}}
+/* both reserve headroom for effects that fly above them; give it back so they sit in the row (effects may overlap text above) */
+.rev-bar sakuga-toggle{zoom:.7;margin:-55px 0}   /* equal top/bottom so flex centring lines the switch up with the tabs */
+.sk-row sakuga-tooltip{margin-top:-60px}
+
+/* ---------- Interaction layer (both themes) ---------- */
+/* every page: blocks rise in one after another when you arrive */
+@keyframes page-rise{from{opacity:0;transform:translateY(14px);filter:blur(4px)}}
+:is(main > .wrap, main.dash, .topic) > *{animation:page-rise .55s cubic-bezier(.23,1,.32,1) both}
+:is(main > .wrap, main.dash, .topic) > :nth-child(2){animation-delay:50ms}
+:is(main > .wrap, main.dash, .topic) > :nth-child(3){animation-delay:100ms}
+:is(main > .wrap, main.dash, .topic) > :nth-child(4){animation-delay:150ms}
+:is(main > .wrap, main.dash, .topic) > :nth-child(5){animation-delay:200ms}
+:is(main > .wrap, main.dash, .topic) > :nth-child(6){animation-delay:240ms}
+:is(main > .wrap, main.dash, .topic) > :nth-child(n+7){animation-delay:280ms}
+.learn > .side{animation:page-rise .5s cubic-bezier(.23,1,.32,1) both}
+
+/* reading progress: a vermilion brush line under the header, driven by scroll (no JS) */
+@supports (animation-timeline: scroll()){
+  .top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;transform-origin:left;transform:scaleX(0);
+    background:linear-gradient(90deg,transparent,var(--accent) 30%,var(--accent));animation:read-progress linear both;animation-timeline:scroll(root)}
+  @keyframes read-progress{to{transform:scaleX(1)}}
+}
+
+/* pointer-lit cards (Vengeance UI cursor-card idea): a soft light follows the pointer */
+@media (hover:hover) and (pointer:fine){
+  :is(.card,.subj,.row,.tcard,.rev-card,.gl-item,.mcq,.quick a){transition:transform .2s cubic-bezier(.23,1,.32,1),box-shadow .2s ease-out}
+  :is(.card,.subj,.row,.tcard,.rev-card,.gl-item,.quick a):hover{
+    background-image:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),var(--glow,rgba(233,226,212,.08)),transparent 65%)}
+  :is(.row,.tcard,.quick a,.gl-item):hover{transform:translate(-1px,-2px)}
+  /* border beam on hover for topic cards */
+  :is(.tcard,.row,.subj)::after{
+    content:"";position:absolute;inset:-2px;border-radius:inherit;padding:2px;pointer-events:none;opacity:0;transition:opacity .2s ease-out;
+    background:conic-gradient(from var(--beam-a),transparent 0 70%,var(--accent) 86%,var(--beam,#f4eee2) 94%,transparent);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+  :is(.tcard,.row,.subj):hover::after{opacity:1;animation:dg-beam 2.2s linear infinite}
+  :is(.row,.subj){position:relative}
+  /* links draw their underline */
+  :is(.prose a,.back-link,.linkbtn,.next-link){text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1.5px no-repeat;transition:background-size .25s cubic-bezier(.23,1,.32,1)}
+  :is(.prose a,.back-link,.linkbtn,.next-link):hover{background-size:100% 1.5px}
+}
+:root[data-theme="light"]{--glow:rgba(47,91,255,.07)}
+/* every pressable thing answers the press */
+:is(.btn,.xp-chip,.opt,.tabs a,.bottom-nav a,.bottom-nav button,.quick a,.theme-btn):active:not(:disabled){transform:scale(.97)}
+
+/* gaali coach line */
+.gaali-coach{display:flex;gap:10px;align-items:flex-start;margin:14px 0 0;padding:10px 14px;border-radius:12px;border:1.5px dashed color-mix(in srgb,var(--bad) 55%,transparent);background:var(--bad-soft);color:var(--strong);font-weight:600;font-size:14.5px;animation:coach-in .5s cubic-bezier(.23,1,.32,1) .2s both}
+@keyframes coach-in{from{opacity:0;transform:translateX(-10px) rotate(-1deg)}}
+
+/* subject loading: summoning circle */
+.subj-loading{min-height:60vh;display:grid;place-content:center;justify-items:center;gap:12px;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){
+  :is(main > .wrap, main.dash, .topic) > *, .learn > .side, .gaali-coach{animation:none}
+  .top::after{display:none}
+  :is(.tcard,.row,.subj):hover::after{animation:none}
+}
+
+/* ---------- Diagrams (both themes) ---------- */
+/* hold every entrance at its first frame until the diagram is on screen (Diagram.jsx adds .in) */
+.dg:not(.in) :is(.dg-node,.dg-tbl,.dg-arrow i,.dg-cells-row span,.dg-chain span,.w>span){animation-play-state:paused}
+/* labels rise word by word out of a mask: Vengeance UI staggerText, in CSS */
+.dg .w{display:inline-block;overflow:hidden;vertical-align:top}
+.dg .w>span{display:inline-block;animation:dg-word .6s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--i,0) * 70ms + var(--w,0) * 45ms + 120ms)}
+@keyframes dg-word{from{transform:translateY(110%)}}
+/* arrows: drawn, then a packet of light keeps travelling along them (Vengeance UI border-beam idea) */
+.dg-arrow i{
+  background:
+    linear-gradient(90deg,transparent 0 42%,var(--beam,#fff) 50%,transparent 58%) 0 0/300% 100% no-repeat,
+    linear-gradient(90deg,transparent,var(--accent));
+  animation:dg-draw .6s var(--ease) both,dg-flowx 2.4s linear infinite;
+  animation-delay:calc(var(--i,0) * 70ms + 120ms),calc(var(--i,0) * 70ms + 800ms);
+}
+.dg-flow.col .dg-arrow i{
+  background:
+    linear-gradient(180deg,transparent 0 42%,var(--beam,#fff) 50%,transparent 58%) 0 0/100% 300% no-repeat,
+    linear-gradient(180deg,transparent,var(--accent));
+  animation-name:dg-drawy,dg-flowy;
+}
+@keyframes dg-flowx{from{background-position:100% 0,0 0}to{background-position:0 0,0 0}}
+@keyframes dg-flowy{from{background-position:0 100%,0 0}to{background-position:0 0,0 0}}
+/* hover a node: a beam runs round its border (border-beam, as a masked conic gradient) */
+@property --beam-a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@media (hover:hover) and (pointer:fine){
+  .dg-node::before{
+    content:"";position:absolute;inset:-1.5px;border-radius:inherit;padding:1.5px;pointer-events:none;opacity:0;transition:opacity .2s ease-out;
+    background:conic-gradient(from var(--beam-a),transparent 0 72%,var(--accent) 86%,var(--beam,#fff) 94%,transparent);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  }
+  .dg-node:hover::before{opacity:1;animation:dg-beam 1.8s linear infinite}
+}
+@keyframes dg-beam{to{--beam-a:360deg}}
+:root[data-theme="light"] .dg{--beam:#ffd43b}
+/* ink theme: nodes bleed in like ink on wet paper instead of sliding */
+:root:not([data-theme="light"]) :is(.dg-node,.dg-tbl,.dg-cells-row span,.dg-chain span){animation-name:dg-ink}
+@keyframes dg-ink{from{opacity:0;filter:blur(7px);transform:scale(.97)}to{opacity:1;filter:none;transform:none}}
+:root:not([data-theme="light"]) .dg{--beam:#f4eee2}
+@media (prefers-reduced-motion:reduce){
+  .dg .w>span{animation:none}
+  .dg-arrow i,.dg-flow.col .dg-arrow i{animation:dg-draw .01s both}
+  .dg-node:hover::before{animation:none}
+}
+
+/* ---------- New diagram blocks: matrix, histogram, plot ---------- */
+.dg-fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;max-width:100%;overflow-x:auto}
+.dg-mx{display:grid;grid-template-columns:repeat(var(--cols),minmax(30px,44px));gap:3px}
+.dg-mx.sm{grid-template-columns:repeat(var(--cols),minmax(20px,26px))}
+.dg-mx span{aspect-ratio:1;display:grid;place-items:center;border-radius:6px;border:1.5px solid var(--line);background:var(--surface-2);font:600 12.5px "JetBrains Mono",monospace;color:var(--strong);animation:dg-in .4s var(--ease) both;animation-delay:calc(var(--i,0) * 18ms + 100ms)}
+.dg-mx.sm span{font-size:10.5px;border-radius:4px}
+.dg-mx span.heat{background:hsl(30 8% var(--g));color:#f4eee2;border-color:transparent}
+.dg-mx span.heat.lite{color:#16140f}
+.dg-mx span.pos{background:color-mix(in srgb,var(--ok) 22%,var(--surface-2));border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
+.dg-mx span.neg{background:color-mix(in srgb,var(--bad) 18%,var(--surface-2));border-color:color-mix(in srgb,var(--bad) 50%,transparent)}
+.dg-mx.bin span{background:var(--surface-3);border-color:transparent}
+.dg-mx.bin span.on{background:var(--strong)}
+.dg-mx span.hl{outline:2.5px solid var(--accent);outline-offset:1px;z-index:1}
+.dg-bars{display:flex;align-items:flex-end;gap:6px;height:140px;padding:0 4px;border-bottom:1.5px solid var(--line)}
+.dg-bars>div{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;width:30px}
+.dg-bars i{display:block;width:100%;height:calc(var(--h) * 100%);min-height:2px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 45%,transparent));transform-origin:bottom;animation:dg-grow .7s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--i,0) * 60ms + 150ms)}
+.dg-bars.t-u1 i{background:linear-gradient(180deg,var(--u1),color-mix(in srgb,var(--u1) 40%,transparent))}
+.dg-bars.t-ok i{background:linear-gradient(180deg,var(--ok),color-mix(in srgb,var(--ok) 40%,transparent))}
+.dg-bars em{font:600 10.5px "JetBrains Mono",monospace;font-style:normal;color:var(--muted);margin-bottom:3px}
+.dg-bars span{position:absolute;bottom:-20px;font:600 11px "JetBrains Mono",monospace;color:var(--muted)}
+.dg-bars>div.split::after{content:"T";position:absolute;right:-6px;top:-6px;bottom:-2px;border-right:2px dashed var(--accent);font:700 11px Inter,sans-serif;color:var(--accent);padding-right:4px}
+.dg-bars+figcaption{margin-top:18px}
+@keyframes dg-grow{from{transform:scaleY(0)}}
+.dg-plot svg{width:min(100%,420px);overflow:visible}
+.dg-plot .ax{fill:none;stroke:var(--muted);stroke-width:1.5}
+.dg-plot .mk{stroke:var(--muted);stroke-dasharray:4 4}
+.dg-plot text{fill:var(--muted);font:600 11px "JetBrains Mono",monospace}
+.dg-plot .mkt{text-anchor:middle}
+.dg-plot .ln{fill:none;stroke-width:2.6;stroke-linejoin:round;stroke:var(--c,var(--accent));stroke-dasharray:1;stroke-dashoffset:1;animation:dg-line 1.1s cubic-bezier(.22,1,.36,1) forwards;animation-delay:calc(var(--i,0) * 250ms + 200ms)}
+@keyframes dg-line{to{stroke-dashoffset:0}}
+.dg-legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:12.5px;color:var(--muted)}
+.dg-legend span{display:inline-flex;align-items:center;gap:6px}
+.dg-legend i{width:16px;height:3px;border-radius:2px;background:var(--c,var(--accent))}
+.dg-plot .t-a,.dg-legend .t-a{--c:var(--accent)} .dg-plot .t-u1,.dg-legend .t-u1{--c:var(--u1)} .dg-plot .t-u2,.dg-legend .t-u2{--c:var(--u2)} .dg-plot .t-u3,.dg-legend .t-u3{--c:var(--u3)} .dg-plot .t-ok,.dg-legend .t-ok{--c:var(--ok)} .dg-plot .t-bad,.dg-legend .t-bad{--c:var(--bad)}
+.dg:not(.in) :is(.dg-mx span,.dg-bars i,.dg-plot .ln){animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.dg-plot .ln{animation:none;stroke-dashoffset:0}}
+@media print{.dg-plot .ln{stroke-dashoffset:0}.dg-mx span.heat{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+
+/* ---------- Canvas UI effects ---------- */
+.ink-mist>canvas{-webkit-mask:radial-gradient(70% 80% at 50% 50%,#000 30%,transparent 100%);mask:radial-gradient(70% 80% at 50% 50%,#000 30%,transparent 100%)}  /* mist with no box edges */
+.ink-mist{padding-block:6px}
+.ink-pond [data-fit]{padding-bottom:2px}
+
+/* ---------- Pixel Worlds controls ---------- */
+.ask-form:has(raven-send){flex-wrap:wrap}
+.ask-form:has(raven-send) textarea{flex-basis:100%}
+.ask-form raven-send{margin-left:auto;max-width:100%}
+.ask-msg.pw-sage{background:none;border:0;padding:0;box-shadow:none}
+.pw-round{margin:18px 0 6px}
+.pw-round round-bar::part(bar){margin:0 auto}
+.wg-row sigil-spinner{width:58px}
+.pw-hoard{margin-top:14px;display:flex;justify-content:flex-end}
+.pw-hoard hoard-button{max-width:100%}
+/* in ink mode the pixel scenes are washed down toward the painting: still readable, no candy colours */
+:root:not([data-theme="light"]) :is(raven-send,sage-status,round-bar,sigil-spinner,hoard-button){filter:saturate(.45) sepia(.25) brightness(.92) contrast(1.05)}
+
+@media (prefers-reduced-motion:reduce){
+  :root:not([data-theme="light"]) body::before,
+  :root:not([data-theme="light"]) .page-h,
+  :root:not([data-theme="light"]) .sec>h2,
+  :root:not([data-theme="light"]) .unit-sec-head h2{animation:none}
+}
+@media print{body::before,body::after{display:none}.dg *{animation:none!important}}

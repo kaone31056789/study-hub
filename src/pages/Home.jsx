@@ -8,6 +8,7 @@ import Nudge from '../components/Nudge';
 import SpotlightCard from '../rb/SpotlightCard';
 import { Brand } from '../components/Logo';
 import { Reveal } from '../components/ui';
+import { InkPond } from '../components/canvasfx';
 import { RELEASES_URL, useLatestApk } from '../components/UpdatePrompt';
 import { SUBJECTS, SEASON } from '../subjects';
 import { store } from '../store';
@@ -98,15 +99,17 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="dash-aurora" aria-hidden="true"><Aurora key={theme} colorStops={theme === 'light' ? ['#7aa2ff', '#ffd43b', '#ff8fb1'] : ['#ff7a3d', '#b48cff', '#3d6bff']} lightMode={theme === 'light'} amplitude={1.1} blend={0.55} speed={0.55} /></div>
+      <div className="dash-aurora" aria-hidden="true"><Aurora key={theme} colorStops={theme === 'light' ? ['#7aa2ff', '#ffd43b', '#ff8fb1'] : ['#2b2723', '#d9452b', '#5e5850']} lightMode={theme === 'light'} amplitude={1.1} blend={0.55} speed={0.55} /></div>
       <main className="wrap wide dash">
         <section className="dash-head">
+          <InkPond off={theme === 'light'}>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
             <p className="eyebrow">End-semester exams · {fmt(start)} – {fmt(SEASON.end)}</p>
             <h1 className="dash-title">{lang === 'gaali' ? 'Abe padh le, exam sar pe hai.' : lang === 'bhai' ? 'Aur bhai, ready?' : greeting + '.'} {T('dashTitle')}</h1>
             <p className="lead">{T('dashLead')}</p>
             <p className="hand dash-hand">{lang === 'gaali' ? 'phone rakh aur padh, kamine ✿' : lang === 'bhai' ? 'ek topic at a time, tension nahi lene ka ✿' : 'one topic at a time, no stress ✿'}</p>
           </motion.div>
+          </InkPond>
 
           {next && nx && (
             <motion.div className="next-card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.08 }}>

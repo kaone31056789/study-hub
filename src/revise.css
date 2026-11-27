@@ -23,7 +23,7 @@
 .rev-foot{display:flex;gap:8px;justify-content:space-between;margin-top:auto}
 .glossary{margin-top:56px}
 .glossary h2{font-size:24px;letter-spacing:-.02em;margin:0 0 4px}
-.glossary input{width:100%;max-width:420px;margin:6px 0 16px}
+.glossary .sk-search{--sk-input-width:min(100%,420px);margin:6px 0 16px}
 .gl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:10px}
 .gl-item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
 .gl-item b{color:var(--accent);font-size:14.5px}
@@ -34,7 +34,7 @@
   .bottom-nav a{font-size:10.5px}
 }
 @media print{
-  .top,.bottom-nav,.rev-bar,.rev-foot,.glossary input,.foot{display:none!important}
+  .top,.bottom-nav,.rev-bar,.rev-foot,.glossary input,.sk-search,.foot{display:none!important}
   body{background:#fff;color:#000}
   .rev-card{break-inside:avoid;border-color:#ccc;background:#fff}
   .rev-pts.hidden{filter:none;opacity:1}

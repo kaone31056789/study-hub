@@ -7,6 +7,7 @@ import { bumpWeak } from '../progress';
 import { api } from '../api';
 import { useLang } from '../lang';
 import AiIcon from '../components/AiIcon';
+import { SkRadio, SkCheck, PwRound, PwSigil } from '../components/sakuga';
 
 const plain = h => (h || '').replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ').trim();
 const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -59,6 +60,8 @@ export default function Mock({ ctx }) {
   const [res, setRes] = useState({});      // k -> {score, good, missing, feedback} | {err}
   const [checks, setChecks] = useState({}); // manual fallback
   const [busy, setBusy] = useState('');
+  const [prog, setProg] = useState(null);   // 0..1 while "check all" runs
+  const [one, setOne] = useState(null);     // key of the single question being checked
   const [history, setHistory] = useState(() => store.get(hKey, []));
   const fileFor = useRef(null);
   const fileInput = useRef();
@@ -96,8 +99,9 @@ export default function Mock({ ctx }) {
     }
   };
   const gradeAll = async () => {
-    for (let i = 0; i < all.length; i++) { setBusy(`Checking ${i + 1}/${all.length}…`); await gradeOne(all[i]); }
-    setBusy('');
+    for (let i = 0; i < all.length; i++) { setBusy(`Checking ${i + 1}/${all.length}…`); setProg(i / all.length); await gradeOne(all[i]); }
+    setProg(1); setBusy('');
+    setTimeout(() => setProg(null), 3200); // let the tavern finish its cheer
   };
   const pick = async e => {
     const f = e.target.files?.[0]; e.target.value = '';
@@ -115,13 +119,13 @@ export default function Mock({ ctx }) {
     <div className="wrap narrow">
       <p className="eyebrow">Practice like the real thing</p>
       <h1 className="page-h">Mock test</h1>
-      <p className="lead">A full 60-mark paper in last year's pattern. Type your answers, or write them on paper and add a photo. Then <b>AI checks every answer</b>, gives marks, and tells you what you missed.</p>
+      <p className="lead">A full 60-mark paper in the exam pattern. Type your answers, or write them on paper and add a photo. Then <b>AI checks every answer</b>, gives marks, and tells you what you missed.</p>
       <div className="card" style={{ marginTop: 20 }}>
         <b>Time</b>
-        <div className="seg" style={{ margin: '10px 0 16px' }}>{[30, 60, 120, 180].map(m => <button key={m} className={mins === m ? 'on' : ''} onClick={() => setMins(m)}>{m < 60 ? m + ' min' : m / 60 + ' hr'}</button>)}</div>
+        <div className="sk-radio"><SkRadio label="Time" value={mins} onChange={setMins} options={[30, 60, 120, 180].map(m => [m, m < 60 ? m + ' min' : m / 60 + ' hr'])} /></div>
         <div className="cta" style={{ marginTop: 0 }}>
           <button className="btn primary" onClick={() => begin(makePaper(S.mock))}>Start random paper</button>
-          <button className="btn" onClick={() => begin(lastYear(S.pyq))}>Last year's paper</button>
+          <button className="btn" onClick={() => begin(lastYear(S.pyq))}>{S.pyqLabel || "Last year's paper"}</button>
         </div>
       </div>
       {history.length > 0 && <History h={history} />}
@@ -168,6 +172,7 @@ export default function Mock({ ctx }) {
       <h1 className="page-h">Checking</h1>
       <p className="lead">AI marks each answer against the key points. If the AI is unavailable, tick the points you wrote yourself.</p>
       <div className="cta"><button className="btn primary" disabled={!!busy} onClick={gradeAll}>{busy || <><AiIcon size={18} /> Check all answers with AI</>}</button></div>
+      {prog !== null && <div className="pw-round"><PwRound label="Checking answers" value={prog} /></div>}
       {all.map(q => {
         const t = byId[q.id], r = res[q.k], p = points(q);
         return (
@@ -182,10 +187,11 @@ export default function Mock({ ctx }) {
             )}
             {r?.err && <p className="mi-err">AI: {r.err} Use the checklist below.</p>}
             {(!r || r.err) && <div className="mock-checks">{p.map((pt, i) => (
-              <label key={i} className="toggle"><input type="checkbox" checked={!!checks[q.k + ':' + i]} onChange={e => setChecks({ ...checks, [q.k + ':' + i]: e.target.checked })} />{pt}</label>
+              <SkCheck key={i} checked={!!checks[q.k + ':' + i]} onChange={on => setChecks(c => ({ ...c, [q.k + ':' + i]: on }))}>{pt}</SkCheck>
             ))}</div>}
             <div className="wg-row" style={{ marginTop: 10 }}>
-              <button className="btn sm" disabled={!!busy} onClick={async () => { setBusy('Checking…'); await gradeOne(q); setBusy(''); }}>🤖 {r ? 'Re-check' : 'Check this'}</button>
+              <button className="btn sm" disabled={!!busy} onClick={async () => { setBusy('Checking…'); setOne(q.k); await gradeOne(q); setOne(null); setBusy(''); }}>🤖 {r ? 'Re-check' : 'Check this'}</button>
+              {one === q.k && <PwSigil label="Checking this answer" />}
               {t && <details className="model-ans"><summary>Model answer</summary>{q.m === 2 && t.short ? <Html className="prose short" html={t.short} /> : <Html className="prose" html={t.answer} />}</details>}
             </div>
           </motion.div>

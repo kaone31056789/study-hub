@@ -12,6 +12,7 @@ import './mobile.css';
 import './meme-img.css';
 
 import './features.css';
+import './ink.css';
 
 initSync();
 createRoot(document.getElementById('root')).render(<App />);

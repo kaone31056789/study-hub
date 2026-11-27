@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Sun03Icon, Moon02Icon } from '@hugeicons/core-free-icons';
 import { store } from './store';
+import { fxPalette } from './components/sakuga';
 
 // Theme = saved choice, else the notebook light theme. Applied as <html data-theme="...">.
 const subs = new Set();
@@ -10,7 +11,8 @@ let current = store.get('theme', null) || 'light';
 
 const apply = () => {
   document.documentElement.dataset.theme = current;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', current === 'light' ? '#f7f5f1' : '#09090b');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', current === 'light' ? '#f7f5f1' : '#0e0d0c');
+  fxPalette(current);
 };
 apply();
 
