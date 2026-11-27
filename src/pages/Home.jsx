@@ -8,7 +8,7 @@ import Nudge from '../components/Nudge';
 import SpotlightCard from '../rb/SpotlightCard';
 import { Brand } from '../components/Logo';
 import { Reveal } from '../components/ui';
-import { InkPond } from '../components/canvasfx';
+import { InkPond, Ascii, MorphText } from '../components/canvasfx';
 import { RELEASES_URL, useLatestApk } from '../components/UpdatePrompt';
 import { SUBJECTS, SEASON } from '../subjects';
 import { store } from '../store';
@@ -105,7 +105,7 @@ export default function Home() {
           <InkPond off={theme === 'light'}>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
             <p className="eyebrow">End-semester exams · {fmt(start)} – {fmt(SEASON.end)}</p>
-            <h1 className="dash-title">{lang === 'gaali' ? 'Abe padh le, exam sar pe hai.' : lang === 'bhai' ? 'Aur bhai, ready?' : greeting + '.'} {T('dashTitle')}</h1>
+            <h1 className="dash-title"><MorphText words={lang === 'gaali' ? ['Abe padh le, exam sar pe hai.', 'Phone rakh, bc.', 'Kal paper hai, chutiye.'] : lang === 'bhai' ? ['Aur bhai, ready?', 'Chalo padhte hain.', 'Ek topic, ek baar.'] : [greeting + '.', 'Ready when you are.', 'One topic at a time.']} /> {T('dashTitle')}</h1>
             <p className="lead">{T('dashLead')}</p>
             <p className="hand dash-hand">{lang === 'gaali' ? 'phone rakh aur padh, kamine ✿' : lang === 'bhai' ? 'ek topic at a time, tension nahi lene ka ✿' : 'one topic at a time, no stress ✿'}</p>
           </motion.div>
@@ -120,7 +120,7 @@ export default function Home() {
               <b className="next-name">{next.name}</b>
               <span className="muted next-date">{next.code} · {fmtLong(next.exam)}</span>
               <div className="next-prog"><div className="bar"><i style={{ width: nx.total ? (nx.done / nx.total) * 100 + '%' : 0 }} /></div><span>{nx.done}/{nx.total || '…'}</span></div>
-              <a className="btn primary" href={nx.href}>{nx.done ? 'Continue' : 'Start'}{nx.nextTopic ? ': ' + nx.nextTopic.title.split(/[(&]/)[0].trim() : ''} <HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
+              <a className="btn primary" data-portal href={nx.href}>{nx.done ? 'Continue' : 'Start'}{nx.nextTopic ? ': ' + nx.nextTopic.title.split(/[(&]/)[0].trim() : ''} <HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
               <QuickLinks id={next.id} className="subj-links quick-grid" />
             </motion.div>
           )}
@@ -147,13 +147,13 @@ export default function Home() {
                   </div>
                   {d && <div className="unit-chips">{Object.entries(d.units).filter(([u]) => +u > 0).map(([u, n]) => <span key={u}>Unit {u} · {n}</span>)}</div>}
                   <QuickLinks id={s.id} className="subj-links" />
-                  <a className="btn primary subj-cta" href={href}>{done ? 'Continue studying' : 'Start studying'} <HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
+                  <a className="btn primary subj-cta" data-portal href={href}>{done ? 'Continue studying' : 'Start studying'} <HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
                 </SpotlightCard>
               </motion.div>
             );
           })}
           <motion.div className="soon" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-            <span className="soon-plus">+</span><b>Next subject</b><span>Every subject gets the same plan, walkthroughs, simulators, revision sheet, flashcards and quiz.</span>
+            <Ascii piece="ink-in-water" size={5} className="soon-art" /><span className="soon-plus">+</span><b>Next subject</b><span>Every subject gets the same plan, walkthroughs, simulators, revision sheet, flashcards and quiz.</span>
           </motion.div>
         </div>
 

@@ -123,6 +123,44 @@ sakuga-input::part(input){font:400 15px Inter,system-ui,sans-serif}
 .rev-bar sakuga-toggle{zoom:.7;margin:-55px 0}   /* equal top/bottom so flex centring lines the switch up with the tabs */
 .sk-row sakuga-tooltip{margin-top:-60px}
 
+/* ---------- "Start reading" portal: black hole + ink spiral (portal.js) ---------- */
+@property --hole{syntax:'<length>';inherits:false;initial-value:0px}
+.portal{position:fixed;inset:0;z-index:2147482500;overflow:hidden;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,#1a1430 0,#07060d 45%,#020208 100%);
+  clip-path:circle(0 at var(--px) var(--py));animation:portal-in .5s cubic-bezier(.77,0,.175,1) forwards}
+@keyframes portal-in{to{clip-path:circle(150vmax at var(--px) var(--py))}}
+.portal > *{position:absolute;left:50%;top:50%;translate:-50% -50%}   /* translate is separate from the animated transform */
+.portal-spiral{width:115vmax;height:115vmax;fill:none;stroke:rgba(233,226,212,.32);stroke-width:.55;stroke-linecap:round;
+  animation:spiral-suck 1.05s cubic-bezier(.45,0,.75,.2) forwards}
+.portal-spiral.two{stroke:rgba(217,69,43,.4);stroke-width:.35;animation-duration:1.15s;animation-name:spiral-suck-2}
+@keyframes spiral-suck{from{transform:rotate(0) scale(1.25);opacity:.95}to{transform:rotate(620deg) scale(.03);opacity:.15}}
+@keyframes spiral-suck-2{from{transform:rotate(40deg) scale(1.6);opacity:.8}to{transform:rotate(760deg) scale(.02);opacity:0}}
+.portal-hole{border-radius:50%;-webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent);
+  animation:hole-swell 1s cubic-bezier(.4,0,.6,1) forwards}
+@keyframes hole-swell{from{transform:scale(.25) rotate(-30deg);opacity:0}30%{opacity:1}to{transform:scale(1.2) rotate(0)}}
+/* way out: a hole opens from the centre and the new page comes through it */
+.portal.out{clip-path:none;animation:portal-out .6s cubic-bezier(.23,1,.32,1) forwards;
+  -webkit-mask:radial-gradient(circle at 50% 50%,transparent var(--hole),#000 calc(var(--hole) + 80px));
+          mask:radial-gradient(circle at 50% 50%,transparent var(--hole),#000 calc(var(--hole) + 80px))}
+@keyframes portal-out{to{--hole:110vmax}}
+.portal.out .portal-hole{animation:hole-burst .6s cubic-bezier(.23,1,.32,1) forwards}
+@keyframes hole-burst{from{transform:scale(1.2)}to{transform:scale(6);opacity:0}}
+.portal-emerge main{animation:emerge .75s cubic-bezier(.23,1,.32,1) both;transform-origin:50% 40vh}
+@keyframes emerge{from{transform:scale(.55) rotate(-8deg);filter:blur(10px);opacity:0}}
+
+/* ---------- ASCII Magic art (decorative) ---------- */
+.ascii-block{display:flex;flex-direction:column;align-items:center;gap:8px;margin:28px auto 0;max-width:100%;overflow:hidden;color:var(--text)}
+.ascii-block ascii-art{max-width:100%;border-radius:14px}
+.ascii-block p{margin:0;color:var(--muted);font-size:13.5px;text-align:center}
+.ascii-inline{display:inline-block;vertical-align:middle}
+.soon-art{margin:0 0 6px;opacity:.85}
+.soon-art ascii-art{border-radius:10px}
+:root:not([data-theme="light"]) .ascii-block ascii-art{filter:saturate(.55) sepia(.15)}
+/* morph text (Vengeance UI): each phrase arrives through a blur */
+.morph{display:inline-block;animation:morph-in .6s cubic-bezier(.23,1,.32,1) both}
+@keyframes morph-in{from{opacity:0;filter:blur(8px);transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){.morph{animation:none}}
+
 /* ---------- Interaction layer (both themes) ---------- */
 /* every page: blocks rise in one after another when you arrive */
 @keyframes page-rise{from{opacity:0;transform:translateY(14px);filter:blur(4px)}}
@@ -148,6 +186,8 @@ sakuga-input::part(input){font:400 15px Inter,system-ui,sans-serif}
   :is(.card,.subj,.row,.tcard,.rev-card,.gl-item,.quick a):hover{
     background-image:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),var(--glow,rgba(233,226,212,.08)),transparent 65%)}
   :is(.row,.tcard,.quick a,.gl-item):hover{transform:translate(-1px,-2px)}
+  /* spotlight navbar (Vengeance UI): light follows the pointer along the section tabs */
+  .top .tabs:hover{background:radial-gradient(90px 40px at var(--mx,50%) 50%,var(--glow,rgba(233,226,212,.08)),transparent 70%)}
   /* border beam on hover for topic cards */
   :is(.tcard,.row,.subj)::after{
     content:"";position:absolute;inset:-2px;border-radius:inherit;padding:2px;pointer-events:none;opacity:0;transition:opacity .2s ease-out;

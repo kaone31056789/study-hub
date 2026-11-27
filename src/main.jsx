@@ -13,6 +13,7 @@ import './meme-img.css';
 
 import './features.css';
 import './ink.css';
+import './portal.js';
 
 initSync();
 createRoot(document.getElementById('root')).render(<App />);

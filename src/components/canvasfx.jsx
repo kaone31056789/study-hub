@@ -4,6 +4,25 @@ import { useEffect, useRef, useState } from 'react';
 import { Clouds } from '../canvasui/Clouds/Clouds';
 import { Ripple } from '../canvasui/Ripple/Ripple';
 
+// ASCII Magic piece (public/ascii-magic, MIT). Halftone dots in one colour read as ink in both themes.
+export const Ascii = ({ piece, size = 8, look = 'dots', mono = true, caption, className = '' }) => (
+  <div className={'ascii-block ' + className}>
+    <ascii-art piece={piece} size={size} look={look || undefined} mono={mono || undefined} />
+    {caption && <p>{caption}</p>}
+  </div>
+);
+
+// Vengeance UI morph-text idea: phrases replace each other through a blur.
+export function MorphText({ words, every = 2800 }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (words.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = setInterval(() => setI(n => (n + 1) % words.length), every);
+    return () => clearInterval(id);
+  }, [words.length, every]);
+  return <span className="morph" key={i}>{words[i % words.length]}</span>;
+}
+
 // Ink dropped on still water: a tap sends rings out, and now and then a drop falls by itself.
 // With native html-in-canvas the content lives inside a canvas and can't size the wrapper,
 // so we measure the content and hand the wrapper that height.

@@ -15,7 +15,7 @@ addEventListener('pointerdown', e => {
 }, { capture: true, passive: true });
 
 // Pointer-lit cards: tell the hovered card where the pointer is (ink.css paints the light).
-const LIT = '.card,.subj,.row,.tcard,.rev-card,.gl-item,.quick a';
+const LIT = '.card,.subj,.row,.tcard,.rev-card,.gl-item,.quick a,.top .tabs';
 addEventListener('pointermove', e => {
   const el = e.pointerType === 'mouse' && e.target.closest?.(LIT);
   if (!el) return;
@@ -31,6 +31,7 @@ function useHash() {
     const on = () => {
       const next = window.location.hash;
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (window.__portalNav) { window.__portalNav = false; return setHash(next); } // the black-hole portal is already animating
       if (!document.startViewTransition || calm) return setHash(next);
       document.startViewTransition(() => flushSync(() => setHash(next)));
     };

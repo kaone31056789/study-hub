@@ -15,7 +15,7 @@ import ShinyText from '../rb/ShinyText';
 import { Html, CodeBlock, MCQ, Walkthrough, Explorer, Reveal, MemeCard, EasyExplain, GaaliCoach } from '../components/ui';
 import { WIDGETS } from '../widgets';
 import { store, shuffle } from '../store';
-import { InkMist } from '../components/canvasfx';
+import { InkMist, Ascii } from '../components/canvasfx';
 import { SkTabs, SkCheck, SkToggle, SkInput, SkProgress, SkRating, SkTooltip, SkButton, PwHoard, PwSigil, toast, fxHit, fx } from '../components/sakuga';
 
 const UCOL = ['var(--warn)', 'var(--u1)', 'var(--u2)', 'var(--u3)', 'var(--u1)', 'var(--u2)'];
@@ -190,6 +190,7 @@ function Plan({ ctx }) {
         <p className="lead">{(lang === 'gaali' && S.hero.textGaali) || (lang !== 'en' && S.hero.textBhai) || S.hero.text}</p>
       </InkMist>
 
+      {total > 0 && n === total && <Ascii piece="empty-all-caught-up" size={7} look="" mono={false} caption="Everything learned. Now revise and take a mock." />}
       <section className="plan-top">
         <Reveal className="card plan-progress">
           <div className="ring-wrap big"><Ring value={total ? n / total : 0} /><span>{total ? Math.round((n / total) * 100) : 0}%</span></div>
@@ -212,7 +213,7 @@ function Plan({ ctx }) {
         </Reveal>
         {nt ? (
           <Reveal delay={0.06}>
-            <a className="card next-up" href={'#/' + meta.id + '/learn/' + nextId}>
+            <a className="card next-up" data-portal href={'#/' + meta.id + '/learn/' + nextId}>
               <span className="eyebrow">Up next</span>
               <b>{nt.title}</b>
               <p>{clip(desiOf(nt, lang)?.s || plain(nt.simple), 150)}</p>
@@ -267,6 +268,7 @@ function Plan({ ctx }) {
       <section className="card tips">
         <h3>How to write theory answers that score</h3>
         <ol>{S.tips.map((t, i) => <li key={i} dangerouslySetInnerHTML={{ __html: t }} />)}</ol>
+        <Ascii piece="koi-pond-ripples" size={6} caption="Breathe. One topic at a time." />
       </section>
     </div>
   );
@@ -313,7 +315,7 @@ function TopicsIndex({ ctx }) {
         <SkTabs label="Show topics" value={f} onChange={setF} options={FILTERS.map(([k, l, fn]) => [k, `${l} ${S.topics.filter(fn).length}`])} />
         <div className="ti-search"><SkInput label="Search topics" placeholder="Search topics, e.g. thread, JSP, @Entity" value={q} onChange={setQ} /></div>
       </div>
-      {shown.length === 0 && <p className="muted" style={{ marginTop: 30 }}>No topics match. Try another filter.</p>}
+      {shown.length === 0 && <Ascii piece="empty-no-results" size={7} look="" mono={false} caption="No topics match. Try another filter." />}
       {Object.entries(S.units).map(([u, name]) => {
         const list = S.topics.filter(t => t.unit === +u && match(t));
         if (!list.length) return null;
@@ -579,6 +581,7 @@ function Quiz({ ctx }) {
       <div className="wrap narrow">
         <p className="eyebrow">Result</p>
         <div className="score-big" ref={el => { if (el && !el.dataset.fx) { el.dataset.fx = 1; requestAnimationFrame(() => fx.boom(el)); } }}><GradientText colors={pct >= 80 ? ['#4cc777', '#9be15d', '#4cc777'] : ['#ff7a3d', '#ffb38a', '#ff7a3d']}>{qz.score}/{qz.qs.length}</GradientText></div>
+        {pct >= 80 && <Ascii piece="empty-task-confetti" size={7} look="" mono={false} />}
         <p>{pct >= 80 ? 'Solid. You know these well.' : pct >= 50 ? 'Getting there. Revisit the topics below.' : 'Go back over the topics below, then try again.'}</p>
         {wt.length > 0 && <><h3>Revise these</h3><div className="rows">{wt.map(id => <TopicRow key={id} ctx={ctx} id={id} />)}</div></>}
         <div className="cta"><button className="btn primary" onClick={() => start(qz.u)}>New quiz</button><button className="btn" onClick={() => setQz(null)}>Change unit</button><a className="btn" href={`#/${meta.id}/cards`}>Flashcards</a></div>
