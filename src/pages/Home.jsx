@@ -10,10 +10,11 @@ import { Brand } from '../components/Logo';
 import { Reveal } from '../components/ui';
 import { InkPond, Ascii, MorphText } from '../components/canvasfx';
 import TypeGarden from '../components/TypeGarden';
+import { AsciiFooter, AsciiStrip } from '../components/asciiui';
 import { RELEASES_URL, useLatestApk } from '../components/UpdatePrompt';
 import { SUBJECTS, SEASON } from '../subjects';
 import { store } from '../store';
-import { ThemeToggle, useTheme } from '../theme';
+import { ThemeToggle, SkinToggle, useTheme } from '../theme';
 import { LangToggle, useLang, useT } from '../lang';
 
 // Shortcuts into a subject's main sections (shown on the next-exam card and every subject card).
@@ -95,7 +96,7 @@ export default function Home() {
             {!window.Capacitor && <a className="season-chip app-dl" href={apk?.url || RELEASES_URL} title={apk ? 'Latest Android app: v' + apk.n + ', ' + apk.mb + ' MB' : 'Android app'}>📱 <span className="lbl-long">Android app{apk && <> v{apk.n} · {apk.mb} MB</>}</span><span className="lbl-short">App{apk && <> v{apk.n}</>}</span></a>}
             <span className="season-chip hide-sm"><HugeiconsIcon icon={Calendar03Icon} size={15} /> {fmt(start)} – {fmt(SEASON.end)}</span>
             <LangToggle />
-            <ThemeToggle />
+            <SkinToggle /><ThemeToggle />
           </div>
         </div>
       </header>
@@ -151,7 +152,8 @@ export default function Home() {
                     </div>
                     <div className="ring-wrap"><Ring value={total ? done / total : 0} /><span>{total ? Math.round((done / total) * 100) : 0}%</span></div>
                   </div>
-                  {d && <div className="unit-chips">{Object.entries(d.units).filter(([u]) => +u > 0).map(([u, n]) => <span key={u}>Unit {u} · {n}</span>)}</div>}
+                  {d && <ul className="unit-tree">{Object.entries(d.units).filter(([u]) => +u > 0).map(([u, n], k, a) => <li key={u}><i aria-hidden="true">{k === a.length - 1 ? '└─' : '├─'}</i><b>U{u}</b>{n}</li>)}</ul>}
+                  <AsciiStrip pct={total ? done / total : 0} label={`> ${done}/${total} topics learned · ${total - done} to go`} />
                   <QuickLinks id={s.id} className="subj-links" />
                   <a className="btn primary subj-cta" data-portal href={href}>{done ? 'Continue studying' : 'Start studying'} <HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
                 </SpotlightCard>
@@ -195,6 +197,7 @@ export default function Home() {
           ))}
         </div>
       </main>
+      <AsciiFooter title="Study Hub" line="Ink, ASCII and one topic at a time." />
       <Nudge href={nx ? nx.href : '#/' + SUBJECTS[0].id} />
       <footer className="foot"><span>Study Hub · your progress is saved in this browser</span><span>UI components: React Bits</span></footer>
     </>

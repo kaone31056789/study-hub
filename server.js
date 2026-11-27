@@ -35,6 +35,7 @@ const CSP = [
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob:",
   "connect-src 'self' https://api.github.com",
+  "frame-src https://ascii-knight.vercel.app",
   "worker-src 'self'",
   "manifest-src 'self'",
   "object-src 'none'",

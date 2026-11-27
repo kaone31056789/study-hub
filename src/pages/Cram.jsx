@@ -5,7 +5,7 @@ import { AudioBar } from '../components/Extras';
 import { useLang, desiOf } from '../lang';
 import { weakList } from '../progress';
 import { SkTabs, SkCheck } from '../components/sakuga';
-import { AsciiWind } from '../components/canvasfx';
+import { AsciiSea } from '../components/canvasfx';
 
 const UCOL = ['var(--warn)', 'var(--u1)', 'var(--u2)', 'var(--u3)'];
 
@@ -24,7 +24,7 @@ export default function Cram({ ctx }) {
     <div className="wrap cram">
       <p className="eyebrow">Last hour before the exam</p>
       <h1 className="page-h">Cram sheet</h1>
-      <AsciiWind height={230} text="合格" />
+      <AsciiSea height={260} text="合格" />
       <p className="lead">Only what you must write: key points, 2-mark answers, diagrams and memory hooks. Read it top to bottom, or print it.</p>
       <div className="rev-bar cram-bar">
         <SkTabs label="Unit" value={unit} onChange={setUnit} options={['all', 1, 2, 3].map(u => [u, u === 'all' ? 'All' : 'Unit ' + u])} />

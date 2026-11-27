@@ -5,7 +5,6 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-sql';
 import 'prismjs/themes/prism-tomorrow.css';
-import Stepper, { Step } from '../rb/Stepper';
 import SpotlightCard from '../rb/SpotlightCard';
 import { useTheme } from '../theme';
 import { MemePhoto } from './MemeImage';
@@ -50,17 +49,46 @@ export function MCQ({ q, onAnswer, big }) {
   );
 }
 
-// Step-by-step concept walkthrough built on React Bits <Stepper>.
+// Step-by-step concept walkthrough: terminal-style tabs, an ASCII progress bar, ink buttons.
+// Arrow keys move between steps when it has focus.
 export function Walkthrough({ steps }) {
-  const theme = useTheme();
+  const [i, setI] = useState(0);
+  const [done, setDone] = useState(false);
+  const n = steps.length, pad = k => String(k).padStart(2, '0');
+  const go = k => { setDone(false); setI(Math.max(0, Math.min(n - 1, k))); };
+  const next = () => { if (i < n - 1) { go(i + 1); fx.tick?.(); } else setDone(true); };
+  const W = 18, fill = Math.round(((done ? n : i + 1) / n) * W);
   return (
-    <div className="stepper-wrap">
-      <Stepper theme={theme} width="100%" accentColor={theme === "light" ? "#e2550a" : "#ff7a3d"} nextButtonText="Next" completeButtonText="Got it"
-        completedContent={<div className="done-msg prose"><p><b>Concept clear.</b> Now try the interactive part, then read the exam answer below.</p></div>}>
-        {steps.map((s, i) => (
-          <Step key={i} title={s.title}><Html className="prose step-body" html={s.body} /></Step>
+    <div className="wt" tabIndex={0} onKeyDown={e => { if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') go(i - 1); }}>
+      <div className="wt-head">
+        <span className="wt-count">STEP {pad(i + 1)}<i>/{pad(n)}</i></span>
+        <span className="wt-bar" aria-hidden="true"><b>{'▓'.repeat(fill)}</b>{'░'.repeat(W - fill)}</span>
+      </div>
+      <div className="wt-tabs" role="tablist">
+        {steps.map((st, k) => (
+          <button key={k} role="tab" aria-selected={k === i} className={'wt-tab' + (k === i ? ' on' : '') + (k < i || done ? ' seen' : '')} onClick={() => go(k)}>
+            <span>{k < i || done ? '✓' : pad(k + 1)}</span>{st.title}
+          </button>
         ))}
-      </Stepper>
+      </div>
+      <div className="wt-body">
+        {done ? (
+          <motion.div key="done" className="wt-done" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}>
+            <span className="wt-seal" aria-hidden="true">済</span>
+            <div><b>Concept clear.</b><p>Now try the interactive part, then read the exam answer below.</p></div>
+          </motion.div>
+        ) : (
+          <motion.div key={i} initial={{ opacity: 0, x: 18, filter: 'blur(6px)' }} animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }} transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }}>
+            <p className="wt-title"><span>&gt;</span> {steps[i].title}</p>
+            <Html className="prose step-body" html={steps[i].body} />
+          </motion.div>
+        )}
+      </div>
+      <div className="wt-foot">
+        <button className="btn wt-back" onClick={() => (done ? setDone(false) : go(i - 1))} disabled={i === 0 && !done}>← Back</button>
+        <span className="wt-hint">← → keys</span>
+        {!done && <button className="btn primary wt-next" onClick={next}>{i < n - 1 ? 'Next' : 'Got it'} <span aria-hidden="true">→</span></button>}
+      </div>
     </div>
   );
 }
@@ -103,16 +131,17 @@ export function BhaiExplain({ b, gaali }) {
 
 // Beginner explainer, same layout in every language.
 const EX_LABELS = {
-  en: ['🎯 The idea in one line', '🏠 Real-life story', '📖 Words decoded', '⚙️ How it works', '📝 What to write in the exam', '🧠 Remember it'],
-  bhai: ['🎯 Ek line mein', '🏠 Desi example se samjho', '📖 Mushkil words ka matlab', '⚙️ Kaise kaam karta hai', '📝 Exam mein kya likhna hai', '🧠 Yaad rakh'],
-  gaali: ['🎯 Seedhi baat, bhosdike', '🏠 Desi example, ab toh samajh ja chutiye', '📖 Bhaari words ka matlab, dictionary mat khol', '⚙️ Kaise chalta hai, dhyan se dekh gadhe', '📝 Exam mein ye chhaap, harami', '🧠 Ratt le ye line, kamine']
+  en: ['The idea in one line', 'Real-life story', 'Words decoded', 'How it works', 'What to write in the exam', 'Remember it'],
+  bhai: ['Ek line mein', 'Desi example se samjho', 'Mushkil words ka matlab', 'Kaise kaam karta hai', 'Exam mein kya likhna hai', 'Yaad rakh'],
+  gaali: ['Seedhi baat, bhosdike', 'Desi example, ab toh samajh ja chutiye', 'Bhaari words ka matlab, dictionary mat khol', 'Kaise chalta hai, dhyan se dekh gadhe', 'Exam mein ye chhaap, harami', 'Ratt le ye line, kamine']
 };
+const EX_G = ['要', '話', '語', '仕', '試', '記'];   // idea · story · words · mechanism · exam · remember
 export function EasyExplain({ e, lang = 'en' }) {
   if (!e?.story) return <BhaiExplain b={e} gaali={lang === 'gaali'} />; // old shape fallback
   const L = EX_LABELS[lang] || EX_LABELS.en;
   const part = (i, cls, body) => (
     <motion.div className={'bx-part ' + cls} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-20px' }} transition={{ duration: 0.35, delay: i * 0.05 }}>
-      <div className="bx-h">{L[i]}</div>{body}
+      <div className="bx-h"><i className="bx-g" aria-hidden="true">{EX_G[i]}</i>{L[i]}</div>{body}
     </motion.div>
   );
   return (
@@ -122,7 +151,7 @@ export function EasyExplain({ e, lang = 'en' }) {
       {e.words?.length > 0 && part(2, 'bx-words', <dl className="bx-dl">{e.words.map(([w, m], i) => <div key={w} style={{ '--i': i }}><dt>{w}</dt><dd>{m}</dd></div>)}</dl>)}
       {e.how?.length > 0 && part(3, 'bx-java', <ol className="bx-how">{e.how.map((h, i) => <li key={i} style={{ '--i': i }} dangerouslySetInnerHTML={{ __html: h }} />)}</ol>)}
       {part(4, 'bx-exam', <p className="bx-body">{e.exam}</p>)}
-      <Yaad label={L[5]} text={e.yaad} />
+      <Yaad label={<><i className="bx-g" aria-hidden="true">{EX_G[5]}</i>{L[5]}</>} text={e.yaad} />
     </div>
   );
 }

@@ -14,8 +14,13 @@ import './meme-img.css';
 import './features.css';
 import './ink.css';
 import './rework.css';
+import './ascii.css';
 import './portal.js';
 import './decrypt.js';
+import './fx.js';
+import './dissolve.js';
+import './inkshader.js';
+import './mathhand.js';
 
 initSync();
 createRoot(document.getElementById('root')).render(<App />);

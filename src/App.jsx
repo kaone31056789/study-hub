@@ -7,6 +7,7 @@ import SubjectApp from './pages/SubjectApp';
 import { SUBJECTS } from './subjects';
 import UpdatePrompt from './components/UpdatePrompt';
 import { useTheme } from './theme';
+import { asciiSwap } from './asciiswap';
 
 // Remember where the last tap was, so the page transition can bleed out from that point (see ink.css).
 addEventListener('pointerdown', e => {
@@ -32,8 +33,8 @@ function useHash() {
       const next = window.location.hash;
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (window.__portalNav) { window.__portalNav = false; return setHash(next); } // the black-hole portal is already animating
-      if (!document.startViewTransition || calm) return setHash(next);
-      document.startViewTransition(() => flushSync(() => setHash(next)));
+      if (calm) return setHash(next);
+      asciiSwap(() => flushSync(() => setHash(next)));   // a new ASCII pattern every time
     };
     window.addEventListener('hashchange', on);
     return () => window.removeEventListener('hashchange', on);

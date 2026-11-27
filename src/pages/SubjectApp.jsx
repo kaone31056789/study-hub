@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Calendar03Icon, BookOpen01Icon, CardsIcon, Quiz01Icon, File01Icon, Task01Icon, ArrowRight01Icon, Target01Icon, Note01Icon, Menu01Icon } from '@hugeicons/core-free-icons';
+import { Calendar03Icon, BookOpen01Icon, CardsIcon, Quiz01Icon, File01Icon, Task01Icon, ArrowRight01Icon, Target01Icon, Note01Icon, Menu01Icon, MathIcon } from '@hugeicons/core-free-icons';
 import Mock from './Mock';
 import Cram from './Cram';
+import Formulas from './Formulas';
 import { AskAI, AudioBar, SyncButton } from '../components/Extras';
 import { bumpWeak, weakList, clearWeak, getSrs, gradeCard } from '../progress';
 import { Brand } from '../components/Logo';
-import { ThemeToggle, useTheme } from '../theme';
+import { ThemeToggle, SkinToggle, useTheme } from '../theme';
 import { LangToggle, useLang, useT, desiOf } from '../lang';
 import Diagram from '../components/Diagram';
 import GradientText from '../rb/GradientText';
-import ShinyText from '../rb/ShinyText';
 import { Html, CodeBlock, MCQ, Walkthrough, Explorer, Reveal, MemeCard, EasyExplain, GaaliCoach } from '../components/ui';
+import { BeginnerProse, TermCards } from '../components/Beginner';
+import { TapReveal, AsciiFooter } from '../components/asciiui';
 import { WIDGETS } from '../widgets';
 import { store, shuffle } from '../store';
 import { InkMist, Ascii } from '../components/canvasfx';
@@ -56,8 +58,10 @@ export default function SubjectApp({ meta, view, arg }) {
           : view === 'revise' ? <Revise ctx={ctx} />
           : view === 'mock' ? <Mock ctx={ctx} />
           : view === 'cram' ? <Cram ctx={ctx} />
+          : view === 'formulas' ? <Formulas ctx={ctx} />
           : <Plan ctx={ctx} />}
       </motion.main>
+      <AsciiFooter title={meta.short} line={meta.name + ' · ' + meta.code + ' · one topic at a time'} />
       <BottomNav meta={meta} view={view} />
     </>
   );
@@ -67,7 +71,7 @@ function Header({ meta, view, done, total }) {
   return (
     <header className="top">
       <div className="top-in">
-        <Brand title={meta.short} sub={'← all subjects · ' + meta.code} />
+        <Brand title={meta.short} sub={meta.code} back />
         <nav className="tabs" aria-label="Sections">
           {TABS.map(([k, l]) => (
             <a key={k} href={'#/' + meta.id + '/' + k} className={view === k ? 'on' : ''}>
@@ -79,14 +83,14 @@ function Header({ meta, view, done, total }) {
         <div className="prog"><span>{done}/{total} done</span><div className="bar"><i style={{ width: total ? (done / total) * 100 + '%' : 0 }} /></div></div>
         <LangToggle />
         <SyncButton />
-        <ThemeToggle />
+        <SkinToggle /><ThemeToggle />
       </div>
     </header>
   );
 }
 
-const TABS = [['plan', 'Plan', Calendar03Icon], ['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Target01Icon], ['cram', 'Cram', Note01Icon], ['cards', 'Cards', CardsIcon], ['quiz', 'Quiz', Quiz01Icon], ['paper', 'PYQ', File01Icon]];
-const SHORT = { plan: 'Plan', learn: 'Learn', revise: 'Revise', mock: 'Mock', cram: 'Cram', cards: 'Cards', quiz: 'Quiz', paper: 'PYQ' };
+const TABS = [['plan', 'Plan', Calendar03Icon], ['learn', 'Learn', BookOpen01Icon], ['revise', 'Revise', Task01Icon], ['mock', 'Mock', Target01Icon], ['cram', 'Cram', Note01Icon], ['cards', 'Cards', CardsIcon], ['quiz', 'Quiz', Quiz01Icon], ['paper', 'PYQ', File01Icon], ['formulas', 'Formulas', MathIcon]];
+const SHORT = { plan: 'Plan', learn: 'Learn', revise: 'Revise', mock: 'Mock', cram: 'Cram', cards: 'Cards', quiz: 'Quiz', paper: 'PYQ', formulas: 'Formulas' };
 const PRIMARY = ['plan', 'learn', 'revise', 'mock'];
 
 // Phone tab bar (shown under 760px via CSS)
@@ -185,7 +189,6 @@ function Plan({ ctx }) {
   return (
     <div className="wrap">
       <InkMist off={light}>
-        <span className="pill"><ShinyText text={S.hero.eyebrow} color={light ? '#15142b' : '#e07a5f'} shineColor={light ? '#2f5bff' : '#ffffff'} speed={2.4} /></span>
         <h1 className="page-h"><GradientText colors={light ? ['#c2410c', '#e2550a', '#7c3aed', '#c2410c'] : ['#e9e2d4', '#9a9184', '#d9452b', '#e9e2d4']} animationSpeed={6}>{(lang === 'gaali' && S.hero.titleGaali) || (lang !== 'en' && S.hero.titleBhai) || S.hero.title}</GradientText></h1>
         <p className="lead">{(lang === 'gaali' && S.hero.textGaali) || (lang !== 'en' && S.hero.textBhai) || S.hero.text}</p>
       </InkMist>
@@ -281,7 +284,7 @@ function WeakCard({ ctx }) {
   const max = w[0][1];
   return (
     <Reveal className="card weak-card">
-      <div className="weak-head"><b>🎯 Revise these first</b></div>
+      <div className="weak-head"><b>Revise these first</b></div>
       <p className="muted" style={{ margin: '2px 0 10px', fontSize: 14 }}>From your wrong quiz answers and mock scores.</p>
       {w.map(([id, v]) => (
         <a key={id} className="weak-row" href={'#/' + meta.id + '/learn/' + id}>
@@ -403,11 +406,11 @@ function Learn({ ctx, id }) {
                     <span className="unit-no">{+u ? u : '★'}</span>
                     <span className="unit-name">{+u ? 'Unit ' + u : name}<small>{+u ? name : 'foundation'}</small></span>
                     <span className="unit-count">{ud}/{all.length}</span>
-                    <i className="unit-bar" style={{ '--p': ud / all.length }} />
+                    <span className="unit-ascii" aria-hidden="true" style={{ '--p': ud / all.length }} />
                   </div>
-                  {list.map(x => (
-                    <a key={x.id} className={'side-item' + (x.id === t.id ? ' on' : '') + (done.has(x.id) ? ' done' : '')} href={`#/${meta.id}/learn/${x.id}`}>
-                      <span className="mk" aria-label={done.has(x.id) ? 'learned' : undefined}>{done.has(x.id) ? '✓' : S.topics.indexOf(x) + 1}</span>
+                  {list.map((x, xi) => (
+                    <a key={x.id} data-tree={xi === list.length - 1 ? '└─' : '├─'} className={'side-item' + (x.id === t.id ? ' on' : '') + (done.has(x.id) ? ' done' : '')} href={`#/${meta.id}/learn/${x.id}`}>
+                      <span className="mk" aria-label={done.has(x.id) ? 'learned' : undefined}>{done.has(x.id) ? '✓' : String(S.topics.indexOf(x) + 1).padStart(2, '0')}</span>
                       <span className="si-t">{x.title}</span>
                       {x.pyq && <span className="si-pyq" title={ctx.lbl.asked + ' · ' + x.pyq}>{ctx.lbl.pyq}</span>}
                     </a>
@@ -444,8 +447,8 @@ function Learn({ ctx, id }) {
             {t.explore && <div style={{ marginTop: W ? 14 : 0 }}><Explorer items={t.explore} title={t.exploreTitle} /></div>}
           </>)
         )}
-        {t.short && sec(T('short'), T('shortSub'), <Html className="prose short" html={t.short} />)}
-        {sec(T('answer'), T('answerSub'), <Html className="prose" html={t.answer} />)}
+        {t.short && sec(T('short'), T('shortSub'), <BeginnerProse className="prose short" html={t.short} topic={t.title} lang={lang} />)}
+        {sec(T('answer'), T('answerSub'), <BeginnerProse html={t.answer} topic={t.title} lang={lang} />)}
         {(t.dg || t.diagram) && sec(T('diagram'), T('diagramSub'), t.dg ? <Diagram spec={t.dg} /> : <pre className="diagram">{t.diagram}</pre>)}
         {t.code?.length > 0 && sec(T('code'), T('codeSub'), t.code.map((c, i) => <CodeBlock key={i} {...c} />))}
         {t.trick && sec(T('trick'), null, <Html className="trick" html={t.trick} />)}
@@ -457,6 +460,7 @@ function Learn({ ctx, id }) {
           {next ? <a className="btn" href={`#/${meta.id}/learn/${next}`}>Next: {byId[next].title} →</a> : <a className="btn" href={`#/${meta.id}/cards`}>Revise with flashcards →</a>}
         </div>
         <Confidence sid={meta.id} id={t.id} key={'c' + t.id} />
+        <TermCards scope=".topic" glossary={S.glossary} />
       </article>
     </div>
   );
@@ -519,6 +523,7 @@ function Cards({ ctx }) {
 
   return (
     <div className="wrap narrow">
+      <div className="page-ascii"><ascii-art piece="spiral-galaxy" size="5" look="dots" /></div>
       <p className="eyebrow">Quick revision</p>
       <h1 className="page-h">Flashcards</h1>
       <p className="lead">Answer in your head, then flip to check. Cards you know come back later (10 min → 1 → 3 → 7 → 15 days); the ones you miss come back soon. Keys: <kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> move.</p>
@@ -528,6 +533,13 @@ function Cards({ ctx }) {
       <div className="sk-seg"><SkTabs label="Unit" value={unit} onChange={pickUnit} options={['all', ...Object.keys(S.units).map(Number)].map(u => [u, u === 'all' ? 'All' : 'Unit ' + u])} /></div>
       {c && (
         <>
+          <div className="flash-stage">
+          {[-2, -1, 1, 2].map(o => { const k = i + o; if (k < 0 || k >= deck.length) return null; return (
+            <motion.button key={k} className="flash-ghost" onClick={() => move(o)} aria-label={'Go to card ' + (k + 1)} tabIndex={-1}
+              initial={{ opacity: 0 }} animate={{ x: o * 210, y: o * 54, rotate: o * 13, scale: 1 - Math.abs(o) * 0.16, opacity: 1 - Math.abs(o) * 0.32 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }} style={{ zIndex: 3 - Math.abs(o) }}>
+              <span className="fg-n">{String(k + 1).padStart(2, '0')}</span><span dangerouslySetInnerHTML={{ __html: deck[k].q }} />
+            </motion.button>); })}
           <motion.div key={i} className={'flash' + (flip ? ' flipped' : '')} tabIndex={0} role="button" aria-label="Flip card (swipe to move)"
             drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.6}
             onDragEnd={(e, info) => { if (info.offset.x < -80) move(1); else if (info.offset.x > 80) move(-1); }}
@@ -542,10 +554,12 @@ function Cards({ ctx }) {
               <div className="face back"><span className="face-tag">Answer</span><div className="face-a" dangerouslySetInnerHTML={{ __html: flip ? c.a : '' }} /></div>
             </div>
           </motion.div>
-          <div className="flash-bar">
-            <button className="btn" onClick={() => move(-1)} aria-label="Previous">←</button>
-            <span className="muted">{i + 1} / {deck.length}</span>
-            <button className="btn" onClick={() => move(1)} aria-label="Next">→</button>
+          </div>
+          <div className="flash-pager">
+            <button onClick={() => move(-1)} aria-label="Previous">‹</button>
+            <span className="fp-dots" aria-hidden="true">{Array.from({ length: Math.min(7, deck.length) }, (_, d) => { const k = Math.max(0, Math.min(deck.length - 7, i - 3)) + d; return <i key={k} className={k === i ? 'on' : ''} />; })}</span>
+            <span className="fp-n">{String(i + 1).padStart(2, '0')}/{deck.length}</span>
+            <button onClick={() => move(1)} aria-label="Next">›</button>
           </div>
           <div className="flash-bar">
             <button className="btn" onClick={() => mark(false)}>Still learning</button>
@@ -576,6 +590,7 @@ function Quiz({ ctx }) {
 
   if (!qz) return (
     <div className="wrap narrow">
+      <div className="page-ascii"><ascii-art piece="starfield-warp" size="5" /></div>
       <p className="eyebrow">Test yourself</p><h1 className="page-h">Quiz</h1>
       <p className="lead">10 random questions from a bank of {total}. You see why after each answer, and which topics to revise at the end.</p>
       <div className="quiz-start">
@@ -632,6 +647,7 @@ function Revise({ ctx }) {
   const terms = (S.glossary || []).filter(([k, v]) => !q || (k + ' ' + v).toLowerCase().includes(q.toLowerCase()));
   return (
     <div className="wrap">
+      <div className="page-ascii"><ascii-art piece="torii-gate-tunnel" size="5" /></div>
       <p className="eyebrow">Last-minute revision</p>
       <h1 className="page-h">Revise</h1>
       <p className="lead">Every topic boiled down to the points you must write. Turn on <b>Test me</b> to hide the points, try to recall them, then tap to check.</p>
@@ -657,7 +673,7 @@ function Revise({ ctx }) {
                 <ul className={'rev-pts' + (hidden ? ' hidden' : '')} aria-hidden={hidden}>
                   {t.rev.map((x, j) => <li key={j} dangerouslySetInnerHTML={{ __html: x }} />)}
                 </ul>
-                {hidden && <button className="rev-reveal" onClick={() => reveal(t.id)}>Recall the points, then tap to check</button>}
+                {hidden && <TapReveal onReveal={() => reveal(t.id)} />}
               </div>
               {t.trick && <Html className="rev-trick" html={t.trick} />}
               {t.meme && <MemeCard m={t.meme} compact />}
@@ -696,13 +712,21 @@ function Paper({ ctx }) {
       <p className="eyebrow">Previous year · End semester</p>
       <h1 className="page-h">{ctx.lbl.paper}</h1>
       <p className="lead">{ctx.lbl.paperLead}</p>
+      <TermCards scope=".paper" glossary={S.glossary} />
       <div className="paper-top">
         <div className="paper-ring"><Ring value={ids.length ? got / ids.length : 0} size={64} stroke={6} /><span>{got}/{ids.length}</span></div>
         <nav className="paper-jump" aria-label="Sections">
           {S.pyq.map(s => <a key={s.title} href={'#/' + meta.id + '/paper'} onClick={e => { e.preventDefault(); document.getElementById(slug(s.title))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{s.title.split(/[·(]/)[0].trim()}<small>{s.items.length}</small></a>)}
         </nav>
       </div>
-      {S.pyq.map(s => {
+      <div className="omr" aria-label="Jump to a question">
+        <span className="omr-h">┌─ ANSWER SHEET ─ tap a bubble to jump</span>
+        <div className="omr-grid">{S.pyq.flatMap((s, si) => s.items.map(([no, , m, id]) => (
+          <a key={si + '-' + no} href={'#/' + meta.id + '/paper'} className={'omr-b' + (done.has(id) ? ' on' : '')} data-m={m}
+            onClick={e => { e.preventDefault(); document.getElementById('pq-' + si + '-' + no)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+            title={s.title.split(/[·(]/)[0].trim() + ' · Q' + no + ' · ' + m + 'M'}>{no}</a>)))}</div>
+      </div>
+      {S.pyq.map((s, si) => {
         const sd = s.items.filter(i => done.has(i[3])).length;
         return (
           <section className="paper-sec" key={s.title} id={slug(s.title)}>
@@ -710,9 +734,9 @@ function Paper({ ctx }) {
             {s.items.map(([no, q, m, id], k) => {
               const t = byId[id], d = t && done.has(id);
               return (
-                <motion.div className={'pq' + (d ? ' done' : '')} key={no} style={{ '--m': m }}
+                <motion.div className={'pq' + (d ? ' done' : '')} key={no} id={'pq-' + si + '-' + no} style={{ '--m': m }}
                   initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-30px' }} transition={{ duration: 0.4, delay: Math.min(k, 6) * 0.04 }}>
-                  <div className="pq-no"><small>Q</small>{String(no).padStart(2, '0')}</div>
+                  <div className="pq-no"><small>Q.</small>{String(no).padStart(2, '0')}</div>
                   <div className="pq-body">
                     <p className="pq-q">{q}</p>
                     {m === 2 && t?.short && <details className="pq-ans"><summary><span>Show 2-mark answer</span></summary><Html className="prose short" html={t.short} /></details>}
