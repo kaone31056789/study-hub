@@ -512,12 +512,7 @@ sakuga-tooltip{position:relative;z-index:5}
 .vt-matcha::view-transition-old(root){transform-origin:var(--vt-x) var(--vt-y);animation:vt-whisk-out .85s cubic-bezier(.7,0,.3,1) both}
 @keyframes vt-whisk-in{0%{opacity:0;transform:rotate(-9deg) scale(.88);filter:blur(8px)}100%{opacity:1;transform:none;filter:none}}
 @keyframes vt-whisk-out{100%{opacity:0;transform:rotate(12deg) scale(1.12);filter:blur(10px)}}
-/* sakura: a soft diagonal breeze sweeps the new page across, the old drifts down */
-.vt-sakura::view-transition-new(root){-webkit-mask:linear-gradient(115deg,#000 42%,transparent 58%) 100% 0/260% 100% no-repeat;
-  mask:linear-gradient(115deg,#000 42%,transparent 58%) 100% 0/260% 100% no-repeat;animation:vt-breeze .95s cubic-bezier(.45,0,.2,1) both}
-.vt-sakura::view-transition-old(root){animation:vt-drift .95s ease-in both}
-@keyframes vt-breeze{0%{-webkit-mask-position:100% 0;mask-position:100% 0;filter:saturate(1.5) brightness(1.15)}100%{-webkit-mask-position:0 0;mask-position:0 0;filter:none}}
-@keyframes vt-drift{100%{transform:translateY(18px) rotate(.6deg);filter:blur(5px);opacity:.4}}
+/* sakura: canvas petal storm, see src/petalstorm.js */
 /* aizome: indigo dye rises up the page in a wave */
 .vt-aizome::view-transition-new(root){animation:vt-dye .95s cubic-bezier(.65,0,.35,1) both}
 .vt-aizome::view-transition-old(root){animation:vt-steep .95s ease both}
