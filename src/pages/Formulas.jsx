@@ -1,4 +1,5 @@
-// Formula sheet: every formula in the subject, pulled from the topics, written like pen notes.
+// Formula sheet: a notebook page of the formulas worth memorising (curated per subject in S.formulas);
+// subjects without a curated list fall back to formulas pulled from the topics.
 import { useMemo, useState } from 'react';
 import { formulasIn } from '../mathhand';
 
@@ -23,44 +24,63 @@ const good = h => {
 };
 const tidy = h => h.replace(/[\s,.;:]+$/, '').replace(/\s*=\s*$/, '');
 
+// fallback: [{ unit, title, items: [[topic title, html]] }]
+function extracted(S) {
+  return Object.entries(S.units).map(([u, name]) => ({
+    unit: +u, title: name,
+    items: S.topics.filter(t => t.unit === +u).flatMap(t => {
+      const seen = new Set();
+      return strings(t).flatMap(formulasIn).map(tidy).filter(good)
+        .filter(f => { const k = plain(f).replace(/\s/g, ''); return !seen.has(k) && seen.add(k); })
+        .slice(0, 4).map(f => [t.title, f.replace(/<span class="mh">|<\/span>/g, '')]);
+    }),
+  })).filter(u => u.items.length);
+}
+
 export default function Formulas({ ctx }) {
   const { S, meta } = ctx;
   const [q, setQ] = useState('');
-  const groups = useMemo(() => S.topics.map(t => {
-    const seen = new Set(), list = [];
-    for (const f of strings(t).flatMap(formulasIn).map(tidy).filter(good)) {
-      const k = plain(f).replace(/\s/g, '');
-      if (!seen.has(k)) { seen.add(k); list.push(f); }
-    }
-    return { t, list };
-  }).filter(g => g.list.length), [S]);
-  const total = groups.reduce((n, g) => n + g.list.length, 0);
-  const shown = groups.map(g => ({ ...g, list: q ? g.list.filter(f => (plain(f) + ' ' + g.t.title).toLowerCase().includes(q.toLowerCase())) : g.list })).filter(g => g.list.length);
-  let n = 0;
+  const [test, setTest] = useState(false);
+  const [shown, setShown] = useState(() => new Set());
+  const units = useMemo(() => S.formulas || extracted(S), [S]);
+  const total = units.reduce((n, u) => n + u.items.length, 0);
+  const match = ([label, f]) => !q || (label + ' ' + plain(f)).toLowerCase().includes(q.toLowerCase());
+  const flip = k => setShown(s => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
   return (
     <div className="wrap fsheet">
-      <p className="eyebrow">{meta.short} · {total} formulas · {groups.length} topics</p>
-      <h1 className="page-h">Formula sheet</h1>
-      <p className="lead">Every formula from every topic on one page, written the way you would write it in the exam. Tap a topic name to open its lesson.</p>
-      <input className="fsheet-q" type="search" placeholder="Find a formula or topic…" value={q} onChange={e => setQ(e.target.value)} aria-label="Search formulas" />
-      {total === 0 && <p className="muted">This subject has no maths formulas.</p>}
-      {Object.entries(S.units).map(([u, name]) => {
-        const gs = shown.filter(g => g.t.unit === +u);
-        if (!gs.length) return null;
-        return (
-          <section key={u} className="fs-unit">
-            <h2 className="fs-uh"><span>{+u ? 'Unit ' + u : '★'}</span>{name}</h2>
-            <div className="fs-paper">
-              {gs.map(({ t, list }) => (
-                <div key={t.id} className="fs-topic">
-                  <a className="fs-th" href={`#/${meta.id}/learn/${t.id}`}>{t.title} <i aria-hidden="true">→</i></a>
-                  <ol>{list.map((f, i) => <li key={i} data-n={String(++n).padStart(2, '0')}><span className="mh" dangerouslySetInnerHTML={{ __html: f.replace(/<span class="mh">|<\/span>/g, '') }} /></li>)}</ol>
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      <div className="fs-bar">
+        <input className="fsheet-q" type="search" placeholder="Find a formula…" value={q} onChange={e => setQ(e.target.value)} aria-label="Search formulas" />
+        <button className={'btn sm' + (test ? ' primary' : '')} onClick={() => { setTest(t => !t); setShown(new Set()); }} aria-pressed={test}>
+          {test ? '✓ Test me: on' : 'Test me'}
+        </button>
+        <span className="fs-count">{total} formulas</span>
+      </div>
+      <article className={'fs-note' + (test ? ' testing' : '')}>
+        <h1 className="fs-title"><u>{meta.name}</u> <small>(formula sheet)</small></h1>
+        {test && <p className="fs-hint">Say each formula out loud, then tap it to check.</p>}
+        {units.map(u => {
+          const items = u.items.filter(match);
+          if (!items.length) return null;
+          return (
+            <section key={u.unit} className="fs-u">
+              <h2><span>{u.unit ? 'Unit ' + u.unit : 'Start'}:</span> {u.title}</h2>
+              <ul>
+                {items.map(([label, f, key]) => {
+                  const k = u.unit + label + f.length;
+                  return (
+                    <li key={k} className={key ? 'key' : ''}>
+                      <span className="fs-l">{label}:</span>
+                      <button className={'fs-f' + (test && !shown.has(k) ? ' hid' : '')} onClick={() => test && flip(k)} tabIndex={test ? 0 : -1}>
+                        <span className="mh" dangerouslySetInnerHTML={{ __html: f }} />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          );
+        })}
+      </article>
     </div>
   );
 }

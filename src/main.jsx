@@ -21,6 +21,7 @@ import './fx.js';
 import './dissolve.js';
 import './inkshader.js';
 import './mathhand.js';
+import './droplets.js';
 
 initSync();
 createRoot(document.getElementById('root')).render(<App />);

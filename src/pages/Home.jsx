@@ -8,7 +8,7 @@ import Nudge from '../components/Nudge';
 import SpotlightCard from '../rb/SpotlightCard';
 import { Brand } from '../components/Logo';
 import { Reveal } from '../components/ui';
-import { InkPond, Ascii, MorphText } from '../components/canvasfx';
+import { Ascii, MorphText } from '../components/canvasfx';
 import TypeGarden from '../components/TypeGarden';
 import { AsciiFooter, AsciiStrip } from '../components/asciiui';
 import { RELEASES_URL, useLatestApk } from '../components/UpdatePrompt';
@@ -104,14 +104,12 @@ export default function Home() {
       <div className="dash-aurora" aria-hidden="true"><Aurora key={theme} colorStops={theme === 'light' ? ['#7aa2ff', '#ffd43b', '#ff8fb1'] : ['#2b2723', '#d9452b', '#5e5850']} lightMode={theme === 'light'} amplitude={1.1} blend={0.55} speed={0.55} /></div>
       <main className="wrap wide dash">
         <section className="dash-head">
-          <InkPond off={theme === 'light'}>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
             <p className="eyebrow">End-semester exams · {fmt(start)} – {fmt(SEASON.end)}</p>
             <h1 className="dash-title"><MorphText words={lang === 'gaali' ? ['Abe padh le, exam sar pe hai.', 'Phone rakh, bc.', 'Kal paper hai, chutiye.'] : lang === 'bhai' ? ['Aur bhai, ready?', 'Chalo padhte hain.', 'Ek topic, ek baar.'] : [greeting + '.', 'Ready when you are.', 'One topic at a time.']} /> {T('dashTitle')}</h1>
             <p className="lead">{T('dashLead')}</p>
             <p className="hand dash-hand">{lang === 'gaali' ? 'phone rakh aur padh, kamine ✿' : lang === 'bhai' ? 'ek topic at a time, tension nahi lene ka ✿' : 'one topic at a time, no stress ✿'}</p>
           </motion.div>
-          </InkPond>
 
           {next && nx && (
             <motion.div className="next-card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.08 }}>
@@ -153,7 +151,7 @@ export default function Home() {
                     <div className="ring-wrap"><Ring value={total ? done / total : 0} /><span>{total ? Math.round((done / total) * 100) : 0}%</span></div>
                   </div>
                   {d && <ul className="unit-tree">{Object.entries(d.units).filter(([u]) => +u > 0).map(([u, n], k, a) => <li key={u}><i aria-hidden="true">{k === a.length - 1 ? '└─' : '├─'}</i><b>U{u}</b>{n}</li>)}</ul>}
-                  <AsciiStrip pct={total ? done / total : 0} label={`> ${done}/${total} topics learned · ${total - done} to go`} />
+                  <AsciiStrip done={done} total={total} units={d ? Object.keys(d.units).filter(u => +u > 0).map(u => { const ts = d.topics.filter(x => x.unit === +u), ids = new Set(store.get(s.id + ':done', [])); return { u, total: ts.length, done: ts.filter(x => ids.has(x.id)).length }; }) : []} />
                   <QuickLinks id={s.id} className="subj-links" />
                   <a className="btn primary subj-cta" data-portal href={href}>{done ? 'Continue studying' : 'Start studying'} <HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
                 </SpotlightCard>

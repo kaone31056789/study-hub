@@ -3,6 +3,7 @@
 import unit1 from './unit1';
 import unit2 from './unit2';
 import unit3 from './unit3';
+import formulas from './formulas';
 
 const IQ = [
   [1, 'Define sampling and quantization. An image is sampled at 512×512 with 8 bits per pixel. Calculate the storage required, and the new size if it is reduced to 256×256 with 4 bits per pixel.', 5, 'd1-sampling'],
@@ -67,6 +68,7 @@ const glossary = [
 ];
 
 export default {
+  formulas,
   units: { 0: 'Start here', 1: 'Fundamentals, Transforms & Enhancement', 2: 'Restoration, Colour, Wavelets & Morphology', 3: 'Compression & Segmentation' },
   ideaSub: { en: 'No maths background needed. Read this first; the exam answer is further down.' },
   pyqLabel: 'Important-questions paper',

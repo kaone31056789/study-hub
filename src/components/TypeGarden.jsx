@@ -6,9 +6,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useTheme } from '../theme';
 
 const F = '"Shippori Mincho B1","Playfair Display",Georgia,serif';
-const PAL = {
-  dark: { red: '#d9452b', blue: '#a89f90', line: '#ffb4a8', text: '#e9e2d4', vein: '#0e0d0c' },
-  light: { red: '#d9452b', blue: '#3d3a36', line: '#ffe0d4', text: '#1b1917', vein: '#f6f1e7' }
+// Colours come from the live theme: roses in the skin's accent, letters in the text colour.
+const hex = v => { const m = /^#?([0-9a-f]{6})$/i.exec(v.trim()); const n = m ? parseInt(m[1], 16) : 0xd9452b; return [n >> 16, (n >> 8) & 255, n & 255]; };
+const mix = (a, b, t) => '#' + a.map((x, i) => Math.round(x + (b[i] - x) * t).toString(16).padStart(2, '0')).join('');
+const pal = () => {
+  const cs = getComputedStyle(document.documentElement), v = k => cs.getPropertyValue(k).trim();
+  const light = document.documentElement.dataset.theme === 'light', acc = hex(v('--accent') || '#d9452b');
+  return { red: mix(acc, [0, 0, 0], 0), line: mix(acc, [255, 255, 255], light ? 0.8 : 0.6), blue: v('--muted') || (light ? '#3d3a36' : '#a89f90'),
+    text: v('--strong') || v('--text') || (light ? '#1b1917' : '#e9e2d4'), vein: v('--bg') || (light ? '#f6f1e7' : '#0e0d0c') };
 };
 
 const h = n => { const x = Math.sin(n) * 43758.5453; return x - Math.floor(x); };
@@ -382,16 +387,18 @@ export default function TypeGarden({ words, text, editable, height = 300, label,
   const [focus, setFocus] = useState(false);
 
   useEffect(() => {
-    const c = cv.current, G = (eng.current = new Garden(c, PAL[theme === 'light' ? 'light' : 'dark']));
+    const c = cv.current, G = (eng.current = new Garden(c, pal()));
+    const mo = new MutationObserver(() => requestAnimationFrame(() => { G.C = pal(); G.cache = {}; }));
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-skin'] });
     let raf = 0, vis = true;
     const loop = now => { raf = requestAnimationFrame(loop); G.frame(now); };
     const ro = new ResizeObserver(() => G.resize()); ro.observe(c);
     const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; cancelAnimationFrame(raf); if (vis) raf = requestAnimationFrame(loop); });
     io.observe(c);
     document.fonts?.ready.then(() => { G.cache = {}; G.layout(true); });
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); };
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); mo.disconnect(); };
   }, []);
-  useEffect(() => { if (eng.current) eng.current.C = PAL[theme === 'light' ? 'light' : 'dark']; }, [theme]);
+  useEffect(() => { if (eng.current) { eng.current.C = pal(); eng.current.cache = {}; } }, [theme]);
   useEffect(() => { if (eng.current) eng.current.caret = focus; }, [focus]);
 
   // outside text / own typing

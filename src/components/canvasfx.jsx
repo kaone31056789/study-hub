@@ -139,7 +139,7 @@ export function InkPond({ off, children }) {
 // Mist drifting behind the hero, in washi grey; the pointer parts it.
 const MIST = [0.91, 0.89, 0.83], SHADE = [0.3, 0.28, 0.26];
 export function InkMist({ off, children }) {
-  if (off) return children;
+  if (off || (document.documentElement.dataset.skin || 'ink') !== 'ink') return children;   // its canvas paints the ink page colour
   return (
     <Clouds className="ink-mist" layer="background" speed={0.3} direction={190} cover={0.3} density={1.2} softness={1}
       color={MIST} lightColor={MIST} shadeColor={SHADE} opacity={0.14} shadow={0} wind={0.8} windRadius={260}>

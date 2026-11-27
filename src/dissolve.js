@@ -15,24 +15,30 @@ function burn(el) {
   if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
   el.append(c);
   const g = c.getContext('2d'); g.scale(dpr, dpr);
-  const light = document.documentElement.dataset.theme === 'light';
-  const bg = light ? '#f6f1e7' : '#0e0d0c';
+  // cover with whatever is really behind the block (its own card colour, else the page), burn in the accent
+  let bg = '', a = el;
+  while (a && a !== document.documentElement) { const b = getComputedStyle(a).backgroundColor; if (b && !/rgba\(.*,\s*0\)$|transparent/.test(b)) { bg = b; break; } a = a.parentElement; }
+  const css = getComputedStyle(document.documentElement);
+  bg ||= css.getPropertyValue('--bg').trim() || '#0e0d0c';
+  const acc = css.getPropertyValue('--accent').trim() || '#d9452b';
   const cols = Math.ceil(W / B), rows = Math.ceil(H / B), n = new Float32Array(cols * rows);
   // smooth-ish noise + a top-to-bottom bias so it reads as "arriving"
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
     const v = Math.sin(x * 0.35 + y * 0.21) * 0.25 + Math.sin(x * 0.13 - y * 0.47) * 0.25 + Math.abs(Math.sin(x * 91.7 + y * 37.3) * 437.5 % 1) * 0.5;
     n[y * cols + x] = v * 0.7 + (y / rows) * 0.3;
   }
-  const t0 = performance.now(), D = 750;
+  const t0 = performance.now(), D = 650;
   const frame = now => {
     const p = Math.min(1, (now - t0) / D) * 1.2;
     g.clearRect(0, 0, W, H);
     for (let i = 0; i < n.length; i++) {
       const d = n[i] - p; if (d < 0) continue;
       const x = (i % cols) * B, y = ((i / cols) | 0) * B;
-      g.fillStyle = d < 0.05 ? 'rgba(217,69,43,.9)' : d < 0.1 ? 'rgba(255,170,130,.5)' : bg;
+      g.globalAlpha = d < 0.05 ? 0.9 : d < 0.1 ? 0.45 : 1;
+      g.fillStyle = d < 0.1 ? acc : bg;
       g.fillRect(x, y, B, B);
     }
+    g.globalAlpha = 1;
     if (p < 1.2) requestAnimationFrame(frame); else c.remove();
   };
   requestAnimationFrame(frame);

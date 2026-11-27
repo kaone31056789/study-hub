@@ -14,7 +14,7 @@ import Diagram from '../components/Diagram';
 import GradientText from '../rb/GradientText';
 import { Html, CodeBlock, MCQ, Walkthrough, Explorer, Reveal, MemeCard, EasyExplain, GaaliCoach } from '../components/ui';
 import { BeginnerProse, TermCards } from '../components/Beginner';
-import { TapReveal, AsciiFooter } from '../components/asciiui';
+import { TapReveal, AsciiFooter, CardArt, AsciiDeck } from '../components/asciiui';
 import { WIDGETS } from '../widgets';
 import { store, shuffle } from '../store';
 import { InkMist, Ascii } from '../components/canvasfx';
@@ -523,7 +523,7 @@ function Cards({ ctx }) {
 
   return (
     <div className="wrap narrow">
-      <div className="page-ascii"><ascii-art piece="spiral-galaxy" size="5" look="dots" /></div>
+      <div className="page-ascii"><AsciiDeck /></div>
       <p className="eyebrow">Quick revision</p>
       <h1 className="page-h">Flashcards</h1>
       <p className="lead">Answer in your head, then flip to check. Cards you know come back later (10 min → 1 → 3 → 7 → 15 days); the ones you miss come back soon. Keys: <kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> move.</p>
@@ -549,6 +549,7 @@ function Cards({ ctx }) {
               <div className="face front">
                 <span className="face-tag">Unit {c.u} · Question{known.has(c.q) && <span className="known"> · known</span>}</span>
                 <div className="face-q" dangerouslySetInnerHTML={{ __html: c.q }} />
+                <CardArt text={c.q} />
                 <span className="face-hint">Tap to flip · swipe for next</span>
               </div>
               <div className="face back"><span className="face-tag">Answer</span><div className="face-a" dangerouslySetInnerHTML={{ __html: flip ? c.a : '' }} /></div>

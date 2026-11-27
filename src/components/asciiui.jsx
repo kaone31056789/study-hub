@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 
 const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const dark = () => document.documentElement.dataset.theme !== 'light';
+// the active skin's accent / text colour as "r,g,b" for canvas fills
+const rgbVar = (k, fb) => { const m = /^#([0-9a-f]{6})$/i.exec(getComputedStyle(document.documentElement).getPropertyValue(k).trim()); if (!m) return fb; const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255].join(','); };
 
 /* Tap Reveal (VengeanceUI idea): content hidden under a shimmering pixel field; a tap dissolves it
    cell by cell outwards from the finger, then onReveal() fires. */
@@ -28,7 +30,7 @@ export function TapReveal({ onReveal, label = 'Recall the points first · tap to
         if (tap) {
           const d = Math.hypot(q.x - tap.x, q.y - tap.y) / Math.hypot(W, H) + q.k * 0.15, p = (now - tap.t) / 650;
           if (d < p) continue;
-          if (d - p < 0.04) { g.fillStyle = 'rgba(217,69,43,.9)'; g.fillRect(q.x, q.y, B - 1, B - 1); alive = true; continue; }
+          if (d - p < 0.04) { g.fillStyle = `rgba(${rgbVar('--accent', '217,69,43')},.9)`; g.fillRect(q.x, q.y, B - 1, B - 1); alive = true; continue; }
         }
         alive = true;
         const v = D ? 30 + q.k * 40 : 200 + q.k * 40;
@@ -99,7 +101,7 @@ export function AsciiFooter({ title = 'Study Hub', line }) {
       dpr = Math.min(2, devicePixelRatio || 1) * (r.width / W || 1); c.width = W * dpr; c.height = H * dpr;
     };
     const draw = now => {
-      const t = now / 1000, D = dark(), cols = Math.ceil(W / CW), rows = Math.ceil(H / CH);
+      const t = now / 1000, D = dark(), cols = Math.ceil(W / CW), rows = Math.ceil(H / CH), A = rgbVar('--accent', '217,69,43'), T = rgbVar('--text', D ? '233,226,212' : '27,25,23');
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
       g.font = '700 10px "JetBrains Mono",monospace'; g.textBaseline = 'top';
       for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
@@ -111,7 +113,7 @@ export function AsciiFooter({ title = 'Study Hub', line }) {
         const d = Math.hypot(x * CW - mx, y * CH - my), lit = Math.max(0, 1 - d / 140);
         I += lit * 0.6;
         const ch = RAMP[Math.max(1, Math.min(RAMP.length - 1, Math.round(I * (RAMP.length - 1))))];
-        g.fillStyle = lit > 0.05 ? `rgba(217,69,43,${0.4 + lit * 0.6})` : D ? `rgba(233,226,212,${0.12 + I * 0.4})` : `rgba(27,25,23,${0.12 + I * 0.4})`;
+        g.fillStyle = lit > 0.05 ? `rgba(${A},${0.4 + lit * 0.6})` : `rgba(${T},${0.12 + I * 0.4})`;
         g.fillText(ch, x * CW, y * CH);
       }
     };
@@ -133,23 +135,176 @@ export function AsciiFooter({ title = 'Study Hub', line }) {
   );
 }
 
-/* Small ASCII strip for subject cards: a drifting wave over an ASCII progress bar. */
-const WAVE = ' .·:-=+*%@';
-export function AsciiStrip({ pct = 0, label = '' }) {
+/* ASCII readout for subject cards: a braille waveform, one ⅛-block progress row per unit with a
+   sweeping highlight, and a blinking terminal line. Animates only while on screen. */
+const BR = '⠀⣀⣤⣶⣿', PART = ' ▏▎▍▌▋▊▉█';
+export function AsciiStrip({ units = [], done = 0, total = 0 }) {
   const el = useRef(null);
   const [t, setT] = useState(0);
   useEffect(() => {
     if (calm()) return;
     let id = 0;
-    const io = new IntersectionObserver(([e]) => { clearInterval(id); if (e.isIntersecting) id = setInterval(() => setT(n => n + 1), 120); });
+    const io = new IntersectionObserver(([e]) => { clearInterval(id); if (e.isIntersecting) id = setInterval(() => setT(n => n + 1), 110); });
     io.observe(el.current);
     return () => { clearInterval(id); io.disconnect(); };
   }, []);
-  const N = 46, fill = Math.round(pct * N);
-  const wave = Array.from({ length: N }, (_, i) => WAVE[Math.max(0, Math.min(9, Math.round((Math.sin(i * 0.35 - t * 0.3) * 0.5 + 0.5) * (Math.sin(i * 0.11 + t * 0.07) * 0.3 + 0.7) * 9)))]).join('');
+  const N = 22, sweep = t % (N + 12);
+  const wave = Array.from({ length: 34 }, (_, i) => BR[Math.round((Math.sin(i * 0.42 - t * 0.35) * 0.5 + 0.5) * (Math.sin(i * 0.13 + t * 0.05) * 0.35 + 0.65) * 4)]).join('');
+  const bar = p => { const f = p * N, full = Math.floor(f), rem = Math.round((f - full) * 8); return '█'.repeat(full) + (full < N ? PART[rem] : '') + '·'.repeat(Math.max(0, N - full - 1)); };
+  const pct = total ? Math.round(done / total * 100) : 0;
   return (
-    <pre ref={el} className="ascii-strip" aria-hidden="true">
-      <span className="as-w">{wave}</span>{'\n'}<span className="as-b">{'█'.repeat(fill)}</span><span className="as-e">{'░'.repeat(N - fill)}</span>{'\n'}<span className="as-l">{label}</span>
-    </pre>
+    <div ref={el} className="ascii-strip" aria-label={`${done} of ${total} topics learned`}>
+      <div className="as-top" aria-hidden="true"><span className="as-w">{wave}</span><span className="as-p">{String(pct).padStart(3, ' ')}%</span></div>
+      {units.map(u => (
+        <div key={u.u} className="as-row" aria-hidden="true">
+          <b>U{u.u}</b>
+          <span className="as-bar">{bar(u.total ? u.done / u.total : 0).split('').map((c, i) => <i key={i} className={Math.abs(i - sweep + 6) < 2 ? 'hi' : ''}>{c}</i>)}</span>
+          <span className="as-n">{String(u.done).padStart(2, '0')}/{String(u.total).padStart(2, '0')}</span>
+        </div>
+      ))}
+      <div className="as-l" aria-hidden="true">&gt; {done === total && total ? 'all topics learned. revise & rest' : `${total - done} topics to go`}<span className="as-cur">▌</span></div>
+    </div>
+  );
+}
+
+/* ASCII sketch for a flashcard, picked from the question's keywords (first match wins). */
+const ART = [
+  [/wavelet|haar|v_?j|v<sub>j|scaling fun|multiresolution|subband|sub-band/i,
+`┌──┬──┬─────┐
+│LL│LH│     │
+├──┼──┤ LH  │
+│HL│HH│     │
+├──┴──┼─────┤
+│ HL  │ HH  │
+└─────┴─────┘`],
+  [/histogram|equali[sz]|cdf/i,
+`      ▃▆█▆▃
+   ▂▅███████▅▂   ▁▃▂
+ ▁▃█████████████▅███▃▁
+ └─────────────────────▶ r`],
+  [/split|merge|quadtree/i,
+`┌─────┬─────┐
+│     ├──┬──┤
+│     ├──┼──┤
+├─────┼──┴──┤
+│     │     │
+└─────┴─────┘`],
+  [/hough/i,
+`  y│    ╱  ρ = x cosθ + y sinθ
+   │  ╱
+   │╱ θ
+───┼───────▶ x`],
+  [/segment|threshold|otsu|region/i,
+`  ▂▅█▅▂     │     ▂▄█▄▂
+ ▅█████▅▂   │   ▂▅█████▅
+ ───────────T───────────▶`],
+  [/morpholog|dilat|erosi|opening|closing|structuring|hit.or.miss|boundar/i,
+` . . . . .      . # # # .
+ . # # # .  ⊕   # # # # #
+ . # # # .  B   # # # # #
+ . . . . .      . # # # .`],
+  [/noise|gaussian|rayleigh|impulse|salt|pepper|erlang/i,
+` ·˙ :▪ ·.˙ ▫ :·.˙▪ ·
+ ˙:· ·▫ ˙.▪: ·˙ ▫.: ˙
+ ▪·.˙ : ·▫˙ ▪.: ·˙ ·▪
+      f + η  =  g`],
+  [/restor|wiener|inverse filter|degrad|blur|deconv/i,
+` f ─▶[ H ]─▶( + )─▶ g
+              ▲
+              η`],
+  [/edge|gradient|sobel|prewitt|roberts|laplac|derivative|sharpen|canny/i,
+` ▁▁▁▁▁▁▁╱▔▔▔▔▔▔▔   f
+ ───────╱╲───────   f′
+ ───────╲╱───────   f″`],
+  [/filter|mask|kernel|convol|averag|median|smooth|low.pass|high.pass/i,
+`┌───┬───┬───┐
+│ 1 │ 1 │ 1 │
+├───┼───┼───┤
+│ 1 │ 1 │ 1 │ × 1/9
+├───┼───┼───┤
+│ 1 │ 1 │ 1 │
+└───┴───┴───┘`],
+  [/dft|fft|fourier|frequency|spectrum/i,
+` ∿∿∿∿∿∿  ─DFT─▶  │   ║   │
+ f(x,y)          ▁▁▁█▁▁▁
+                  F(u,v)`],
+  [/dct|walsh|hadamard|cosine|basis|kl |karhunen|hotelling|transform/i,
+` ▓▓▓▓ ▓▓░░ ▓░▓░ ▓░░▓
+ ▓▓▓▓ ▓▓░░ ▓░▓░ ░▓▓░
+ ▓▓▓▓ ░░▓▓ ░▓░▓ ░▓▓░
+ ▓▓▓▓ ░░▓▓ ░▓░▓ ▓░░▓`],
+  [/colou?r|rgb|hsi|cmy|hue|saturation/i,
+`      R
+     ╱ ╲
+    ╱ ● ╲
+   ╱  I  ╲
+  G───────B`],
+  [/compress|huffman|entropy|redundan|lzw|run.?length|jpeg|arithmetic cod|bit.?plane|coding/i,
+`       (1.0)
+       ╱   ╲
+    (.6)   a .4
+    ╱  ╲
+  b .3  c .3`],
+  [/pixel|neighbo|adjacen|connect|m-path|path|distance|d4|d8|d<sub>[48e]/i,
+`    q        q q q
+  q p q      q p q
+    q        q q q
+  N4(p)      N8(p)`],
+  [/sampl|quantiz|resolution|gray.?level|bits per/i,
+`        ┌──┐
+     ┌──┘  └──┐
+  ┌──┘        └──┐
+──┘              └──`],
+  [/thread|concurren|synchroni|runnable|executor|deadlock|race/i,
+` T1 ━━━━━╸   ━━━━━━━▶
+ T2 ━━╸  ━━━━━━━━━━━▶
+        └─ lock ─┘`],
+  [/jdbc|sql|database|resultset|statement|connection|jpa|hibernate|entity/i,
+`  ╭────────╮
+  │╲______╱│
+  │  SQL   │
+  │  ▤▤▤▤  │
+  ╰────────╯`],
+  [/spring|rest|http|controller|servlet|jsp|endpoint|request|response|api/i,
+` client ──GET /api──▶ server
+        ◀──200 JSON──`],
+  [/collection|arraylist|hashmap|hashset|linkedlist|list|map|set|queue|stack|iterator/i,
+` [k1]──▶[v1]
+ [k2]──▶[v2]
+ [k3]──▶[v3]`],
+  [/exception|try|catch|throw|finally/i,
+` try ──✗──▶ catch
+  └────────▶ finally`],
+  [/class|object|inherit|interface|polymorph|abstract|encapsul|oop|constructor/i,
+` ┌─────────┐
+ │ Animal  │
+ └────△────┘
+   ┌──┴──┐
+  Dog   Cat`],
+];
+const ENSO = `   .-~~~-.
+  /       \\
+ |    ?    |
+  \\       /
+   '-...-'`;
+export const cardArt = text => { const t = text.replace(/<sub>|<\/sub>/g, ''); return (ART.find(([re]) => re.test(t) || re.test(text)) || [0, ENSO])[1]; };
+export function CardArt({ text }) {
+  return <pre className="card-art" aria-hidden="true">{cardArt(text || '')}</pre>;
+}
+
+/* Header art for the Cards page: a small deck whose top card keeps flipping ? ⇄ ! */
+export function AsciiDeck() {
+  const [t, setT] = useState(0);
+  useEffect(() => { if (calm()) return; const id = setInterval(() => setT(n => n + 1), 900); return () => clearInterval(id); }, []);
+  const m = ['?', '?', '…', '!'][t % 4];
+  return (
+    <pre className="ascii-deck" aria-hidden="true">{
+` ┌────────┐
+ │┌────────┐
+ ││┌────────┐
+ └││        │
+  └│   ${m}    │
+   │        │
+   └────────┘`}</pre>
   );
 }
