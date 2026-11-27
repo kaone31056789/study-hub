@@ -20,34 +20,39 @@ export function TapReveal({ onReveal, label = 'Recall the points first · tap to
       cells = []; for (let y = 0; y < H; y += B) for (let x = 0; x < W; x += B) cells.push({ x, y, s: Math.random() * 6.28, k: Math.random() });
     };
     size();
-    const draw = now => {
-      raf = requestAnimationFrame(draw);
-      const D = dark(), t = now / 1000;
+    // idle field is drawn once (the shimmer is a CSS sheen on top); frames run only while dissolving
+    const paint = (now, acc) => {
+      const D = dark();
       g.clearRect(0, 0, W, H);
       let alive = false;
       for (const q of cells) {
-        let a = 0.55 + 0.35 * Math.sin(t * 3 + q.s);
         if (tap) {
           const d = Math.hypot(q.x - tap.x, q.y - tap.y) / Math.hypot(W, H) + q.k * 0.15, p = (now - tap.t) / 650;
           if (d < p) continue;
-          if (d - p < 0.04) { g.fillStyle = `rgba(${rgbVar('--accent', '217,69,43')},.9)`; g.fillRect(q.x, q.y, B - 1, B - 1); alive = true; continue; }
+          if (d - p < 0.04) { g.fillStyle = acc; g.fillRect(q.x, q.y, B - 1, B - 1); alive = true; continue; }
         }
         alive = true;
         const v = D ? 30 + q.k * 40 : 200 + q.k * 40;
-        g.fillStyle = `rgba(${v},${v - 3},${v - 6},${a})`;
+        g.fillStyle = `rgba(${v},${v - 3},${v - 6},${0.55 + 0.35 * Math.sin(q.s)})`;
         g.fillRect(q.x, q.y, B - 1, B - 1);
       }
-      if (tap && !alive) { cancelAnimationFrame(raf); onReveal(); }
+      return alive;
     };
-    raf = requestAnimationFrame(draw);
+    paint(0);
+    const mo = new MutationObserver(() => { if (!tap) paint(0); });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     const down = e => {
       if (tap) return;
       const r = c.getBoundingClientRect(), z = r.width / W || 1;
       tap = { x: (e.clientX - r.left) / z, y: (e.clientY - r.top) / z, t: performance.now() };
-      if (calm()) onReveal();
+      if (calm()) return onReveal();
+      c.parentNode.classList.add('going');
+      const acc = `rgba(${rgbVar('--accent', '217,69,43')},.9)`;
+      const step = now => { if (paint(now, acc)) raf = requestAnimationFrame(step); else onReveal(); };
+      raf = requestAnimationFrame(step);
     };
     c.addEventListener('pointerdown', down);
-    return () => { cancelAnimationFrame(raf); c.removeEventListener('pointerdown', down); };
+    return () => { cancelAnimationFrame(raf); mo.disconnect(); c.removeEventListener('pointerdown', down); };
   }, []);
   return (
     <div className="tap-reveal">

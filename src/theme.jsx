@@ -25,8 +25,13 @@ export function themeReveal(change, e, kind = 'kohaku') {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!document.startViewTransition || reduce) return change();
   const r = document.documentElement, cls = ['vt-on', 'vt-' + kind];
+  if (e && !e.clientX && !e.clientY) e = null;   // keyboard-triggered clicks report 0,0
   r.style.setProperty('--vt-x', (e?.clientX ?? innerWidth - 60) + 'px');
   r.style.setProperty('--vt-y', (e?.clientY ?? 30) + 'px');
+  if (kind === 'ink') for (let i = 1; i <= 5; i++) {   // where the ink drops land: first at the tap, the rest scattered
+    r.style.setProperty(`--d${i}x`, (i === 1 ? (e?.clientX ?? innerWidth / 2) : innerWidth * (0.08 + Math.random() * 0.84)) + 'px');
+    r.style.setProperty(`--d${i}y`, (i === 1 ? (e?.clientY ?? innerHeight / 2) : innerHeight * (0.1 + Math.random() * 0.8)) + 'px');
+  }
   r.classList.add(...cls);
   document.startViewTransition(() => flushSync(change)).finished.finally(() => r.classList.remove(...cls));
 }

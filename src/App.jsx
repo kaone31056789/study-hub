@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { MotionConfig } from 'motion/react';
 import ClickSpark from './rb/ClickSpark';
 import Home from './pages/Home';
-import SubjectApp from './pages/SubjectApp';
+// subject pages load as their own chunk (Home opens faster) and are prefetched once the browser is idle
+const loadSubject = () => import('./pages/SubjectApp');
+const SubjectApp = lazy(loadSubject);
+(window.requestIdleCallback || (f => setTimeout(f, 1500)))(loadSubject);
 import { SUBJECTS } from './subjects';
 import UpdatePrompt from './components/UpdatePrompt';
 import { useTheme } from './theme';
@@ -52,7 +55,7 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
     <ClickSpark sparkColor={theme === 'light' ? ['#ff7a3d', '#ffb38a'] : ['#e9e2d4', '#d9452b']} sparkSize={9} sparkRadius={20} sparkCount={7} duration={420}>
-      {meta ? <SubjectApp key={meta.id} meta={meta} view={view} arg={arg} /> : <Home />}
+      {meta ? <Suspense fallback={null}><SubjectApp key={meta.id} meta={meta} view={view} arg={arg} /></Suspense> : <Home />}
     </ClickSpark>
     <UpdatePrompt />
     </MotionConfig>
