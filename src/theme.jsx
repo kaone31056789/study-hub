@@ -6,6 +6,7 @@ import { Sun03Icon, Moon02Icon } from '@hugeicons/core-free-icons';
 import { store } from './store';
 import { inkFlood } from './inkflood';
 import { petalStorm } from './petalstorm';
+import { matchaWhisk, dyeDrip, amberResin } from './skinfx';
 import { fxPalette } from './components/sakuga';
 
 // Theme = saved choice, else the notebook light theme. Applied as <html data-theme="...">.
@@ -22,7 +23,8 @@ apply();
 export const setTheme = t => { current = t; store.set('theme', t); apply(); subs.forEach(f => f()); };
 // Theme switch transitions (View Transitions; instant where unsupported or with reduced motion).
 // kind picks the effect: 'light' sunrise burst / 'dark' page collapses into the button,
-// and each skin its own: ink flood (canvas, inkflood.js), matcha swirl, sakura petal storm (petalstorm.js), aizome dye rising, kohaku trip.
+// and each skin its own canvas scene: ink flood (inkflood.js), sakura petal storm (petalstorm.js),
+// matcha being whisked, aizome dye drip, kohaku amber resin (skinfx.js).
 export function themeReveal(change, e, kind = 'kohaku') {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!document.startViewTransition || reduce) return change();
@@ -30,6 +32,8 @@ export function themeReveal(change, e, kind = 'kohaku') {
   if (e && !e.clientX && !e.clientY) e = null;   // keyboard-triggered clicks report 0,0
   r.style.setProperty('--vt-x', (e?.clientX ?? innerWidth - 60) + 'px');
   r.style.setProperty('--vt-y', (e?.clientY ?? 30) + 'px');
+  const canvasFx = { matcha: matchaWhisk, aizome: dyeDrip, kohaku: amberResin }[kind];
+  if (canvasFx) return canvasFx(() => flushSync(change), e);
   if (kind === 'sakura') return petalStorm(() => flushSync(change), e, { light: current === 'light' });
   if (kind === 'ink') return inkFlood(() => flushSync(change), e, { accent: '#d9452b', light: current === 'light' });
   r.classList.add(...cls);
