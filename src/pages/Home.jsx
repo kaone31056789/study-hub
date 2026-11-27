@@ -208,7 +208,7 @@ export default function Home() {
       </main>
       <AsciiFooter title="Study Hub" line="Ink, ASCII and one topic at a time." />
       <Nudge href={nx ? nx.href : '#/' + SUBJECTS[0].id} />
-      <footer className="foot"><span>Study Hub · your progress is saved in this browser</span><span>UI components: React Bits</span></footer>
+      <footer className="foot"><span>Study Hub · your progress is saved in this browser</span><span className="foot-links"><a href="#/privacy">Privacy</a><a href="#/terms">Terms</a><span>UI: React Bits</span></span></footer>
     </>
   );
 }

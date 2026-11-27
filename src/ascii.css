@@ -724,3 +724,21 @@ header.top .tabs .tab-more-btn:hover,header.top .tabs .tab-more-btn.on{color:var
 :root .pill.hot,:root[data-theme="light"] .pill.hot{background:var(--accent);color:var(--accent-ink,#fff);border-color:transparent;animation:pill-pulse 2.2s ease-in-out infinite}
 @keyframes pill-pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in oklab,var(--accent) 45%,transparent)}50%{box-shadow:0 0 0 6px transparent}}
 @media (prefers-reduced-motion:reduce){:root .pill.hot{animation:none}}
+
+/* ── privacy / terms ── */
+.legal{padding-bottom:40px}
+.legal-art{float:right;width:min(240px,40%);margin:0 0 12px 20px;border:1px solid var(--line);border-radius:14px;padding:6px;background:#14110e}
+.legal-art ascii-art{display:block;max-width:100%}
+.legal-toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin:22px 0 10px;clear:both;padding:12px;border:1px dashed var(--line);border-radius:12px}
+.legal-toc a{display:flex;gap:10px;align-items:baseline;padding:6px 8px;border-radius:8px;color:var(--text);text-decoration:none;font-size:14px}
+.legal-toc a:hover{background:var(--surface-2)}
+.legal-toc i,.legal-sec h2 i{font:700 11px var(--mono);font-style:normal;color:var(--accent);letter-spacing:.1em}
+.legal-sec{margin-top:30px;scroll-margin-top:90px}
+.legal-sec h2{display:flex;gap:12px;align-items:baseline;font-size:22px;margin:0 0 8px}
+.legal-sec p,.legal-sec li{color:var(--text-2);line-height:1.7;font-size:15.5px}
+.legal-sec ul{padding-left:20px}
+.legal-sec a{color:var(--accent)}
+.legal-divider{display:flex;justify-content:center;margin:36px 0 8px;opacity:.8}
+.legal-date{text-align:center}
+.foot-links{display:inline-flex;gap:14px}.foot-links a{color:inherit}
+@media (max-width:640px){.legal-art{float:none;width:100%;margin:0 0 16px}}
